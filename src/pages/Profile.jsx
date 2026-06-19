@@ -61,6 +61,7 @@ export default function Profile() {
   async function handleRequestBadge() {
     if (!selectedType) return
     if (!user?.uid) { setBadgeError('Not signed in — please refresh and try again.'); return }
+    if (!file) { setBadgeError('Please upload documentation for your credential.'); return }
     setSubmitting(true)
     setBadgeError('')
     try {
@@ -242,7 +243,7 @@ export default function Profile() {
 
             {badgeError && <p className="text-sm text-red-600">{badgeError}</p>}
 
-            <Button fullWidth onClick={handleRequestBadge} loading={submitting} disabled={!selectedType}>
+            <Button fullWidth onClick={handleRequestBadge} loading={submitting} disabled={!selectedType || !file}>
               Submit for Verification
             </Button>
           </div>
