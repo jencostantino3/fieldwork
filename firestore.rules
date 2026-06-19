@@ -1,0 +1,70 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isEmployer() {
+      return isSignedIn() && getUserData().role == 'employer';
+    }
+
+    // Users
+    match /users/{uid} {
+      allow read: if isSignedIn();
+      allow create, update: if isOwner(uid);
+    }
+
+    // Jobs — public read, employer write
+    match /jobs/{jobId} {
+      allow read: if true;
+      allow create: if isEmployer();
+      allow update, delete: if isEmployer()
+        && resource.data.employerId == request.auth.uid;
+    }
+
+    // Companies — public read, owner write
+    match /companies/{companyId} {
+      allow read: if true;
+      allow create: if isEmployer();
+      allow update: if isEmployer()
+        && resource.data.ownerId == request.auth.uid;
+    }
+
+    // Applications — worker creates, employer reads their job's apps
+    match /applications/{appId} {
+      allow create: if isSignedIn()
+        && request.resource.data.userId == request.auth.uid;
+      allow read, update: if isSignedIn()
+        && (
+          resource.data.userId == request.auth.uid
+          || isEmployer()
+        );
+    }
+
+    // Badges — user manages own, admin verifies
+    match /badges/{badgeId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn()
+        && request.resource.data.userId == request.auth.uid;
+      allow update: if isSignedIn()
+        && resource.data.userId == request.auth.uid;
+    }
+
+    // Boosts — created by Cloud Function (service account), read by employer
+    match /boosts/{boostId} {
+      allow read: if isEmployer()
+        && resource.data.employerId == request.auth.uid;
+      allow write: if false; // Cloud Function only
+    }
+  }
+}
