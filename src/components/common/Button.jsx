@@ -7,6 +7,7 @@ const variants = {
   urgent:    'bg-urgent text-white hover:bg-urgent-700 focus:ring-urgent',
   ghost:     'bg-transparent text-brand-navy hover:bg-gray-100 focus:ring-brand-navy',
   danger:    'bg-red-600 text-white hover:bg-red-700 focus:ring-red-600',
+  white:     'bg-white text-field hover:bg-field-50 focus:ring-field',
 }
 
 const sizes = {

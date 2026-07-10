@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ChevronDown, ChevronUp, CheckCircle, XCircle, Clock } from 'lucide-react'
+import { ChevronDown, ChevronUp, CheckCircle, XCircle, Clock, Sparkles } from 'lucide-react'
 import { clsx } from 'clsx'
 import { timeAgo } from '@/utils/helpers'
 import { updateApplicationStatus } from '@/services/applicationService'
@@ -45,6 +45,11 @@ export default function ApplicantCard({ application, applicantProfile, onStatusC
         </div>
 
         <div className="flex items-center gap-3 shrink-0">
+          {application.priority && (
+            <span className="inline-flex items-center gap-1 text-xs font-semibold text-field-700 bg-field-50 border border-field-200 px-2 py-0.5 rounded-full">
+              <Sparkles className="w-3 h-3" /> Priority
+            </span>
+          )}
           <span className={clsx('text-xs font-medium px-2 py-1 rounded-full capitalize', STATUS_STYLES[application.status])}>
             {application.status}
           </span>

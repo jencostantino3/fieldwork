@@ -6,12 +6,13 @@ import { db } from '@/firebase'
 
 const APPLICATIONS = 'applications'
 
-export async function submitApplication({ jobId, userId, answers }) {
+export async function submitApplication({ jobId, userId, answers, priority = false }) {
   const ref = await addDoc(collection(db, APPLICATIONS), {
     jobId,
     userId,
     answers,
     status:    'pending',
+    priority,
     notes:     '',
     appliedAt: serverTimestamp(),
     updatedAt: serverTimestamp(),

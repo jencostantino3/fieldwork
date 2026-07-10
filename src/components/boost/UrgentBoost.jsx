@@ -1,17 +1,23 @@
-import { Zap, Clock, Users } from 'lucide-react'
+import { useState } from 'react'
+import { Zap, Clock, Users, AlertCircle } from 'lucide-react'
 import Button from '@/components/common/Button'
-import { startBoostCheckout } from '@/services/paymentService'
+import { startBoostCheckout } from '@/services/billingService'
 import { BOOST_DURATION_HRS, BOOST_RADIUS_MILES } from '@/utils/constants'
 
 export default function UrgentBoost({ job }) {
   const isAlreadyBoosted = job.urgent
+  const [loading, setLoading] = useState(false)
+  const [error, setError]     = useState('')
 
   async function handleBoost() {
-    await startBoostCheckout({
-      jobId:     job.id,
-      jobTitle:  job.title,
-      returnUrl: `${window.location.origin}/dashboard?boost_success=true`,
-    })
+    setLoading(true)
+    setError('')
+    try {
+      await startBoostCheckout(job.id, job.title)
+    } catch (e) {
+      setError(e.message || 'Could not start checkout. Please try again.')
+      setLoading(false)
+    }
   }
 
   if (isAlreadyBoosted) {
@@ -54,8 +60,14 @@ export default function UrgentBoost({ job }) {
         </div>
       </div>
 
-      <Button variant="urgent" fullWidth onClick={handleBoost}>
-        <Zap className="w-4 h-4" /> Boost This Job — $9.99
+      {error && (
+        <div className="flex items-center gap-2 text-red-600 text-sm bg-red-50 border border-red-200 rounded-lg px-3 py-2 mb-3">
+          <AlertCircle className="w-4 h-4 shrink-0" /> {error}
+        </div>
+      )}
+
+      <Button variant="urgent" fullWidth onClick={handleBoost} loading={loading}>
+        <Zap className="w-4 h-4" /> Boost This Job — $20
       </Button>
     </div>
   )

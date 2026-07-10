@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { ChevronRight, ChevronLeft, CheckCircle } from 'lucide-react'
+import { ChevronRight, ChevronLeft, CheckCircle, Sparkles } from 'lucide-react'
 import Button from '@/components/common/Button'
 import { submitApplication } from '@/services/applicationService'
 import { useAuth } from '@/contexts/AuthContext'
 
 export default function ApplicationForm({ job, onSuccess }) {
-  const { user, profile } = useAuth()
+  const { user, profile, isWorkerPro } = useAuth()
   const [step, setStep]     = useState(0)
   const [done, setDone]     = useState(false)
   const [error, setError]   = useState('')
@@ -27,6 +27,7 @@ export default function ApplicationForm({ job, onSuccess }) {
         jobId:    job.id,
         userId:   user.uid,
         answers,
+        priority: isWorkerPro,
       })
       setDone(true)
       onSuccess?.()

@@ -1,19 +1,28 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useForm, useFieldArray } from 'react-hook-form'
-import { Plus, Trash2, GripVertical } from 'lucide-react'
+import { Plus, Trash2, Sparkles } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
-import { createJob } from '@/services/jobService'
+import { createJob, getEmployerJobs } from '@/services/jobService'
 import { getOwnerCompany } from '@/services/companyService'
 import { getCoordinatesFromZip } from '@/utils/helpers'
 import Button from '@/components/common/Button'
 import { SPORTS, JOB_TYPES, JOB_CATEGORIES, QUESTION_TYPES } from '@/utils/constants'
 
 export default function PostJob() {
-  const { user, profile }   = useAuth()
-  const navigate            = useNavigate()
+  const { user, profile, isEmployerPro } = useAuth()
+  const navigate = useNavigate()
   const [error, setError]   = useState('')
   const [submitting, setSub]= useState(false)
+  const [atLimit, setAtLimit] = useState(false)
+
+  useEffect(() => {
+    if (!user || isEmployerPro) return
+    getEmployerJobs(user.uid).then((jobs) => {
+      const activeCount = jobs.filter((j) => j.status === 'active').length
+      if (activeCount >= 1) setAtLimit(true)
+    }).catch(() => {})
+  }, [user, isEmployerPro])
 
   const { register, control, handleSubmit, watch, formState: { errors } } = useForm({
     defaultValues: {
@@ -61,6 +70,24 @@ export default function PostJob() {
       setError(e.message || 'Failed to post job.')
       setSub(false)
     }
+  }
+
+  if (atLimit) {
+    return (
+      <div className="max-w-md mx-auto px-4 py-32 text-center space-y-4">
+        <div className="inline-flex w-14 h-14 rounded-full bg-brand-50 items-center justify-center">
+          <Sparkles className="w-7 h-7 text-brand-navy" />
+        </div>
+        <h1 className="text-xl font-bold text-gray-900">Free plan limit reached</h1>
+        <p className="text-gray-500 text-sm">
+          You already have an active job post. Upgrade to Employer Pro to post unlimited jobs.
+        </p>
+        <div className="flex gap-3 justify-center">
+          <Button variant="secondary" onClick={() => navigate('/dashboard')}>Back to Dashboard</Button>
+          <Button onClick={() => navigate('/pricing')}>Upgrade to Pro</Button>
+        </div>
+      </div>
+    )
   }
 
   return (

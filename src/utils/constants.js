@@ -60,8 +60,30 @@ export const QUESTION_TYPES = [
   { value: 'date',     label: 'Date' },
 ]
 
-export const BOOST_PRICE_ID     = import.meta.env.VITE_STRIPE_PRICE_BOOST_SINGLE
-export const BOOST_BUNDLE_PRICE = import.meta.env.VITE_STRIPE_PRICE_BOOST_BUNDLE
+export const PLANS = {
+  FREE:         'free',
+  EMPLOYER_PRO: 'employer_pro',
+  WORKER_PRO:   'worker_pro',
+}
+
+export const PLAN_LIMITS = {
+  free:         { maxActiveJobs: 1 },
+  employer_pro: { maxActiveJobs: Infinity },
+  worker_pro:   { maxActiveJobs: 0 },
+}
+
+export const STRIPE_PRICES = {
+  EMP_PRO_MONTHLY:    import.meta.env.VITE_STRIPE_PRICE_EMP_PRO_MONTHLY,
+  EMP_PRO_YEARLY:     import.meta.env.VITE_STRIPE_PRICE_EMP_PRO_YEARLY,
+  WORKER_PRO_MONTHLY: import.meta.env.VITE_STRIPE_PRICE_WORKER_PRO_MONTHLY,
+  BOOST:              import.meta.env.VITE_STRIPE_PRICE_BOOST,
+}
+
+export const STRIPE_LINKS = {
+  EMP_PRO_MONTHLY:    import.meta.env.VITE_STRIPE_LINK_EMP_PRO_MONTHLY,
+  EMP_PRO_YEARLY:     import.meta.env.VITE_STRIPE_LINK_EMP_PRO_YEARLY,
+  WORKER_PRO_MONTHLY: import.meta.env.VITE_STRIPE_LINK_WORKER_PRO_MONTHLY,
+}
 
 export const BOOST_RADIUS_MILES = 25
 export const BOOST_DURATION_HRS = 48

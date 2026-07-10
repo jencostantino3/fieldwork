@@ -1,19 +1,28 @@
 import { useEffect, useState } from 'react'
-import { ShieldCheck, Plus, CheckCircle, AlertCircle } from 'lucide-react'
+import { ShieldCheck, Plus, CheckCircle, AlertCircle, Sparkles, CreditCard } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import { getUserBadges, requestBadge } from '@/services/badgeService'
 import { getUserApplications } from '@/services/applicationService'
+import { openBillingPortal } from '@/services/billingService'
 import BadgeDisplay from '@/components/badges/BadgeDisplay'
+import PlanBadge from '@/components/billing/PlanBadge'
 import Button from '@/components/common/Button'
 import Modal from '@/components/common/Modal'
 import LoadingSpinner from '@/components/common/LoadingSpinner'
-import { BADGE_TYPES, APPLICATION_STATUS } from '@/utils/constants'
+import { BADGE_TYPES, APPLICATION_STATUS, PLANS } from '@/utils/constants'
 import { timeAgo } from '@/utils/helpers'
 
 export default function Profile() {
-  const { user, profile, createProfile } = useAuth()
+  const { user, profile, isPro, createProfile } = useAuth()
   const navigate = useNavigate()
+  const [portalLoading, setPortalLoading] = useState(false)
+
+  async function handlePortal() {
+    setPortalLoading(true)
+    try { await openBillingPortal() } catch (e) { alert(e.message) }
+    setPortalLoading(false)
+  }
   const [setupName, setSetupName] = useState('')
   const [setupRole, setSetupRole] = useState('worker')
   const [setupSaving, setSetupSaving] = useState(false)
@@ -133,15 +142,51 @@ export default function Profile() {
           <div className="w-16 h-16 rounded-full bg-brand-50 border-2 border-brand-200 flex items-center justify-center text-2xl font-bold text-brand-navy">
             {(profile?.name || user?.email || '?').charAt(0).toUpperCase()}
           </div>
-          <div>
-            <h1 className="text-xl font-bold text-gray-900">{profile?.name}</h1>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-xl font-bold text-gray-900">{profile?.name}</h1>
+              {isPro && <Sparkles className="w-4 h-4 text-field" />}
+            </div>
             <p className="text-gray-500 text-sm">{user?.email}</p>
-            <span className="inline-block text-xs font-semibold text-brand-navy bg-brand-50 border border-brand-200 px-2.5 py-0.5 rounded-full mt-1 capitalize">
-              {profile?.role}
-            </span>
+            <div className="flex items-center gap-2 mt-1 flex-wrap">
+              <span className="text-xs font-semibold text-brand-navy bg-brand-50 border border-brand-200 px-2.5 py-0.5 rounded-full capitalize">
+                {profile?.role}
+              </span>
+              <PlanBadge plan={profile?.plan ?? PLANS.FREE} />
+            </div>
           </div>
         </div>
       </div>
+
+      {/* Billing */}
+      {isPro ? (
+        <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-card flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <CreditCard className="w-5 h-5 text-brand-navy" />
+            <div>
+              <p className="text-sm font-semibold text-gray-900">Subscription active</p>
+              <p className="text-xs text-gray-500">
+                {profile?.subscriptionStatus === 'past_due'
+                  ? 'Payment past due — update your payment method'
+                  : 'Renews automatically. Cancel anytime.'}
+              </p>
+            </div>
+          </div>
+          <Button size="sm" variant="secondary" loading={portalLoading} onClick={handlePortal}>
+            Manage
+          </Button>
+        </div>
+      ) : (
+        <div className="bg-brand-50 border border-brand-200 rounded-2xl p-5 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <Sparkles className="w-5 h-5 text-brand-navy shrink-0" />
+            <p className="text-sm text-brand-800">
+              <strong>Upgrade to Pro</strong> — unlock all features for your role.
+            </p>
+          </div>
+          <Button size="sm" onClick={() => navigate('/pricing')}>View Plans</Button>
+        </div>
+      )}
 
       {/* Badges */}
       <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-card">

@@ -14,6 +14,8 @@ import Register         from '@/pages/Register'
 import Profile          from '@/pages/Profile'
 import EmployerDashboard from '@/pages/EmployerDashboard'
 import PostJob          from '@/pages/PostJob'
+import Pricing          from '@/pages/Pricing'
+import BillingSuccess   from '@/pages/BillingSuccess'
 
 function Layout({ children }) {
   return (
@@ -41,9 +43,13 @@ export default function App() {
           <Route path="/companies" element={<Layout><Companies /></Layout>} />
           <Route path="/companies/:id" element={<Layout><CompanyProfile /></Layout>} />
 
+          {/* Public routes with nav (continued) */}
+          <Route path="/pricing" element={<Layout><Pricing /></Layout>} />
+
           {/* Auth routes (no nav) */}
           <Route path="/login" element={<AuthLayout><Login /></AuthLayout>} />
           <Route path="/register" element={<AuthLayout><Register /></AuthLayout>} />
+          <Route path="/billing-success" element={<BillingSuccess />} />
 
           {/* Protected — any signed-in user */}
           <Route

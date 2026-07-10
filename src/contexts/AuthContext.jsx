@@ -120,8 +120,11 @@ export function AuthProvider({ children }) {
     }
   }
 
-  const isEmployer = profile?.role === 'employer'
-  const isWorker   = profile?.role === 'worker'
+  const isEmployer    = profile?.role === 'employer'
+  const isWorker      = profile?.role === 'worker'
+  const isEmployerPro = profile?.plan === 'employer_pro'
+  const isWorkerPro   = profile?.plan === 'worker_pro'
+  const isPro         = isEmployerPro || isWorkerPro
 
   return (
     <AuthContext.Provider
@@ -131,6 +134,9 @@ export function AuthProvider({ children }) {
         loading,
         isEmployer,
         isWorker,
+        isPro,
+        isEmployerPro,
+        isWorkerPro,
         register,
         login,
         loginWithGoogle,

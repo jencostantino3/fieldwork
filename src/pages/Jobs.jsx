@@ -1,14 +1,18 @@
 import { useEffect, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams, Link } from 'react-router-dom'
 import JobCard from '@/components/jobs/JobCard'
 import JobFilters from '@/components/jobs/JobFilters'
 import LoadingSpinner from '@/components/common/LoadingSpinner'
 import { fetchJobs } from '@/services/jobService'
 import { getCoordinatesFromZip } from '@/utils/helpers'
-import { Briefcase } from 'lucide-react'
+import { useAuth } from '@/contexts/AuthContext'
+import { Briefcase, Sparkles } from 'lucide-react'
+
+const EARLY_ACCESS_HOURS = 24
 
 export default function Jobs() {
   const [searchParams] = useSearchParams()
+  const { isWorker, isWorkerPro } = useAuth()
   const [jobs, setJobs]       = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -33,18 +37,29 @@ export default function Jobs() {
   useEffect(() => {
     setLoading(true)
     fetchJobs({
-      sport:       filters.sport  || undefined,
-      jobType:     filters.jobType || undefined,
+      sport:       filters.sport    || undefined,
+      jobType:     filters.jobType  || undefined,
       category:    filters.category || undefined,
-      coords:      filters.coords || undefined,
-      radiusMiles: filters.coords ? filters.radius : undefined,
+      coords:      filters.coords   || undefined,
+      radiusMiles: filters.coords   ? filters.radius : undefined,
       onlyUrgent:  filters.onlyUrgent,
     })
+      .then((allJobs) => {
+        // Free workers miss the first 24 hours of new listings
+        if (isWorker && !isWorkerPro) {
+          const cutoff = new Date(Date.now() - EARLY_ACCESS_HOURS * 60 * 60 * 1000)
+          return allJobs.filter((j) => {
+            const ts = j.createdAt?.toDate ? j.createdAt.toDate() : new Date(j.createdAt)
+            return ts < cutoff
+          })
+        }
+        return allJobs
+      })
       .then(setJobs)
       .finally(() => setLoading(false))
-  }, [filters])
+  }, [filters, isWorker, isWorkerPro])
 
-  const urgentJobs = jobs.filter((j) => j.urgent)
+  const urgentJobs  = jobs.filter((j) => j.urgent)
   const regularJobs = jobs.filter((j) => !j.urgent)
 
   return (
@@ -58,6 +73,19 @@ export default function Jobs() {
           </p>
         )}
       </div>
+
+      {/* Worker Pro upsell for free workers */}
+      {isWorker && !isWorkerPro && (
+        <div className="mb-5 flex items-center gap-3 bg-field-50 border border-field-200 rounded-xl px-4 py-3">
+          <Sparkles className="w-4 h-4 text-field shrink-0" />
+          <p className="text-sm text-field-800 flex-1">
+            <strong>Worker Pro</strong> — get 24hr early access to new listings, priority placement, and a Pro badge for $7.99/mo.
+          </p>
+          <Link to="/pricing?tab=worker" className="text-xs font-semibold text-field-700 hover:underline shrink-0">
+            Upgrade
+          </Link>
+        </div>
+      )}
 
       <div className="lg:grid lg:grid-cols-[280px_1fr] gap-6">
         <aside>

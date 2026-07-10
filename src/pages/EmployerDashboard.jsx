@@ -1,23 +1,28 @@
 import { useEffect, useState } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams, useNavigate } from 'react-router-dom'
 import {
-  Briefcase, Users, Zap, Plus, Eye, CheckCircle, AlertCircle,
+  Briefcase, Users, Zap, Plus, Eye, CheckCircle, AlertCircle, Sparkles, Lock,
 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { getEmployerJobs, deleteJob } from '@/services/jobService'
 import { getJobApplications } from '@/services/applicationService'
 import { getOwnerCompany, createCompany } from '@/services/companyService'
+import { openBillingPortal } from '@/services/billingService'
 import ApplicantCard from '@/components/dashboard/ApplicantCard'
 import UrgentBoost from '@/components/boost/UrgentBoost'
+import PlanBadge from '@/components/billing/PlanBadge'
 import Button from '@/components/common/Button'
 import Modal from '@/components/common/Modal'
 import LoadingSpinner from '@/components/common/LoadingSpinner'
 import { timeAgo } from '@/utils/helpers'
+import { PLANS } from '@/utils/constants'
 
 export default function EmployerDashboard() {
-  const { user, profile } = useAuth()
-  const [searchParams]    = useSearchParams()
-  const boostSuccess      = searchParams.get('boost_success')
+  const { user, profile, isEmployerPro } = useAuth()
+  const [searchParams] = useSearchParams()
+  const navigate       = useNavigate()
+  const boostSuccess   = searchParams.get('boost_success')
+  const [portalLoading, setPortalLoading] = useState(false)
 
   const [jobs, setJobs]             = useState([])
   const [company, setCompany]       = useState(null)
@@ -85,6 +90,13 @@ export default function EmployerDashboard() {
 
   const totalApplicants = jobs.reduce((sum, j) => sum + (j.applicationCount || 0), 0)
   const activeJobs      = jobs.filter((j) => j.status === 'active')
+  const atJobLimit      = !isEmployerPro && activeJobs.length >= 1
+
+  async function handlePortal() {
+    setPortalLoading(true)
+    try { await openBillingPortal() } catch (e) { alert(e.message) }
+    setPortalLoading(false)
+  }
 
   if (loading) return <LoadingSpinner size="lg" className="mt-32" />
 
@@ -96,19 +108,63 @@ export default function EmployerDashboard() {
           <h1 className="text-2xl font-bold text-gray-900">Employer Dashboard</h1>
           <p className="text-gray-500 text-sm">{profile?.name} · {company?.name || 'No organization yet'}</p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
+          <PlanBadge plan={profile?.plan ?? PLANS.FREE} />
           {!company && (
             <Button variant="secondary" onClick={() => setCoModal(true)}>
               <Plus className="w-4 h-4" /> Set Up Organization
             </Button>
           )}
-          <Link to="/post-job">
-            <Button>
-              <Plus className="w-4 h-4" /> Post a Job
+          {atJobLimit ? (
+            <Button onClick={() => navigate('/pricing')}>
+              <Sparkles className="w-4 h-4" /> Upgrade to Post More
             </Button>
-          </Link>
+          ) : (
+            <Link to="/post-job">
+              <Button>
+                <Plus className="w-4 h-4" /> Post a Job
+              </Button>
+            </Link>
+          )}
         </div>
       </div>
+
+      {/* Free-tier job limit warning */}
+      {atJobLimit && (
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6 flex items-center gap-3">
+          <AlertCircle className="w-5 h-5 text-amber-600 shrink-0" />
+          <div className="flex-1 min-w-0">
+            <p className="text-sm text-amber-800 font-medium">
+              You've used your 1 free job post.{' '}
+              <button onClick={() => navigate('/pricing')} className="underline">Upgrade to Pro</button>{' '}
+              for unlimited listings.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Pro upgrade banner for free employers */}
+      {!isEmployerPro && (
+        <div className="bg-brand-50 border border-brand-200 rounded-xl p-4 mb-6 flex items-center gap-3">
+          <Sparkles className="w-5 h-5 text-brand-navy shrink-0" />
+          <p className="text-sm text-brand-800 flex-1">
+            <strong>Employer Pro</strong> — unlimited posts, applicant comparison, and badge visibility for $49/mo.
+          </p>
+          <Button size="sm" onClick={() => navigate('/pricing')}>Upgrade</Button>
+        </div>
+      )}
+
+      {/* Billing management for Pro subscribers */}
+      {isEmployerPro && (
+        <div className="bg-brand-50 border border-brand-200 rounded-xl p-4 mb-6 flex items-center justify-between gap-3">
+          <p className="text-sm text-brand-800 font-medium flex items-center gap-2">
+            <Sparkles className="w-4 h-4" /> You're on Employer Pro
+          </p>
+          <Button size="sm" variant="secondary" loading={portalLoading} onClick={handlePortal}>
+            Manage Subscription
+          </Button>
+        </div>
+      )}
 
       {boostSuccess && (
         <div className="bg-field-50 border border-field-200 rounded-xl p-4 mb-6 flex items-center gap-3">
@@ -222,6 +278,27 @@ export default function EmployerDashboard() {
           {!activeJobId ? (
             <div className="bg-white border border-dashed border-gray-200 rounded-2xl p-10 text-center text-gray-400 text-sm">
               Click a job to review its applicants
+            </div>
+          ) : !isEmployerPro && applicants.length > 3 ? (
+            <div className="space-y-3">
+              {applicants.slice(0, 3).map((app) => (
+                <ApplicantCard
+                  key={app.id}
+                  application={app}
+                  applicantProfile={null}
+                  onStatusChange={handleStatusChange}
+                />
+              ))}
+              <div className="rounded-2xl border border-dashed border-brand-200 bg-brand-50 p-6 text-center space-y-2">
+                <Lock className="w-5 h-5 text-brand-navy mx-auto" />
+                <p className="text-sm font-medium text-gray-800">
+                  {applicants.length - 3} more applicant{applicants.length - 3 !== 1 ? 's' : ''} hidden
+                </p>
+                <p className="text-xs text-gray-500">Upgrade to Pro to compare all applicants side-by-side.</p>
+                <Button size="sm" onClick={() => navigate('/pricing')}>
+                  <Sparkles className="w-3.5 h-3.5" /> Unlock All Applicants
+                </Button>
+              </div>
             </div>
           ) : appsLoading ? (
             <LoadingSpinner className="py-10" />
