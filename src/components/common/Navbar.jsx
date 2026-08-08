@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
-import { Menu, X, Briefcase, ChevronDown, LogOut, User, LayoutDashboard } from 'lucide-react'
+import { Menu, X, ChevronDown, LogOut, User, LayoutDashboard } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
+import shieldLogo from '@/assets/logo-shield.png'
 
 export default function Navbar() {
   const [open, setOpen]     = useState(false)
@@ -24,13 +25,8 @@ export default function Navbar() {
     <nav className="sticky top-0 z-40 bg-navy shadow-md">
       <div className="max-w-6xl mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-energyGreen rounded-md flex items-center justify-center">
-              <Briefcase className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-xl font-bold text-white tracking-tight">
-              Staff the Game
-            </span>
+          <Link to="/" className="flex items-center">
+            <img src={shieldLogo} alt="Staff the Game" className="h-10 w-auto" />
           </Link>
 
           <div className="hidden md:flex items-center gap-6">

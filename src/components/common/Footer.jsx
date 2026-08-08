@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Briefcase } from 'lucide-react'
+import shieldLogo from '@/assets/logo-shield.png'
 
 export default function Footer() {
   return (
@@ -7,13 +7,8 @@ export default function Footer() {
       <div className="max-w-6xl mx-auto px-4 py-12">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
           <div>
-            <Link to="/" className="flex items-center gap-2 mb-3">
-              <div className="w-7 h-7 bg-energyGreen rounded-md flex items-center justify-center">
-                <Briefcase className="w-4 h-4 text-white" />
-              </div>
-              <span className="text-lg font-bold text-white">
-                Staff the Game
-              </span>
+            <Link to="/" className="inline-flex mb-3">
+              <img src={shieldLogo} alt="Staff the Game" className="h-9 w-auto" />
             </Link>
             <p className="text-sm leading-relaxed">
               The sports job board connecting workers and organizations for baseball, basketball, and softball.

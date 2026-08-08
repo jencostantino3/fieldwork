@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
-import { Briefcase, Users, Building2 } from 'lucide-react'
+import { Users, Building2 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import Button from '@/components/common/Button'
+import fullLogo from '@/assets/logo-full.png'
 
 export default function Register() {
   const [searchParams]  = useSearchParams()
@@ -38,11 +39,8 @@ export default function Register() {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center gap-2 mb-6">
-            <div className="w-10 h-10 bg-navy rounded-xl flex items-center justify-center">
-              <Briefcase className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-2xl font-bold text-navy">Staff the Game</span>
+          <Link to="/" className="inline-flex mb-6">
+            <img src={fullLogo} alt="Staff the Game" className="h-16 w-auto" />
           </Link>
           <h1 className="text-2xl font-bold text-gray-900">Create your account</h1>
         </div>
