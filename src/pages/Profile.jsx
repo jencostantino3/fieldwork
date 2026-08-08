@@ -61,7 +61,7 @@ export default function Profile() {
       setBadges(b)
       setApps(a)
     }).catch((e) => {
-      console.warn('[FieldWork] Could not load profile data:', e.message)
+      console.warn('[StaffTheGame] Could not load profile data:', e.message)
     }).finally(() => {
       setLoading(false)
     })
@@ -107,7 +107,7 @@ export default function Profile() {
           <input
             value={setupName}
             onChange={(e) => setSetupName(e.target.value)}
-            className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-navy"
+            className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue"
             placeholder="Jane Doe"
           />
         </div>
@@ -120,7 +120,7 @@ export default function Profile() {
                 type="button"
                 onClick={() => setSetupRole(r)}
                 className={`py-3 rounded-xl border-2 text-sm font-semibold capitalize transition-colors ${
-                  setupRole === r ? 'border-brand-navy bg-brand-50 text-brand-navy' : 'border-gray-200 text-gray-500'
+                  setupRole === r ? 'border-athleticBlue bg-athleticBlue-50 text-athleticBlue' : 'border-gray-200 text-gray-500'
                 }`}
               >{r === 'worker' ? 'Job Seeker' : 'Employer'}</button>
             ))}
@@ -139,17 +139,17 @@ export default function Profile() {
       {/* Profile header */}
       <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-card">
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-full bg-brand-50 border-2 border-brand-200 flex items-center justify-center text-2xl font-bold text-brand-navy">
+          <div className="w-16 h-16 rounded-full bg-athleticBlue-50 border-2 border-athleticBlue-200 flex items-center justify-center text-2xl font-bold text-navy">
             {(profile?.name || user?.email || '?').charAt(0).toUpperCase()}
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <h1 className="text-xl font-bold text-gray-900">{profile?.name}</h1>
-              {isPro && <Sparkles className="w-4 h-4 text-field" />}
+              {isPro && <Sparkles className="w-4 h-4 text-energyGreen" />}
             </div>
             <p className="text-gray-500 text-sm">{user?.email}</p>
             <div className="flex items-center gap-2 mt-1 flex-wrap">
-              <span className="text-xs font-semibold text-brand-navy bg-brand-50 border border-brand-200 px-2.5 py-0.5 rounded-full capitalize">
+              <span className="text-xs font-semibold text-navy bg-athleticBlue-50 border border-athleticBlue-200 px-2.5 py-0.5 rounded-full capitalize">
                 {profile?.role}
               </span>
               <PlanBadge plan={profile?.plan ?? PLANS.FREE} />
@@ -162,7 +162,7 @@ export default function Profile() {
       {isPro ? (
         <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-card flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <CreditCard className="w-5 h-5 text-brand-navy" />
+            <CreditCard className="w-5 h-5 text-navy" />
             <div>
               <p className="text-sm font-semibold text-gray-900">Subscription active</p>
               <p className="text-xs text-gray-500">
@@ -177,10 +177,10 @@ export default function Profile() {
           </Button>
         </div>
       ) : (
-        <div className="bg-brand-50 border border-brand-200 rounded-2xl p-5 flex items-center justify-between gap-4">
+        <div className="bg-athleticBlue-50 border border-athleticBlue-200 rounded-2xl p-5 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <Sparkles className="w-5 h-5 text-brand-navy shrink-0" />
-            <p className="text-sm text-brand-800">
+            <Sparkles className="w-5 h-5 text-navy shrink-0" />
+            <p className="text-sm text-athleticBlue-700">
               <strong>Upgrade to Pro</strong> — unlock all features for your role.
             </p>
           </div>
@@ -192,7 +192,7 @@ export default function Profile() {
       <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-card">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-            <ShieldCheck className="w-5 h-5 text-brand-navy" /> Credentials & Badges
+            <ShieldCheck className="w-5 h-5 text-navy" /> Credentials & Badges
           </h2>
           <Button size="sm" variant="secondary" onClick={() => setBadgeModal(true)}>
             <Plus className="w-4 h-4" /> Add Badge
@@ -202,7 +202,7 @@ export default function Profile() {
         <BadgeDisplay badges={badges} />
 
         <p className="text-xs text-gray-400 mt-4">
-          Badges must be verified by FieldWork admin before they display to employers.
+          Badges must be verified by Staff the Game admin before they display to employers.
         </p>
       </div>
 
@@ -250,7 +250,7 @@ export default function Profile() {
               <select
                 value={selectedType}
                 onChange={(e) => setType(e.target.value)}
-                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-navy"
+                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue"
               >
                 <option value="">Select a badge type...</option>
                 {Object.entries(BADGE_TYPES).map(([key, val]) => (
@@ -265,7 +265,7 @@ export default function Profile() {
                 type="date"
                 value={expiry}
                 onChange={(e) => setExpiry(e.target.value)}
-                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-navy"
+                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue"
               />
             </div>
 
@@ -277,13 +277,13 @@ export default function Profile() {
                 type="file"
                 accept="image/*,.pdf"
                 onChange={(e) => setFile(e.target.files?.[0] || null)}
-                className="w-full text-sm text-gray-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-brand-50 file:text-brand-navy hover:file:bg-brand-100"
+                className="w-full text-sm text-gray-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-athleticBlue-50 file:text-navy hover:file:bg-athleticBlue-100"
               />
               <p className="text-xs text-gray-400 mt-1">Accepted formats: PDF, JPG, PNG — max 10MB</p>
             </div>
 
             <p className="text-xs text-gray-500">
-              After submitting, FieldWork will review and verify your badge. This may take 1–2 business days.
+              After submitting, Staff the Game will review and verify your badge. This may take 1–2 business days.
             </p>
 
             {badgeError && <p className="text-sm text-red-600">{badgeError}</p>}

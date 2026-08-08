@@ -1,3 +1,13 @@
+export const COLORS = {
+  navy:         '#0B132B',
+  athleticBlue: '#1976D2',
+  energyGreen:  '#43A047',
+  rapidFill:    '#F4511E',
+  steelGray:    '#607D8B',
+  lightGray:    '#F1F3F5',
+  white:        '#FFFFFF',
+}
+
 export const SPORTS = [
   { value: 'baseball',   label: 'Baseball' },
   { value: 'basketball', label: 'Basketball' },

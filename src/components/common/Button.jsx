@@ -1,13 +1,13 @@
 import { clsx } from 'clsx'
 
 const variants = {
-  primary:   'bg-brand-navy text-white hover:bg-brand-800 focus:ring-brand-navy',
-  secondary: 'bg-white text-brand-navy border border-brand-navy hover:bg-brand-50 focus:ring-brand-navy',
-  field:     'bg-field text-white hover:bg-field-700 focus:ring-field',
+  primary:   'bg-athleticBlue text-white hover:bg-athleticBlue-700 focus:ring-athleticBlue',
+  secondary: 'bg-white text-athleticBlue border border-athleticBlue hover:bg-athleticBlue-50 focus:ring-athleticBlue',
+  field:     'bg-energyGreen text-white hover:bg-energyGreen-700 focus:ring-energyGreen',
   urgent:    'bg-urgent text-white hover:bg-urgent-700 focus:ring-urgent',
-  ghost:     'bg-transparent text-brand-navy hover:bg-gray-100 focus:ring-brand-navy',
+  ghost:     'bg-transparent text-navy hover:bg-gray-100 focus:ring-navy',
   danger:    'bg-red-600 text-white hover:bg-red-700 focus:ring-red-600',
-  white:     'bg-white text-field hover:bg-field-50 focus:ring-field',
+  white:     'bg-white text-energyGreen hover:bg-energyGreen-50 focus:ring-energyGreen',
 }
 
 const sizes = {

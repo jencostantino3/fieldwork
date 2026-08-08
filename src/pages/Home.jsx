@@ -58,7 +58,7 @@ export default function Home() {
       )}
 
       {/* Hero */}
-      <section className="bg-brand-navy relative overflow-hidden">
+      <section className="bg-navy relative overflow-hidden">
         <div
           className="absolute inset-0 opacity-10"
           style={{
@@ -70,15 +70,15 @@ export default function Home() {
           }}
         />
         <div className="relative max-w-5xl mx-auto px-4 py-20 md:py-28 text-center">
-          <div className="inline-flex items-center gap-2 bg-field/20 border border-field/30 text-field-200 text-sm font-medium px-4 py-1.5 rounded-full mb-6">
+          <div className="inline-flex items-center gap-2 bg-energyGreen/20 border border-energyGreen/30 text-energyGreen-200 text-sm font-medium px-4 py-1.5 rounded-full mb-6">
             <Zap className="w-3.5 h-3.5" /> Now hiring for baseball, basketball & softball
           </div>
           <h1 className="text-4xl md:text-6xl font-extrabold text-white mb-5 leading-tight">
             Sports Jobs.<br />
-            <span className="text-field-400">No Resume Needed.</span>
+            <span className="text-energyGreen-400">No Resume Needed.</span>
           </h1>
           <p className="text-lg md:text-xl text-gray-300 max-w-2xl mx-auto mb-10">
-            FieldWork connects coaches, umpires, trainers, and operations staff with the leagues,
+            Staff the Game connects coaches, umpires, trainers, and operations staff with the leagues,
             schools, and organizations that need them — fast.
           </p>
 
@@ -91,7 +91,7 @@ export default function Home() {
                 maxLength={5}
                 value={zip}
                 onChange={(e) => setZip(e.target.value.replace(/\D/g, ''))}
-                className="w-full pl-12 pr-4 py-4 rounded-xl text-gray-900 text-base focus:outline-none focus:ring-3 focus:ring-field shadow-lg"
+                className="w-full pl-12 pr-4 py-4 rounded-xl text-gray-900 text-base focus:outline-none focus:ring-3 focus:ring-energyGreen shadow-lg"
               />
             </div>
             <Button size="lg" variant="field" type="submit" className="whitespace-nowrap px-8">
@@ -118,14 +118,14 @@ export default function Home() {
             <Link
               key={s.value}
               to={`/jobs?sport=${s.value}`}
-              className="group relative bg-white border border-gray-200 rounded-2xl p-8 text-center hover:border-brand-navy hover:shadow-card-hover transition-all"
+              className="group relative bg-white border border-gray-200 rounded-2xl p-8 text-center hover:border-athleticBlue hover:shadow-card-hover transition-all"
             >
               <div className="text-5xl mb-3">
                 {s.value === 'baseball' ? '⚾' : s.value === 'basketball' ? '🏀' : '🥎'}
               </div>
-              <h3 className="text-lg font-bold text-gray-900 group-hover:text-brand-navy">{s.label}</h3>
+              <h3 className="text-lg font-bold text-gray-900 group-hover:text-athleticBlue">{s.label}</h3>
               <p className="text-sm text-gray-500 mt-1">View open positions</p>
-              <ChevronRight className="w-5 h-5 text-gray-300 group-hover:text-brand-navy absolute right-5 top-1/2 -translate-y-1/2 transition-colors" />
+              <ChevronRight className="w-5 h-5 text-gray-300 group-hover:text-athleticBlue absolute right-5 top-1/2 -translate-y-1/2 transition-colors" />
             </Link>
           ))}
         </div>
@@ -138,8 +138,8 @@ export default function Home() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {FEATURES.map((f) => (
               <div key={f.title} className="bg-white rounded-2xl p-6 shadow-card">
-                <div className="w-10 h-10 bg-brand-50 rounded-xl flex items-center justify-center mb-4">
-                  <f.icon className="w-5 h-5 text-brand-navy" />
+                <div className="w-10 h-10 bg-athleticBlue-50 rounded-xl flex items-center justify-center mb-4">
+                  <f.icon className="w-5 h-5 text-navy" />
                 </div>
                 <h3 className="font-semibold text-gray-900 mb-2">{f.title}</h3>
                 <p className="text-sm text-gray-600 leading-relaxed">{f.desc}</p>
@@ -157,7 +157,7 @@ export default function Home() {
             <Link
               key={c.value}
               to={`/jobs?category=${c.value}`}
-              className="bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium text-gray-700 hover:border-brand-navy hover:text-brand-navy transition-colors text-center"
+              className="bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium text-gray-700 hover:border-athleticBlue hover:text-athleticBlue transition-colors text-center"
             >
               {c.label}
             </Link>
@@ -166,7 +166,7 @@ export default function Home() {
       </section>
 
       {/* Employer CTA */}
-      <section className="bg-brand-navy py-16">
+      <section className="bg-navy py-16">
         <div className="max-w-3xl mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold text-white mb-4">Hiring for your organization?</h2>
           <p className="text-gray-300 mb-8 text-lg">

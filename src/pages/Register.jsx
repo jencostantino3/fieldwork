@@ -39,10 +39,10 @@ export default function Register() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center gap-2 mb-6">
-            <div className="w-10 h-10 bg-brand-navy rounded-xl flex items-center justify-center">
+            <div className="w-10 h-10 bg-navy rounded-xl flex items-center justify-center">
               <Briefcase className="w-5 h-5 text-white" />
             </div>
-            <span className="text-2xl font-bold text-brand-navy">Field<span className="text-field">Work</span></span>
+            <span className="text-2xl font-bold text-navy">Staff the Game</span>
           </Link>
           <h1 className="text-2xl font-bold text-gray-900">Create your account</h1>
         </div>
@@ -55,7 +55,7 @@ export default function Register() {
               onClick={() => setRole('worker')}
               className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-colors ${
                 role === 'worker'
-                  ? 'border-brand-navy bg-brand-50 text-brand-navy'
+                  ? 'border-athleticBlue bg-athleticBlue-50 text-athleticBlue'
                   : 'border-gray-200 text-gray-500 hover:border-gray-300'
               }`}
             >
@@ -67,7 +67,7 @@ export default function Register() {
               onClick={() => setRole('employer')}
               className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-colors ${
                 role === 'employer'
-                  ? 'border-brand-navy bg-brand-50 text-brand-navy'
+                  ? 'border-athleticBlue bg-athleticBlue-50 text-athleticBlue'
                   : 'border-gray-200 text-gray-500 hover:border-gray-300'
               }`}
             >
@@ -102,7 +102,7 @@ export default function Register() {
               </label>
               <input
                 {...register('name', { required: 'Name is required' })}
-                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-navy"
+                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue"
                 placeholder="Jane Doe"
               />
               {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>}
@@ -113,7 +113,7 @@ export default function Register() {
               <input
                 type="email"
                 {...register('email', { required: 'Email is required' })}
-                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-navy"
+                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue"
                 placeholder="you@example.com"
               />
               {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
@@ -124,7 +124,7 @@ export default function Register() {
               <input
                 type="password"
                 {...register('password', { required: true, minLength: { value: 6, message: 'Minimum 6 characters' } })}
-                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-navy"
+                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue"
                 placeholder="••••••••"
               />
               {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
@@ -139,7 +139,7 @@ export default function Register() {
 
           <p className="text-center text-sm text-gray-500 mt-5">
             Already have an account?{' '}
-            <Link to="/login" className="text-brand-navy font-medium hover:underline">Sign in</Link>
+            <Link to="/login" className="text-athleticBlue font-medium hover:underline">Sign in</Link>
           </p>
         </div>
       </div>

@@ -38,10 +38,10 @@ export default function Login() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center gap-2 mb-6">
-            <div className="w-10 h-10 bg-brand-navy rounded-xl flex items-center justify-center">
+            <div className="w-10 h-10 bg-navy rounded-xl flex items-center justify-center">
               <Briefcase className="w-5 h-5 text-white" />
             </div>
-            <span className="text-2xl font-bold text-brand-navy">Field<span className="text-field">Work</span></span>
+            <span className="text-2xl font-bold text-navy">Staff the Game</span>
           </Link>
           <h1 className="text-2xl font-bold text-gray-900">Welcome back</h1>
           <p className="text-gray-500 mt-1 text-sm">Sign in to your account</p>
@@ -73,7 +73,7 @@ export default function Login() {
               <input
                 type="email"
                 {...register('email', { required: 'Email is required' })}
-                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-navy"
+                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue"
                 placeholder="you@example.com"
               />
               {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
@@ -84,7 +84,7 @@ export default function Login() {
               <input
                 type="password"
                 {...register('password', { required: 'Password is required' })}
-                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-navy"
+                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue"
                 placeholder="••••••••"
               />
               {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
@@ -99,7 +99,7 @@ export default function Login() {
 
           <p className="text-center text-sm text-gray-500 mt-6">
             Don't have an account?{' '}
-            <Link to="/register" className="text-brand-navy font-medium hover:underline">
+            <Link to="/register" className="text-athleticBlue font-medium hover:underline">
               Sign up
             </Link>
           </p>

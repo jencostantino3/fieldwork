@@ -75,8 +75,8 @@ export default function PostJob() {
   if (atLimit) {
     return (
       <div className="max-w-md mx-auto px-4 py-32 text-center space-y-4">
-        <div className="inline-flex w-14 h-14 rounded-full bg-brand-50 items-center justify-center">
-          <Sparkles className="w-7 h-7 text-brand-navy" />
+        <div className="inline-flex w-14 h-14 rounded-full bg-athleticBlue-50 items-center justify-center">
+          <Sparkles className="w-7 h-7 text-navy" />
         </div>
         <h1 className="text-xl font-bold text-gray-900">Free plan limit reached</h1>
         <p className="text-gray-500 text-sm">
@@ -104,7 +104,7 @@ export default function PostJob() {
             <label className="block text-sm font-medium text-gray-700 mb-1">Job Title <span className="text-red-500">*</span></label>
             <input
               {...register('title', { required: 'Title is required' })}
-              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-navy"
+              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue"
               placeholder="Head Softball Coach"
             />
             {errors.title && <p className="text-red-500 text-xs mt-1">{errors.title.message}</p>}
@@ -115,7 +115,7 @@ export default function PostJob() {
               <label className="block text-sm font-medium text-gray-700 mb-1">Sport <span className="text-red-500">*</span></label>
               <select
                 {...register('sport', { required: true })}
-                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-navy"
+                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue"
               >
                 <option value="">Select sport</option>
                 {SPORTS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
@@ -125,7 +125,7 @@ export default function PostJob() {
               <label className="block text-sm font-medium text-gray-700 mb-1">Job Type <span className="text-red-500">*</span></label>
               <select
                 {...register('jobType', { required: true })}
-                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-navy"
+                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue"
               >
                 <option value="">Select type</option>
                 {JOB_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
@@ -135,7 +135,7 @@ export default function PostJob() {
               <label className="block text-sm font-medium text-gray-700 mb-1">Category <span className="text-red-500">*</span></label>
               <select
                 {...register('category', { required: true })}
-                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-navy"
+                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue"
               >
                 <option value="">Select category</option>
                 {JOB_CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
@@ -148,7 +148,7 @@ export default function PostJob() {
               <label className="block text-sm font-medium text-gray-700 mb-1">City / Location <span className="text-red-500">*</span></label>
               <input
                 {...register('location', { required: 'Location is required' })}
-                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-navy"
+                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue"
                 placeholder="Springfield, MA"
               />
             </div>
@@ -157,7 +157,7 @@ export default function PostJob() {
               <input
                 {...register('zipCode')}
                 maxLength={5}
-                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-navy"
+                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue"
                 placeholder="01103"
               />
             </div>
@@ -168,7 +168,7 @@ export default function PostJob() {
             <textarea
               {...register('description', { required: 'Description is required' })}
               rows={5}
-              className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-navy"
+              className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue"
               placeholder="Describe the role, responsibilities, schedule..."
             />
             {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description.message}</p>}
@@ -179,7 +179,7 @@ export default function PostJob() {
             <textarea
               {...register('requirements')}
               rows={3}
-              className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-navy"
+              className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue"
               placeholder="Must have valid driver's license, 2+ years coaching experience..."
             />
           </div>
@@ -194,7 +194,7 @@ export default function PostJob() {
               <input
                 type="number"
                 {...register('salaryMin')}
-                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-navy"
+                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue"
                 placeholder="0"
               />
             </div>
@@ -203,7 +203,7 @@ export default function PostJob() {
               <input
                 type="number"
                 {...register('salaryMax')}
-                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-navy"
+                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue"
                 placeholder="0"
               />
             </div>
@@ -211,7 +211,7 @@ export default function PostJob() {
               <label className="block text-sm font-medium text-gray-700 mb-1">Per</label>
               <select
                 {...register('salaryPeriod')}
-                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-navy"
+                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue"
               >
                 <option value="year">Year</option>
                 <option value="hour">Hour</option>
@@ -221,7 +221,7 @@ export default function PostJob() {
             </div>
           </div>
           <label className="flex items-center gap-2 text-sm cursor-pointer">
-            <input type="checkbox" {...register('requiresCORI')} className="accent-brand-navy" />
+            <input type="checkbox" {...register('requiresCORI')} className="accent-athleticBlue" />
             <span className="font-medium text-gray-700">CORI background check required</span>
           </label>
         </section>
@@ -240,18 +240,18 @@ export default function PostJob() {
                   <div className="flex gap-2">
                     <select
                       {...register(`questions.${idx}.type`)}
-                      className="border border-gray-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-brand-navy"
+                      className="border border-gray-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-athleticBlue"
                     >
                       {QUESTION_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
                     </select>
                     <label className="flex items-center gap-1 text-xs text-gray-600 cursor-pointer">
-                      <input type="checkbox" {...register(`questions.${idx}.required`)} defaultChecked className="accent-brand-navy" />
+                      <input type="checkbox" {...register(`questions.${idx}.required`)} defaultChecked className="accent-athleticBlue" />
                       Required
                     </label>
                   </div>
                   <input
                     {...register(`questions.${idx}.text`)}
-                    className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-navy"
+                    className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue"
                     placeholder={`Question ${idx + 1}...`}
                   />
                 </div>
@@ -270,7 +270,7 @@ export default function PostJob() {
           <button
             type="button"
             onClick={() => append({ type: 'text', text: '', required: false })}
-            className="mt-3 flex items-center gap-2 text-sm text-brand-navy hover:text-brand-800 font-medium"
+            className="mt-3 flex items-center gap-2 text-sm text-athleticBlue hover:text-athleticBlue-700 font-medium"
           >
             <Plus className="w-4 h-4" /> Add Question
           </button>

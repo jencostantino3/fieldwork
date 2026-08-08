@@ -21,15 +21,15 @@ export default function Navbar() {
   ]
 
   return (
-    <nav className="sticky top-0 z-40 bg-brand-navy shadow-md">
+    <nav className="sticky top-0 z-40 bg-navy shadow-md">
       <div className="max-w-6xl mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-field rounded-md flex items-center justify-center">
+            <div className="w-8 h-8 bg-energyGreen rounded-md flex items-center justify-center">
               <Briefcase className="w-5 h-5 text-white" />
             </div>
             <span className="text-xl font-bold text-white tracking-tight">
-              Field<span className="text-field-400">Work</span>
+              Staff the Game
             </span>
           </Link>
 
@@ -40,7 +40,7 @@ export default function Navbar() {
                 to={l.to}
                 className={({ isActive }) =>
                   `text-sm font-medium transition-colors ${
-                    isActive ? 'text-field-400' : 'text-gray-300 hover:text-white'
+                    isActive ? 'text-energyGreen-400' : 'text-gray-300 hover:text-white'
                   }`
                 }
               >
@@ -54,7 +54,7 @@ export default function Navbar() {
                   onClick={() => setDrop(!drop)}
                   className="flex items-center gap-2 text-sm font-medium text-gray-300 hover:text-white"
                 >
-                  <div className="w-8 h-8 rounded-full bg-field-600 flex items-center justify-center text-white text-xs font-bold">
+                  <div className="w-8 h-8 rounded-full bg-energyGreen-600 flex items-center justify-center text-white text-xs font-bold">
                     {(profile?.name || user.email || '?').charAt(0).toUpperCase()}
                   </div>
                   <ChevronDown className="w-4 h-4" />
@@ -97,7 +97,7 @@ export default function Navbar() {
                 </Link>
                 <Link
                   to="/register"
-                  className="px-4 py-2 text-sm font-semibold bg-field text-white rounded-lg hover:bg-field-700 transition-colors"
+                  className="px-4 py-2 text-sm font-semibold bg-energyGreen text-white rounded-lg hover:bg-energyGreen-700 transition-colors"
                 >
                   Get Started
                 </Link>
@@ -115,7 +115,7 @@ export default function Navbar() {
       </div>
 
       {open && (
-        <div className="md:hidden bg-brand-900 border-t border-brand-800 px-4 pb-4">
+        <div className="md:hidden bg-navy border-t border-white/10 px-4 pb-4">
           {navLinks.map((l) => (
             <NavLink
               key={l.to}
@@ -148,7 +148,7 @@ export default function Navbar() {
               <Link
                 to="/register"
                 onClick={() => setOpen(false)}
-                className="block text-center py-3 bg-field text-white font-semibold rounded-lg"
+                className="block text-center py-3 bg-energyGreen text-white font-semibold rounded-lg"
               >
                 Get Started
               </Link>

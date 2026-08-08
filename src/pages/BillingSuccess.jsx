@@ -21,8 +21,8 @@ export default function BillingSuccess() {
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
       <div className="bg-white rounded-2xl shadow-card border border-gray-200 p-10 max-w-md w-full text-center space-y-4">
-        <div className="inline-flex w-16 h-16 rounded-full bg-field-50 items-center justify-center mx-auto">
-          <CheckCircle className="w-8 h-8 text-field" />
+        <div className="inline-flex w-16 h-16 rounded-full bg-energyGreen-50 items-center justify-center mx-auto">
+          <CheckCircle className="w-8 h-8 text-energyGreen" />
         </div>
         <h1 className="text-2xl font-bold text-gray-900">
           {isBoost ? 'Boost activated!' : "You're on Pro!"}

@@ -1,5 +1,5 @@
 {
-  "name": "fieldwork",
+  "name": "staff-the-game",
   "version": "0.1.0",
   "type": "module",
   "scripts": {
@@ -9,16 +9,19 @@
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0"
   },
   "dependencies": {
+    "@sendgrid/mail": "^8.1.6",
     "@stripe/react-stripe-js": "^2.7.3",
     "@stripe/stripe-js": "^4.3.0",
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",
+    "dotenv": "^17.4.2",
     "firebase": "^10.13.0",
     "lucide-react": "^0.438.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.53.0",
-    "react-router-dom": "^6.26.1"
+    "react-router-dom": "^6.26.1",
+    "twilio": "^6.0.2"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.1",

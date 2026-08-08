@@ -31,7 +31,7 @@ export function AuthProvider({ children }) {
           const snap = await getDoc(doc(db, 'users', firebaseUser.uid))
           setProfile(snap.exists() ? snap.data() : null)
         } catch (e) {
-          console.warn('[FieldWork] Could not load user profile from Firestore:', e.message)
+          console.warn('[StaffTheGame] Could not load user profile from Firestore:', e.message)
           setProfile(null)
         }
       } else {
@@ -60,7 +60,7 @@ export function AuthProvider({ children }) {
     } catch (e) {
       // Firestore rules not yet deployed — auth account is created but profile
       // won't persist until rules are published in the Firebase console.
-      console.warn('[FieldWork] Could not write user profile to Firestore:', e.message)
+      console.warn('[StaffTheGame] Could not write user profile to Firestore:', e.message)
     }
     setProfile(userDoc)
     return cred.user
@@ -90,7 +90,7 @@ export function AuthProvider({ children }) {
         setProfile(userDoc)
       }
     } catch (e) {
-      console.warn('[FieldWork] Could not load/save Google user profile:', e.message)
+      console.warn('[StaffTheGame] Could not load/save Google user profile:', e.message)
     }
     return cred.user
   }
@@ -116,7 +116,7 @@ export function AuthProvider({ children }) {
       const snap = await getDoc(doc(db, 'users', user.uid))
       setProfile(snap.exists() ? snap.data() : null)
     } catch (e) {
-      console.warn('[FieldWork] Could not refresh profile:', e.message)
+      console.warn('[StaffTheGame] Could not refresh profile:', e.message)
     }
   }
 

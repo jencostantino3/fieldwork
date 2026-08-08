@@ -39,7 +39,7 @@ export default function ApplicationForm({ job, onSuccess }) {
   if (done) {
     return (
       <div className="text-center py-10">
-        <CheckCircle className="w-16 h-16 text-field mx-auto mb-4" />
+        <CheckCircle className="w-16 h-16 text-energyGreen mx-auto mb-4" />
         <h3 className="text-xl font-bold text-gray-900 mb-2">Application Submitted!</h3>
         <p className="text-gray-600">
           The employer will review your answers and reach out via email.
@@ -51,7 +51,7 @@ export default function ApplicationForm({ job, onSuccess }) {
   if (!questions.length) {
     return (
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <div className="bg-field-50 border border-field-200 rounded-xl p-4 text-sm text-field-700">
+        <div className="bg-energyGreen-50 border border-energyGreen-200 rounded-xl p-4 text-sm text-energyGreen-700">
           No specific questions — just confirm you want to apply.
         </div>
         <div>
@@ -62,7 +62,7 @@ export default function ApplicationForm({ job, onSuccess }) {
             {...register('q_0')}
             rows={4}
             placeholder="Optional note to the employer..."
-            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-navy"
+            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue"
           />
         </div>
         {error && <p className="text-sm text-red-600">{error}</p>}
@@ -86,7 +86,7 @@ export default function ApplicationForm({ job, onSuccess }) {
             {...register(fieldName, { required: currentQ.required && 'This field is required' })}
             rows={5}
             placeholder={currentQ.placeholder || 'Your answer…'}
-            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-navy"
+            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue"
           />
         )
       case 'yesno':
@@ -98,7 +98,7 @@ export default function ApplicationForm({ job, onSuccess }) {
                   type="radio"
                   value={v}
                   {...register(fieldName, { required: currentQ.required && 'Please select' })}
-                  className="accent-brand-navy"
+                  className="accent-athleticBlue"
                 />
                 <span className="text-sm font-medium">{v}</span>
               </label>
@@ -114,7 +114,7 @@ export default function ApplicationForm({ job, onSuccess }) {
                   type="radio"
                   value={opt}
                   {...register(fieldName, { required: currentQ.required && 'Please select' })}
-                  className="accent-brand-navy"
+                  className="accent-athleticBlue"
                 />
                 <span className="text-sm">{opt}</span>
               </label>
@@ -127,7 +127,7 @@ export default function ApplicationForm({ job, onSuccess }) {
             key={step}
             type="date"
             {...register(fieldName, { required: currentQ.required && 'Date required' })}
-            className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-navy"
+            className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue"
           />
         )
       default:
@@ -137,7 +137,7 @@ export default function ApplicationForm({ job, onSuccess }) {
             type="text"
             {...register(fieldName, { required: currentQ.required && 'This field is required' })}
             placeholder={currentQ.placeholder || 'Your answer…'}
-            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-navy"
+            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue"
           />
         )
     }
@@ -152,7 +152,7 @@ export default function ApplicationForm({ job, onSuccess }) {
         </div>
         <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
           <div
-            className="h-full bg-brand-navy rounded-full transition-all duration-300"
+            className="h-full bg-athleticBlue rounded-full transition-all duration-300"
             style={{ width: `${((step + 1) / questions.length) * 100}%` }}
           />
         </div>

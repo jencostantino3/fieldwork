@@ -38,8 +38,8 @@ export default function JobFilters({ filters, onChange }) {
               onClick={() => set('sport', s.value)}
               className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${
                 filters.sport === s.value
-                  ? 'bg-brand-navy text-white border-brand-navy'
-                  : 'bg-white text-gray-600 border-gray-200 hover:border-brand-navy'
+                  ? 'bg-athleticBlue text-white border-athleticBlue'
+                  : 'bg-white text-gray-600 border-gray-200 hover:border-athleticBlue'
               }`}
             >
               {s.label}
@@ -57,8 +57,8 @@ export default function JobFilters({ filters, onChange }) {
               onClick={() => set('jobType', t.value)}
               className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${
                 filters.jobType === t.value
-                  ? 'bg-brand-navy text-white border-brand-navy'
-                  : 'bg-white text-gray-600 border-gray-200 hover:border-brand-navy'
+                  ? 'bg-athleticBlue text-white border-athleticBlue'
+                  : 'bg-white text-gray-600 border-gray-200 hover:border-athleticBlue'
               }`}
             >
               {t.label}
@@ -72,7 +72,7 @@ export default function JobFilters({ filters, onChange }) {
         <select
           value={filters.category}
           onChange={(e) => onChange({ ...filters, category: e.target.value })}
-          className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-navy"
+          className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue"
         >
           <option value="">All Categories</option>
           {JOB_CATEGORIES.map((c) => (
@@ -93,7 +93,7 @@ export default function JobFilters({ filters, onChange }) {
               value={zipInput}
               onChange={(e) => setZipInput(e.target.value.replace(/\D/g, ''))}
               onKeyDown={(e) => e.key === 'Enter' && handleZipSearch()}
-              className="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-navy"
+              className="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue"
             />
           </div>
           <Button size="sm" onClick={handleZipSearch} loading={geoLoading} variant="secondary">
@@ -105,7 +105,7 @@ export default function JobFilters({ filters, onChange }) {
             <select
               value={filters.radius}
               onChange={(e) => onChange({ ...filters, radius: Number(e.target.value) })}
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-navy"
+              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue"
             >
               {RADIUS_OPTIONS.map((r) => (
                 <option key={r.value} value={r.value}>{r.label}</option>
@@ -145,7 +145,7 @@ export default function JobFilters({ filters, onChange }) {
           className="flex items-center gap-2 text-sm font-medium bg-white border border-gray-200 px-4 py-2.5 rounded-lg shadow-sm w-full"
         >
           <SlidersHorizontal className="w-4 h-4" />
-          Filters {activeCount > 0 && <span className="ml-auto bg-brand-navy text-white text-xs px-2 py-0.5 rounded-full">{activeCount}</span>}
+          Filters {activeCount > 0 && <span className="ml-auto bg-athleticBlue text-white text-xs px-2 py-0.5 rounded-full">{activeCount}</span>}
         </button>
         {showMobile && (
           <div className="mt-3 bg-white border border-gray-200 rounded-xl p-4 shadow-card">
@@ -159,7 +159,7 @@ export default function JobFilters({ filters, onChange }) {
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-semibold text-gray-900">Filters</h3>
           {activeCount > 0 && (
-            <span className="bg-brand-navy text-white text-xs px-2 py-0.5 rounded-full">{activeCount}</span>
+            <span className="bg-athleticBlue text-white text-xs px-2 py-0.5 rounded-full">{activeCount}</span>
           )}
         </div>
         <FilterPanel />

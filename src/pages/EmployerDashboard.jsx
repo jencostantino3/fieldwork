@@ -48,7 +48,7 @@ export default function EmployerDashboard() {
         setJobs(employerJobs)
         setCompany(co)
       } catch (e) {
-        console.warn('[FieldWork] Could not load dashboard data:', e.message)
+        console.warn('[StaffTheGame] Could not load dashboard data:', e.message)
       } finally {
         setLoading(false)
       }
@@ -145,9 +145,9 @@ export default function EmployerDashboard() {
 
       {/* Pro upgrade banner for free employers */}
       {!isEmployerPro && (
-        <div className="bg-brand-50 border border-brand-200 rounded-xl p-4 mb-6 flex items-center gap-3">
-          <Sparkles className="w-5 h-5 text-brand-navy shrink-0" />
-          <p className="text-sm text-brand-800 flex-1">
+        <div className="bg-athleticBlue-50 border border-athleticBlue-200 rounded-xl p-4 mb-6 flex items-center gap-3">
+          <Sparkles className="w-5 h-5 text-navy shrink-0" />
+          <p className="text-sm text-athleticBlue-700 flex-1">
             <strong>Employer Pro</strong> — unlimited posts, applicant comparison, and badge visibility for $49/mo.
           </p>
           <Button size="sm" onClick={() => navigate('/pricing')}>Upgrade</Button>
@@ -156,8 +156,8 @@ export default function EmployerDashboard() {
 
       {/* Billing management for Pro subscribers */}
       {isEmployerPro && (
-        <div className="bg-brand-50 border border-brand-200 rounded-xl p-4 mb-6 flex items-center justify-between gap-3">
-          <p className="text-sm text-brand-800 font-medium flex items-center gap-2">
+        <div className="bg-athleticBlue-50 border border-athleticBlue-200 rounded-xl p-4 mb-6 flex items-center justify-between gap-3">
+          <p className="text-sm text-athleticBlue-700 font-medium flex items-center gap-2">
             <Sparkles className="w-4 h-4" /> You're on Employer Pro
           </p>
           <Button size="sm" variant="secondary" loading={portalLoading} onClick={handlePortal}>
@@ -167,9 +167,9 @@ export default function EmployerDashboard() {
       )}
 
       {boostSuccess && (
-        <div className="bg-field-50 border border-field-200 rounded-xl p-4 mb-6 flex items-center gap-3">
-          <CheckCircle className="w-5 h-5 text-field shrink-0" />
-          <p className="text-sm text-field-700 font-medium">Boost activated! Your job is now marked urgent and pinged to nearby workers.</p>
+        <div className="bg-energyGreen-50 border border-energyGreen-200 rounded-xl p-4 mb-6 flex items-center gap-3">
+          <CheckCircle className="w-5 h-5 text-energyGreen shrink-0" />
+          <p className="text-sm text-energyGreen-700 font-medium">Boost activated! Your job is now marked urgent and pinged to nearby workers.</p>
         </div>
       )}
 
@@ -216,7 +216,7 @@ export default function EmployerDashboard() {
                 <div
                   key={job.id}
                   className={`bg-white border rounded-xl p-4 shadow-card cursor-pointer transition-colors ${
-                    activeJobId === job.id ? 'border-brand-navy' : 'border-gray-200 hover:border-gray-300'
+                    activeJobId === job.id ? 'border-athleticBlue' : 'border-gray-200 hover:border-gray-300'
                   }`}
                   onClick={() => loadApplicants(job.id)}
                 >
@@ -240,7 +240,7 @@ export default function EmployerDashboard() {
                         to={`/jobs/${job.id}`}
                         target="_blank"
                         onClick={(e) => e.stopPropagation()}
-                        className="p-1.5 text-gray-400 hover:text-brand-navy rounded-lg hover:bg-gray-50"
+                        className="p-1.5 text-gray-400 hover:text-athleticBlue rounded-lg hover:bg-gray-50"
                         title="View listing"
                       >
                         <Eye className="w-4 h-4" />
@@ -289,8 +289,8 @@ export default function EmployerDashboard() {
                   onStatusChange={handleStatusChange}
                 />
               ))}
-              <div className="rounded-2xl border border-dashed border-brand-200 bg-brand-50 p-6 text-center space-y-2">
-                <Lock className="w-5 h-5 text-brand-navy mx-auto" />
+              <div className="rounded-2xl border border-dashed border-athleticBlue-200 bg-athleticBlue-50 p-6 text-center space-y-2">
+                <Lock className="w-5 h-5 text-navy mx-auto" />
                 <p className="text-sm font-medium text-gray-800">
                   {applicants.length - 3} more applicant{applicants.length - 3 !== 1 ? 's' : ''} hidden
                 </p>
@@ -330,7 +330,7 @@ export default function EmployerDashboard() {
             <input
               value={companyName}
               onChange={(e) => setCoName(e.target.value)}
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-navy"
+              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue"
               placeholder="Springfield Little League"
             />
           </div>
@@ -339,7 +339,7 @@ export default function EmployerDashboard() {
             <select
               value={coSport}
               onChange={(e) => setCoSport(e.target.value)}
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-navy"
+              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue"
             >
               <option value="baseball">Baseball</option>
               <option value="basketball">Basketball</option>
@@ -352,7 +352,7 @@ export default function EmployerDashboard() {
               rows={3}
               value={coDesc}
               onChange={(e) => setCoDesc(e.target.value)}
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-navy"
+              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue"
               placeholder="Tell workers about your organization..."
             />
           </div>

@@ -3,8 +3,8 @@ import { PLANS } from '@/utils/constants'
 import clsx from 'clsx'
 
 const CONFIG = {
-  [PLANS.EMPLOYER_PRO]: { label: 'Employer Pro', className: 'bg-brand-50 text-brand-navy border-brand-200' },
-  [PLANS.WORKER_PRO]:   { label: 'Worker Pro',   className: 'bg-field-50  text-field-700  border-field-200'  },
+  [PLANS.EMPLOYER_PRO]: { label: 'Employer Pro', className: 'bg-athleticBlue-50 text-navy border-athleticBlue-200' },
+  [PLANS.WORKER_PRO]:   { label: 'Worker Pro',   className: 'bg-energyGreen-50  text-energyGreen-700  border-energyGreen-200'  },
   [PLANS.FREE]:         { label: 'Free',          className: 'bg-gray-50   text-gray-500   border-gray-200'   },
 }
 

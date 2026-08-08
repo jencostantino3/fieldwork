@@ -24,7 +24,7 @@ export default function JobCard({ job }) {
       )}
 
       <div className="flex items-start gap-4">
-        <div className="w-12 h-12 rounded-xl bg-brand-50 border border-brand-100 flex items-center justify-center text-xl font-bold text-brand-navy shrink-0">
+        <div className="w-12 h-12 rounded-xl bg-athleticBlue-50 border border-athleticBlue-100 flex items-center justify-center text-xl font-bold text-navy shrink-0">
           {job.companyName?.charAt(0) ?? '?'}
         </div>
 
@@ -51,10 +51,10 @@ export default function JobCard({ job }) {
         <span className="text-xs bg-gray-100 text-gray-700 px-2.5 py-1 rounded-full">
           {pill(SPORTS, job.sport)}
         </span>
-        <span className="text-xs bg-brand-50 text-brand-700 px-2.5 py-1 rounded-full">
+        <span className="text-xs bg-athleticBlue-50 text-athleticBlue px-2.5 py-1 rounded-full">
           {pill(JOB_TYPES, job.jobType)}
         </span>
-        <span className="text-xs bg-field-50 text-field-700 px-2.5 py-1 rounded-full">
+        <span className="text-xs bg-energyGreen-50 text-energyGreen-700 px-2.5 py-1 rounded-full">
           {pill(JOB_CATEGORIES, job.category)}
         </span>
       </div>
@@ -71,7 +71,7 @@ export default function JobCard({ job }) {
       </div>
 
       {(job.salaryMin || job.salaryMax) && (
-        <p className="mt-2 text-sm font-semibold text-field-700">
+        <p className="mt-2 text-sm font-semibold text-energyGreen-700">
           {formatSalary(job.salaryMin, job.salaryMax, job.salaryPeriod)}
         </p>
       )}

@@ -76,12 +76,12 @@ export default function Jobs() {
 
       {/* Worker Pro upsell for free workers */}
       {isWorker && !isWorkerPro && (
-        <div className="mb-5 flex items-center gap-3 bg-field-50 border border-field-200 rounded-xl px-4 py-3">
-          <Sparkles className="w-4 h-4 text-field shrink-0" />
-          <p className="text-sm text-field-800 flex-1">
+        <div className="mb-5 flex items-center gap-3 bg-energyGreen-50 border border-energyGreen-200 rounded-xl px-4 py-3">
+          <Sparkles className="w-4 h-4 text-energyGreen shrink-0" />
+          <p className="text-sm text-energyGreen-800 flex-1">
             <strong>Worker Pro</strong> — get 24hr early access to new listings, priority placement, and a Pro badge for $7.99/mo.
           </p>
-          <Link to="/pricing?tab=worker" className="text-xs font-semibold text-field-700 hover:underline shrink-0">
+          <Link to="/pricing?tab=worker" className="text-xs font-semibold text-energyGreen-700 hover:underline shrink-0">
             Upgrade
           </Link>
         </div>

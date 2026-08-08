@@ -17,13 +17,13 @@ export async function requestBadge({ userId, type, expiryDate, file }) {
 
   let documentUrl = null
   if (file) {
-    console.log('[FieldWork] uploading file for uid:', currentUser.uid)
+    console.log('[StaffTheGame] uploading file for uid:', currentUser.uid)
     const storageRef = ref(storage, `badges/${userId}/${type}_${Date.now()}`)
     try {
       await uploadBytes(storageRef, file)
       documentUrl = await getDownloadURL(storageRef)
     } catch (e) {
-      console.error('[FieldWork] Storage error:', e.code, e.message)
+      console.error('[StaffTheGame] Storage error:', e.code, e.message)
       throw e
     }
   }

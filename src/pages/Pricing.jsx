@@ -43,7 +43,7 @@ function FeatureList({ items }) {
     <ul className="space-y-2.5 mt-6">
       {items.map((f) => (
         <li key={f} className="flex items-start gap-2.5 text-sm text-gray-700">
-          <Check className="w-4 h-4 text-field shrink-0 mt-0.5" />
+          <Check className="w-4 h-4 text-energyGreen shrink-0 mt-0.5" />
           {f}
         </li>
       ))}
@@ -119,7 +119,7 @@ function EmployerPlans({ plan }) {
         </div>
 
         {/* Pro tier */}
-        <div className="bg-brand-navy text-white border border-brand-navy rounded-2xl p-6 shadow-lg relative overflow-hidden">
+        <div className="bg-navy text-white border border-navy rounded-2xl p-6 shadow-lg relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
           <div className="flex items-center justify-between mb-1">
             <h3 className="font-bold text-lg">Pro</h3>
@@ -129,19 +129,19 @@ function EmployerPlans({ plan }) {
             <span className="text-3xl font-black">
               {isMonthly ? '$49' : '$490'}
             </span>
-            <span className="text-brand-200 text-sm mb-1">
+            <span className="text-white/70 text-sm mb-1">
               /{isMonthly ? 'mo' : 'yr'}
             </span>
             {!isMonthly && (
-              <span className="ml-2 text-xs font-semibold bg-field text-white px-2 py-0.5 rounded-full mb-1">
+              <span className="ml-2 text-xs font-semibold bg-energyGreen text-white px-2 py-0.5 rounded-full mb-1">
                 2 months free
               </span>
             )}
           </div>
           <ul className="space-y-2.5 mt-6">
             {EMPLOYER_FEATURES.pro.map((f) => (
-              <li key={f} className="flex items-start gap-2.5 text-sm text-brand-100">
-                <Check className="w-4 h-4 text-field-400 shrink-0 mt-0.5" />
+              <li key={f} className="flex items-start gap-2.5 text-sm text-white/90">
+                <Check className="w-4 h-4 text-energyGreen-400 shrink-0 mt-0.5" />
                 {f}
               </li>
             ))}
@@ -153,7 +153,7 @@ function EmployerPlans({ plan }) {
               </div>
             ) : (
               <Button
-                className="w-full bg-field hover:bg-field-700 text-white"
+                className="w-full bg-energyGreen hover:bg-energyGreen-700 text-white"
                 loading={loading}
                 onClick={handleUpgrade}
               >
@@ -240,7 +240,7 @@ function WorkerPlans({ plan }) {
         </div>
 
         {/* Worker Pro */}
-        <div className="bg-field text-white border border-field rounded-2xl p-6 shadow-lg relative overflow-hidden">
+        <div className="bg-energyGreen text-white border border-energyGreen rounded-2xl p-6 shadow-lg relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
           <div className="flex items-center justify-between mb-1">
             <h3 className="font-bold text-lg">Worker Pro</h3>
@@ -248,11 +248,11 @@ function WorkerPlans({ plan }) {
           </div>
           <div className="flex items-end gap-1 mt-2">
             <span className="text-3xl font-black">$7.99</span>
-            <span className="text-field-100 text-sm mb-1">/mo</span>
+            <span className="text-energyGreen-100 text-sm mb-1">/mo</span>
           </div>
           <ul className="space-y-2.5 mt-6">
             {WORKER_FEATURES.pro.map((f) => (
-              <li key={f} className="flex items-start gap-2.5 text-sm text-field-50">
+              <li key={f} className="flex items-start gap-2.5 text-sm text-energyGreen-50">
                 <Check className="w-4 h-4 text-white shrink-0 mt-0.5" />
                 {f}
               </li>
@@ -313,7 +313,7 @@ export default function Pricing() {
                 onClick={() => setTab(t)}
                 className={`px-8 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
                   tab === t
-                    ? 'bg-brand-navy text-white shadow'
+                    ? 'bg-navy text-white shadow'
                     : 'text-gray-500 hover:text-gray-700'
                 }`}
               >

@@ -51,11 +51,11 @@ export default function UrgentBoost({ job }) {
 
       <div className="grid grid-cols-2 gap-3 mb-4 text-sm">
         <div className="flex items-center gap-2 text-gray-600">
-          <Users className="w-4 h-4 text-brand-navy" />
+          <Users className="w-4 h-4 text-navy" />
           Notify nearby workers
         </div>
         <div className="flex items-center gap-2 text-gray-600">
-          <Clock className="w-4 h-4 text-brand-navy" />
+          <Clock className="w-4 h-4 text-navy" />
           {BOOST_DURATION_HRS}h priority listing
         </div>
       </div>

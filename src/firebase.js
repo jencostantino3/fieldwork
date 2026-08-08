@@ -30,10 +30,10 @@ if (import.meta.env.VITE_FIREBASE_API_KEY) {
     functions = getFunctions(app)
     isSupported().then((yes) => yes && getAnalytics(app))
   } catch (e) {
-    console.warn('[FieldWork] Firebase init failed:', e.message)
+    console.warn('[StaffTheGame] Firebase init failed:', e.message)
   }
 } else {
-  console.info('[FieldWork] No Firebase config — running in demo mode.')
+  console.info('[StaffTheGame] No Firebase config — running in demo mode.')
 }
 
 export { auth, db, storage, functions }

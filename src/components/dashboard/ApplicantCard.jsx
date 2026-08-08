@@ -33,7 +33,7 @@ export default function ApplicantCard({ application, applicantProfile, onStatusC
         className="flex items-center gap-4 p-4 cursor-pointer hover:bg-gray-50 transition-colors"
         onClick={() => setExpanded(!expanded)}
       >
-        <div className="w-10 h-10 rounded-full bg-brand-50 border border-brand-100 flex items-center justify-center text-sm font-bold text-brand-navy shrink-0">
+        <div className="w-10 h-10 rounded-full bg-athleticBlue-50 border border-athleticBlue-100 flex items-center justify-center text-sm font-bold text-navy shrink-0">
           {(applicantProfile?.name || '?').charAt(0).toUpperCase()}
         </div>
 
@@ -46,7 +46,7 @@ export default function ApplicantCard({ application, applicantProfile, onStatusC
 
         <div className="flex items-center gap-3 shrink-0">
           {application.priority && (
-            <span className="inline-flex items-center gap-1 text-xs font-semibold text-field-700 bg-field-50 border border-field-200 px-2 py-0.5 rounded-full">
+            <span className="inline-flex items-center gap-1 text-xs font-semibold text-energyGreen-700 bg-energyGreen-50 border border-energyGreen-200 px-2 py-0.5 rounded-full">
               <Sparkles className="w-3 h-3" /> Priority
             </span>
           )}

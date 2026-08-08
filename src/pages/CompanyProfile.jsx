@@ -32,7 +32,7 @@ export default function CompanyProfile() {
     <div className="max-w-4xl mx-auto px-4 py-8">
       <div className="bg-white border border-gray-200 rounded-2xl p-8 mb-6 shadow-card">
         <div className="flex items-start gap-5">
-          <div className="w-20 h-20 rounded-2xl bg-brand-50 border border-brand-100 flex items-center justify-center text-3xl font-bold text-brand-navy shrink-0">
+          <div className="w-20 h-20 rounded-2xl bg-athleticBlue-50 border border-athleticBlue-100 flex items-center justify-center text-3xl font-bold text-navy shrink-0">
             {company.logoUrl
               ? <img src={company.logoUrl} alt={company.name} className="w-full h-full object-cover rounded-2xl" />
               : company.name.charAt(0)}
@@ -41,7 +41,7 @@ export default function CompanyProfile() {
             <div className="flex items-center gap-2">
               <h1 className="text-2xl font-bold text-gray-900">{company.name}</h1>
               {company.verified && (
-                <CheckCircle className="w-5 h-5 text-field" title="Verified Organization" />
+                <CheckCircle className="w-5 h-5 text-energyGreen" title="Verified Organization" />
               )}
             </div>
             <p className="text-gray-600 capitalize mt-0.5">{company.sport}</p>
@@ -55,7 +55,7 @@ export default function CompanyProfile() {
                 href={company.website}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm text-brand-navy flex items-center gap-1 mt-1 hover:underline"
+                className="text-sm text-athleticBlue flex items-center gap-1 mt-1 hover:underline"
               >
                 <Globe className="w-3.5 h-3.5" /> {company.website}
               </a>

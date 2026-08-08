@@ -52,7 +52,7 @@ export default function JobDetail() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
-      <Link to="/jobs" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-brand-navy mb-6 transition-colors">
+      <Link to="/jobs" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-athleticBlue mb-6 transition-colors">
         <ChevronLeft className="w-4 h-4" /> Back to Jobs
       </Link>
 
@@ -77,10 +77,10 @@ export default function JobDetail() {
               <span className="inline-flex items-center gap-1.5 bg-gray-100 text-gray-700 px-3 py-1.5 rounded-full">
                 <MapPin className="w-3.5 h-3.5" /> {job.location}
               </span>
-              <span className="inline-flex items-center gap-1.5 bg-brand-50 text-brand-700 px-3 py-1.5 rounded-full">
+              <span className="inline-flex items-center gap-1.5 bg-athleticBlue-50 text-athleticBlue px-3 py-1.5 rounded-full">
                 <Briefcase className="w-3.5 h-3.5" /> {pill(JOB_TYPES, job.jobType)}
               </span>
-              <span className="inline-flex items-center gap-1.5 bg-field-50 text-field-700 px-3 py-1.5 rounded-full">
+              <span className="inline-flex items-center gap-1.5 bg-energyGreen-50 text-energyGreen-700 px-3 py-1.5 rounded-full">
                 <Tag className="w-3.5 h-3.5" /> {pill(JOB_CATEGORIES, job.category)}
               </span>
               <span className="inline-flex items-center gap-1.5 bg-gray-100 text-gray-700 px-3 py-1.5 rounded-full">
@@ -92,7 +92,7 @@ export default function JobDetail() {
             </div>
 
             {(job.salaryMin || job.salaryMax) && (
-              <p className="text-xl font-bold text-field mb-5">
+              <p className="text-xl font-bold text-energyGreen mb-5">
                 {formatSalary(job.salaryMin, job.salaryMax, job.salaryPeriod)}
               </p>
             )}
@@ -140,8 +140,8 @@ export default function JobDetail() {
           <div className="bg-white border border-gray-200 rounded-2xl p-5 shadow-card">
             {applied ? (
               <div className="text-center py-2">
-                <div className="w-12 h-12 bg-field-50 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <ShieldCheck className="w-6 h-6 text-field" />
+                <div className="w-12 h-12 bg-energyGreen-50 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <ShieldCheck className="w-6 h-6 text-energyGreen" />
                 </div>
                 <p className="font-semibold text-gray-800">Applied!</p>
                 <p className="text-sm text-gray-500 mt-1">Your application was submitted.</p>

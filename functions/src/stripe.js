@@ -127,7 +127,7 @@ exports.createBoostCheckout = v1
             currency:     'usd',
             unit_amount:  2000,
             product_data: {
-              name:        `FieldWork Urgent Boost — ${jobTitle}`,
+              name:        `Staff the Game Urgent Boost — ${jobTitle}`,
               description: 'Pins your listing to the top for 48 hours and notifies matching workers.',
             },
           },
