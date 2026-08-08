@@ -5,6 +5,7 @@ const variants = {
   secondary: 'bg-white text-athleticBlue border border-athleticBlue hover:bg-athleticBlue-50 focus:ring-athleticBlue',
   field:     'bg-energyGreen text-white hover:bg-energyGreen-700 focus:ring-energyGreen',
   urgent:    'bg-urgent text-white hover:bg-urgent-700 focus:ring-urgent',
+  rapidFill: 'bg-rapidFill text-white hover:bg-rapidFill-700 focus:ring-rapidFill',
   ghost:     'bg-transparent text-navy hover:bg-gray-100 focus:ring-navy',
   danger:    'bg-red-600 text-white hover:bg-red-700 focus:ring-red-600',
   white:     'bg-white text-energyGreen hover:bg-energyGreen-50 focus:ring-energyGreen',

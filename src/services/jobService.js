@@ -13,8 +13,10 @@ export async function createJob(data, employerId) {
     employerId,
     status:           'active',
     applicationCount: 0,
-    urgent:           false,
-    boostExpiry:      null,
+    urgent:               false,
+    boostExpiry:          null,
+    rapidFill:            false,
+    rapidFillActivatedAt: null,
     createdAt:        serverTimestamp(),
     updatedAt:        serverTimestamp(),
   })
@@ -51,7 +53,7 @@ export async function fetchJobs({ sport, jobType, category, coords, radiusMiles,
   if (jobType)  q = query(q, where('jobType', '==', jobType))
   if (category) q = query(q, where('category', '==', category))
 
-  const snap = await getDocs(query(q, orderBy('urgent', 'desc'), orderBy('createdAt', 'desc'), limit(200)))
+  const snap = await getDocs(query(q, orderBy('rapidFill', 'desc'), orderBy('urgent', 'desc'), orderBy('createdAt', 'desc'), limit(200)))
   let jobs = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
 
   if (coords && radiusMiles) {

@@ -3,23 +3,29 @@ import { MapPin, Clock, Zap, ShieldCheck } from 'lucide-react'
 import { clsx } from 'clsx'
 import { timeAgo, formatSalary } from '@/utils/helpers'
 import { JOB_TYPES, JOB_CATEGORIES, SPORTS } from '@/utils/constants'
+import RapidFillBadge from '@/components/rapidFill/RapidFillBadge'
 
 function pill(list, value) {
   return list.find((i) => i.value === value)?.label ?? value
 }
 
 export default function JobCard({ job }) {
-  const isUrgent = job.urgent && job.boostExpiry
+  const isUrgent    = job.urgent && job.boostExpiry
+  const isRapidFill = job.rapidFill
 
   return (
     <Link
       to={`/jobs/${job.id}`}
       className={clsx(
         'block bg-white rounded-xl border shadow-card hover:shadow-card-hover transition-all duration-200 p-5 relative overflow-hidden',
-        isUrgent && 'border-urgent-300'
+        isRapidFill && 'border-rapidFill-200',
+        !isRapidFill && isUrgent && 'border-urgent-300'
       )}
     >
-      {isUrgent && (
+      {isRapidFill && (
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-rapidFill to-rapidFill-700" />
+      )}
+      {!isRapidFill && isUrgent && (
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-urgent-500 to-amber-400" />
       )}
 
@@ -30,7 +36,8 @@ export default function JobCard({ job }) {
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap mb-0.5">
-            {isUrgent && (
+            {isRapidFill && <RapidFillBadge />}
+            {!isRapidFill && isUrgent && (
               <span className="inline-flex items-center gap-1 text-xs font-bold text-urgent bg-urgent-50 border border-urgent-200 px-2 py-0.5 rounded-full">
                 <Zap className="w-3 h-3" /> URGENT
               </span>

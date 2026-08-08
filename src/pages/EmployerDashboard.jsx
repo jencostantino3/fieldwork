@@ -1,15 +1,17 @@
 import { useEffect, useState } from 'react'
 import { Link, useSearchParams, useNavigate } from 'react-router-dom'
 import {
-  Briefcase, Users, Zap, Plus, Eye, CheckCircle, AlertCircle, Sparkles, Lock,
+  Briefcase, Users, Zap, Plus, Eye, CheckCircle, AlertCircle, Sparkles, Lock, Flame,
 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { getEmployerJobs, deleteJob } from '@/services/jobService'
+import { toggleRapidFill } from '@/services/rapidFillService'
 import { getJobApplications } from '@/services/applicationService'
 import { getOwnerCompany, createCompany } from '@/services/companyService'
 import { openBillingPortal } from '@/services/billingService'
 import ApplicantCard from '@/components/dashboard/ApplicantCard'
 import UrgentBoost from '@/components/boost/UrgentBoost'
+import RapidFillQueue from '@/components/rapidFill/RapidFillQueue'
 import PlanBadge from '@/components/billing/PlanBadge'
 import Button from '@/components/common/Button'
 import Modal from '@/components/common/Modal'
@@ -30,7 +32,8 @@ export default function EmployerDashboard() {
   const [activeJobId, setActiveJob] = useState(null)
   const [applicants, setApplicants] = useState([])
   const [appsLoading, setAppsLoad]  = useState(false)
-  const [boostJob, setBoostJob]     = useState(null)
+  const [boostJob, setBoostJob]       = useState(null)
+  const [rightPanel, setRightPanel]   = useState('applicants') // 'applicants' | 'queue'
   const [companyModal, setCoModal]  = useState(false)
   const [companyName, setCoName]    = useState('')
   const [coSport, setCoSport]       = useState('baseball')
@@ -56,12 +59,25 @@ export default function EmployerDashboard() {
     load()
   }, [user])
 
-  async function loadApplicants(jobId) {
+  async function loadApplicants(jobId, job) {
     setActiveJob(jobId)
+    setRightPanel(job?.rapidFill ? 'queue' : 'applicants')
     setAppsLoad(true)
     const apps = await getJobApplications(jobId)
     setApplicants(apps)
     setAppsLoad(false)
+  }
+
+  async function handleToggleRapidFill(e, job) {
+    e.stopPropagation()
+    const next = !job.rapidFill
+    setJobs((prev) => prev.map((j) => j.id === job.id ? { ...j, rapidFill: next } : j))
+    try {
+      await toggleRapidFill(job.id, next)
+    } catch (err) {
+      setJobs((prev) => prev.map((j) => j.id === job.id ? { ...j, rapidFill: !next } : j))
+      alert('Could not update Rapid Fill status.')
+    }
   }
 
   async function handleDeleteJob(jobId) {
@@ -90,6 +106,7 @@ export default function EmployerDashboard() {
 
   const totalApplicants = jobs.reduce((sum, j) => sum + (j.applicationCount || 0), 0)
   const activeJobs      = jobs.filter((j) => j.status === 'active')
+  const rapidFillJobs   = jobs.filter((j) => j.rapidFill)
   const atJobLimit      = !isEmployerPro && activeJobs.length >= 1
 
   async function handlePortal() {
@@ -176,9 +193,10 @@ export default function EmployerDashboard() {
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {[
-          { label: 'Active Jobs',      value: activeJobs.length,      icon: Briefcase, color: 'blue'   },
-          { label: 'Total Applicants', value: totalApplicants,         icon: Users,     color: 'green'  },
-          { label: 'Urgent Boosts',    value: jobs.filter(j=>j.urgent).length, icon: Zap, color: 'orange' },
+          { label: 'Active Jobs',      value: activeJobs.length,               icon: Briefcase, color: 'blue'   },
+          { label: 'Total Applicants', value: totalApplicants,                  icon: Users,     color: 'green'  },
+          { label: 'Rapid Fill',       value: rapidFillJobs.length,             icon: Flame,     color: 'orange' },
+          { label: 'Urgent Boosts',    value: jobs.filter(j=>j.urgent).length,  icon: Zap,       color: 'yellow' },
         ].map((s) => (
           <div key={s.label} className="bg-white border border-gray-200 rounded-xl p-5 shadow-card">
             <div className={`w-9 h-9 rounded-lg bg-${s.color}-50 flex items-center justify-center mb-3`}>
@@ -216,13 +234,20 @@ export default function EmployerDashboard() {
                 <div
                   key={job.id}
                   className={`bg-white border rounded-xl p-4 shadow-card cursor-pointer transition-colors ${
-                    activeJobId === job.id ? 'border-athleticBlue' : 'border-gray-200 hover:border-gray-300'
+                    activeJobId === job.id
+                      ? job.rapidFill ? 'border-rapidFill-300' : 'border-athleticBlue'
+                      : 'border-gray-200 hover:border-gray-300'
                   }`}
-                  onClick={() => loadApplicants(job.id)}
+                  onClick={() => loadApplicants(job.id, job)}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
+                        {job.rapidFill && (
+                          <span className="text-xs font-bold text-rapidFill bg-rapidFill-50 px-2 py-0.5 rounded-full inline-flex items-center gap-1">
+                            <Flame className="w-3 h-3" /> RAPID FILL
+                          </span>
+                        )}
                         {job.urgent && (
                           <span className="text-xs font-bold text-urgent bg-urgent-50 px-2 py-0.5 rounded-full inline-flex items-center gap-1">
                             <Zap className="w-3 h-3" /> URGENT
@@ -245,6 +270,17 @@ export default function EmployerDashboard() {
                       >
                         <Eye className="w-4 h-4" />
                       </Link>
+                      <button
+                        onClick={(e) => handleToggleRapidFill(e, job)}
+                        className={`p-1.5 rounded-lg transition-colors ${
+                          job.rapidFill
+                            ? 'text-rapidFill bg-rapidFill-50 hover:bg-rapidFill-100'
+                            : 'text-gray-400 hover:text-rapidFill hover:bg-rapidFill-50'
+                        }`}
+                        title={job.rapidFill ? 'Turn off Rapid Fill' : 'Enable Rapid Fill'}
+                      >
+                        <Flame className="w-4 h-4" />
+                      </button>
                       {!job.urgent && (
                         <button
                           onClick={(e) => { e.stopPropagation(); setBoostJob(job) }}
@@ -269,56 +305,101 @@ export default function EmployerDashboard() {
           )}
         </div>
 
-        {/* Applicants panel */}
+        {/* Queue / Applicants panel */}
         <div>
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            {activeJobId ? `Applicants (${applicants.length})` : 'Select a job to view applicants'}
-          </h2>
+          {(() => {
+            const activeJob = jobs.find((j) => j.id === activeJobId)
+            const isRF      = !!activeJob?.rapidFill
 
-          {!activeJobId ? (
-            <div className="bg-white border border-dashed border-gray-200 rounded-2xl p-10 text-center text-gray-400 text-sm">
-              Click a job to review its applicants
-            </div>
-          ) : !isEmployerPro && applicants.length > 3 ? (
-            <div className="space-y-3">
-              {applicants.slice(0, 3).map((app) => (
-                <ApplicantCard
-                  key={app.id}
-                  application={app}
-                  applicantProfile={null}
-                  onStatusChange={handleStatusChange}
-                />
-              ))}
-              <div className="rounded-2xl border border-dashed border-athleticBlue-200 bg-athleticBlue-50 p-6 text-center space-y-2">
-                <Lock className="w-5 h-5 text-navy mx-auto" />
-                <p className="text-sm font-medium text-gray-800">
-                  {applicants.length - 3} more applicant{applicants.length - 3 !== 1 ? 's' : ''} hidden
-                </p>
-                <p className="text-xs text-gray-500">Upgrade to Pro to compare all applicants side-by-side.</p>
-                <Button size="sm" onClick={() => navigate('/pricing')}>
-                  <Sparkles className="w-3.5 h-3.5" /> Unlock All Applicants
-                </Button>
-              </div>
-            </div>
-          ) : appsLoading ? (
-            <LoadingSpinner className="py-10" />
-          ) : applicants.length === 0 ? (
-            <div className="bg-white border border-gray-200 rounded-2xl p-10 text-center">
-              <Users className="w-8 h-8 text-gray-300 mx-auto mb-2" />
-              <p className="text-gray-500 text-sm">No applicants yet.</p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {applicants.map((app) => (
-                <ApplicantCard
-                  key={app.id}
-                  application={app}
-                  applicantProfile={null}
-                  onStatusChange={handleStatusChange}
-                />
-              ))}
-            </div>
-          )}
+            return (
+              <>
+                {/* Panel header with optional tab switcher */}
+                <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+                  <h2 className="text-lg font-semibold text-gray-900">
+                    {!activeJobId
+                      ? 'Select a job to view details'
+                      : isRF && rightPanel === 'queue'
+                        ? 'Live Queue'
+                        : `Applicants (${applicants.length})`}
+                  </h2>
+                  {activeJobId && isRF && (
+                    <div className="flex text-sm rounded-lg border border-gray-200 overflow-hidden">
+                      <button
+                        onClick={() => setRightPanel('queue')}
+                        className={`px-3 py-1.5 font-medium transition-colors flex items-center gap-1 ${
+                          rightPanel === 'queue' ? 'bg-rapidFill text-white' : 'text-gray-500 hover:bg-gray-50'
+                        }`}
+                      >
+                        <Flame className="w-3.5 h-3.5" /> Live Queue
+                      </button>
+                      <button
+                        onClick={() => setRightPanel('applicants')}
+                        className={`px-3 py-1.5 font-medium transition-colors border-l border-gray-200 ${
+                          rightPanel === 'applicants' ? 'bg-athleticBlue text-white' : 'text-gray-500 hover:bg-gray-50'
+                        }`}
+                      >
+                        Applicants ({applicants.length})
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Rapid Fill queue */}
+                {activeJobId && isRF && rightPanel === 'queue' ? (
+                  <RapidFillQueue
+                    job={activeJob}
+                    onConfirmed={() => {
+                      setJobs((prev) => prev.map((j) => j.id === activeJobId ? { ...j, rapidFill: false } : j))
+                      setRightPanel('applicants')
+                    }}
+                  />
+                ) : !activeJobId ? (
+                  <div className="bg-white border border-dashed border-gray-200 rounded-2xl p-10 text-center text-gray-400 text-sm">
+                    Click a job to review its applicants
+                  </div>
+                ) : !isEmployerPro && applicants.length > 3 ? (
+                  <div className="space-y-3">
+                    {applicants.slice(0, 3).map((app) => (
+                      <ApplicantCard
+                        key={app.id}
+                        application={app}
+                        applicantProfile={null}
+                        onStatusChange={handleStatusChange}
+                      />
+                    ))}
+                    <div className="rounded-2xl border border-dashed border-athleticBlue-200 bg-athleticBlue-50 p-6 text-center space-y-2">
+                      <Lock className="w-5 h-5 text-navy mx-auto" />
+                      <p className="text-sm font-medium text-gray-800">
+                        {applicants.length - 3} more applicant{applicants.length - 3 !== 1 ? 's' : ''} hidden
+                      </p>
+                      <p className="text-xs text-gray-500">Upgrade to Pro to compare all applicants side-by-side.</p>
+                      <Button size="sm" onClick={() => navigate('/pricing')}>
+                        <Sparkles className="w-3.5 h-3.5" /> Unlock All Applicants
+                      </Button>
+                    </div>
+                  </div>
+                ) : appsLoading ? (
+                  <LoadingSpinner className="py-10" />
+                ) : applicants.length === 0 ? (
+                  <div className="bg-white border border-gray-200 rounded-2xl p-10 text-center">
+                    <Users className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+                    <p className="text-gray-500 text-sm">No applicants yet.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {applicants.map((app) => (
+                      <ApplicantCard
+                        key={app.id}
+                        application={app}
+                        applicantProfile={null}
+                        onStatusChange={handleStatusChange}
+                      />
+                    ))}
+                  </div>
+                )}
+              </>
+            )
+          })()}
         </div>
       </div>
 

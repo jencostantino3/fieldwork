@@ -66,5 +66,29 @@ service cloud.firestore {
         && resource.data.employerId == request.auth.uid;
       allow write: if false; // Cloud Function only
     }
+
+    // Rapid Fill holds
+    match /rapidFillHolds/{holdId} {
+      // Workers read their own holds; employers read holds for their jobs
+      allow read: if isSignedIn() && (
+        resource.data.workerId == request.auth.uid
+        || (isEmployer()
+            && get(/databases/$(database)/documents/jobs/$(resource.data.jobId)).data.employerId == request.auth.uid)
+      );
+
+      // Workers (non-employer) create holds for themselves
+      allow create: if isSignedIn()
+        && !isEmployer()
+        && request.resource.data.workerId == request.auth.uid
+        && request.resource.data.status == 'pending';
+
+      // Employers update hold status (confirm/reject) on their own jobs
+      allow update: if isEmployer()
+        && get(/databases/$(database)/documents/jobs/$(resource.data.jobId)).data.employerId == request.auth.uid
+        && request.resource.data.status in ['confirmed', 'rejected'];
+
+      // Cloud Function (service account) handles expiry — no client delete
+      allow delete: if false;
+    }
   }
 }

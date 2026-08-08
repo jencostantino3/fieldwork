@@ -10,6 +10,8 @@ import LoadingSpinner from '@/components/common/LoadingSpinner'
 import Button from '@/components/common/Button'
 import Modal from '@/components/common/Modal'
 import ApplicationForm from '@/components/applications/ApplicationForm'
+import RapidFillBadge from '@/components/rapidFill/RapidFillBadge'
+import RapidFillAction from '@/components/rapidFill/RapidFillAction'
 import { timeAgo, formatSalary } from '@/utils/helpers'
 import { JOB_TYPES, JOB_CATEGORIES, SPORTS } from '@/utils/constants'
 
@@ -48,7 +50,8 @@ export default function JobDetail() {
     setApply(true)
   }
 
-  const canApply = !applied && profile?.role !== 'employer'
+  const canApply    = !applied && profile?.role !== 'employer'
+  const isWorker    = profile?.role !== 'employer'
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
@@ -60,11 +63,14 @@ export default function JobDetail() {
         {/* Main */}
         <div>
           <div className="bg-white border border-gray-200 rounded-2xl p-6 mb-5 shadow-card">
-            {job.urgent && (
-              <div className="inline-flex items-center gap-1.5 text-sm font-bold text-urgent bg-urgent-50 border border-urgent-200 px-3 py-1 rounded-full mb-4">
-                <Zap className="w-4 h-4" /> URGENT – Last-Minute Opening
-              </div>
-            )}
+            <div className="flex flex-wrap gap-2 mb-4">
+              {job.rapidFill && <RapidFillBadge size="lg" />}
+              {job.urgent && (
+                <div className="inline-flex items-center gap-1.5 text-sm font-bold text-urgent bg-urgent-50 border border-urgent-200 px-3 py-1 rounded-full">
+                  <Zap className="w-4 h-4" /> URGENT – Last-Minute Opening
+                </div>
+              )}
+            </div>
 
             <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-1">{job.title}</h1>
 
@@ -137,6 +143,14 @@ export default function JobDetail() {
 
         {/* Sidebar */}
         <div className="space-y-4">
+          {/* Rapid Fill action — workers only */}
+          {job.rapidFill && isWorker && (
+            <div className="bg-white border border-rapidFill-200 rounded-2xl p-5 shadow-card">
+              <p className="text-xs font-bold text-rapidFill uppercase tracking-wide mb-3">Rapid Fill — Needed Now</p>
+              <RapidFillAction job={job} />
+            </div>
+          )}
+
           <div className="bg-white border border-gray-200 rounded-2xl p-5 shadow-card">
             {applied ? (
               <div className="text-center py-2">
@@ -148,7 +162,7 @@ export default function JobDetail() {
               </div>
             ) : (
               <Button fullWidth size="lg" onClick={handleApplyClick}>
-                Apply Now
+                {job.rapidFill && isWorker ? 'Apply Instead' : 'Apply Now'}
               </Button>
             )}
             <p className="text-xs text-gray-500 text-center mt-3">No resume needed — just answer a few questions.</p>
