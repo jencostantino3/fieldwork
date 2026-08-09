@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { Search, MapPin, Zap, ShieldCheck, Award, Briefcase, ChevronRight, Info } from 'lucide-react'
 import Button from '@/components/common/Button'
 import { SPORTS, JOB_CATEGORIES } from '@/utils/constants'
-import { getJobCountsBySport } from '@/services/jobService'
+import { getJobCountsBySport, getJobCountsByCategory } from '@/services/jobService'
 import fullLogo from '@/assets/logo-full.png'
 
 const IS_DEMO = !import.meta.env.VITE_FIREBASE_API_KEY
@@ -39,12 +39,14 @@ const FEATURES = [
 ]
 
 export default function Home() {
-  const [zip, setZip]         = useState('')
-  const [sportCounts, setCounts] = useState({})
-  const navigate              = useNavigate()
+  const [zip, setZip]              = useState('')
+  const [sportCounts, setSportCounts]       = useState({})
+  const [categoryCounts, setCategoryCounts] = useState({})
+  const navigate                   = useNavigate()
 
   useEffect(() => {
-    getJobCountsBySport().then(setCounts).catch(() => {})
+    getJobCountsBySport().then(setSportCounts).catch(() => {})
+    getJobCountsByCategory().then(setCategoryCounts).catch(() => {})
   }, [])
 
   function handleSearch(e) {
@@ -169,9 +171,12 @@ export default function Home() {
             <Link
               key={c.value}
               to={`/jobs?category=${c.value}`}
-              className="bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium text-gray-700 hover:border-athleticBlue hover:text-athleticBlue transition-colors text-center"
+              className="bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium text-gray-700 hover:border-athleticBlue hover:text-athleticBlue transition-colors text-center flex flex-col gap-0.5"
             >
-              {c.label}
+              <span>{c.label}</span>
+              {categoryCounts[c.value] != null && (
+                <span className="text-xs font-normal text-gray-400">{categoryCounts[c.value]} open</span>
+              )}
             </Link>
           ))}
         </div>
