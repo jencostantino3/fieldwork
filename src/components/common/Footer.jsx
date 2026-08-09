@@ -7,8 +7,9 @@ export default function Footer() {
       <div className="max-w-6xl mx-auto px-4 py-12">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
           <div>
-            <Link to="/" className="inline-flex mb-3">
-              <img src={shieldLogo} alt="Staff the Game" className="h-9 w-auto" />
+            <Link to="/" className="inline-flex items-center gap-2 mb-3">
+              <img src={shieldLogo} alt="" className="h-7 w-auto" />
+              <span className="text-lg font-bold text-white">Staff the Game</span>
             </Link>
             <p className="text-sm leading-relaxed">
               The sports job board connecting workers and organizations for baseball, basketball, and softball.
