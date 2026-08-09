@@ -1,6 +1,6 @@
 import {
   collection, doc, addDoc, updateDoc, deleteDoc, getDoc, getDocs,
-  query, where, orderBy, limit, serverTimestamp, Timestamp,
+  query, where, orderBy, limit, serverTimestamp, Timestamp, getCountFromServer,
 } from 'firebase/firestore'
 import { db } from '@/firebase'
 import { haversineDistance, getBoundingBox } from '@/utils/helpers'
@@ -70,6 +70,19 @@ export async function fetchJobs({ sport, jobType, category, coords, radiusMiles,
   if (onlyUrgent) jobs = jobs.filter((j) => j.urgent)
 
   return jobs
+}
+
+export async function getJobCountsBySport() {
+  const sports = ['baseball', 'basketball', 'softball']
+  const results = await Promise.all(
+    sports.map(async (sport) => {
+      const snap = await getCountFromServer(
+        query(collection(db, JOBS), where('status', '==', 'active'), where('sport', '==', sport))
+      )
+      return [sport, snap.data().count]
+    })
+  )
+  return Object.fromEntries(results)
 }
 
 export async function boostJob(jobId, hours = 48) {

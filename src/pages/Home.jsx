@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Search, MapPin, Zap, ShieldCheck, Award, Briefcase, ChevronRight, Info } from 'lucide-react'
 import Button from '@/components/common/Button'
 import { SPORTS, JOB_CATEGORIES } from '@/utils/constants'
+import { getJobCountsBySport } from '@/services/jobService'
 import fullLogo from '@/assets/logo-full.png'
 
 const IS_DEMO = !import.meta.env.VITE_FIREBASE_API_KEY
@@ -38,8 +39,13 @@ const FEATURES = [
 ]
 
 export default function Home() {
-  const [zip, setZip]     = useState('')
-  const navigate          = useNavigate()
+  const [zip, setZip]         = useState('')
+  const [sportCounts, setCounts] = useState({})
+  const navigate              = useNavigate()
+
+  useEffect(() => {
+    getJobCountsBySport().then(setCounts).catch(() => {})
+  }, [])
 
   function handleSearch(e) {
     e.preventDefault()
@@ -126,7 +132,11 @@ export default function Home() {
                 {s.value === 'baseball' ? '⚾' : s.value === 'basketball' ? '🏀' : '🥎'}
               </div>
               <h3 className="text-lg font-bold text-gray-900 group-hover:text-athleticBlue">{s.label}</h3>
-              <p className="text-sm text-gray-500 mt-1">View open positions</p>
+              <p className="text-sm text-gray-500 mt-1">
+                {sportCounts[s.value] != null
+                  ? `${sportCounts[s.value]} open position${sportCounts[s.value] !== 1 ? 's' : ''}`
+                  : 'View open positions'}
+              </p>
               <ChevronRight className="w-5 h-5 text-gray-300 group-hover:text-athleticBlue absolute right-5 top-1/2 -translate-y-1/2 transition-colors" />
             </Link>
           ))}
