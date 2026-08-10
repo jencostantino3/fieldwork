@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import shieldLogo from '@/assets/logo-shield.png'
+import shieldLogo from '@/assets/logo-shield-transparent.png'
 
 export default function Footer() {
   return (

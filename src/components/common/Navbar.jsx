@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { Menu, X, ChevronDown, LogOut, User, LayoutDashboard } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
-import shieldLogo from '@/assets/logo-shield.png'
+import shieldLogo from '@/assets/logo-shield-transparent.png'
 
 export default function Navbar() {
   const [open, setOpen]     = useState(false)
