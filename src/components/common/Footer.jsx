@@ -8,7 +8,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
           <div>
             <Link to="/" className="inline-flex items-center gap-2 mb-3">
-              <img src={shieldLogo} alt="" className="h-7 w-auto" />
+              <img src={shieldLogo} alt="" className="h-7 w-auto" style={{ filter: 'drop-shadow(0 0 1px rgba(255,255,255,0.45)) drop-shadow(0 0 3px rgba(255,255,255,0.15))' }} />
               <span className="text-lg font-bold text-white">Staff the Game</span>
             </Link>
             <p className="text-sm leading-relaxed">

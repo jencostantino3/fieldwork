@@ -26,7 +26,7 @@ export default function Navbar() {
       <div className="max-w-6xl mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <Link to="/" className="flex items-center gap-2.5">
-            <img src={shieldLogo} alt="" className="h-8 w-auto" />
+            <img src={shieldLogo} alt="" className="h-8 w-auto" style={{ filter: 'drop-shadow(0 0 1px rgba(255,255,255,0.45)) drop-shadow(0 0 3px rgba(255,255,255,0.15))' }} />
             <span className="text-xl font-bold text-white tracking-tight">Staff the Game</span>
           </Link>
 
