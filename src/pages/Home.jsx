@@ -79,7 +79,7 @@ export default function Home() {
           }}
         />
         <div className="relative max-w-5xl mx-auto px-4 py-20 md:py-28 text-center">
-          <img src={fullLogo} alt="Staff the Game" className="h-36 md:h-52 w-auto mx-auto mb-8" />
+          <img src={fullLogo} alt="Staff the Game" className="h-32 md:h-44 w-auto mx-auto mb-8" />
           <div className="inline-flex items-center gap-2 bg-energyGreen/20 border border-energyGreen/30 text-energyGreen-200 text-sm font-medium px-4 py-1.5 rounded-full mb-6">
             <Zap className="w-3.5 h-3.5" /> Now hiring for baseball, basketball & softball
           </div>
