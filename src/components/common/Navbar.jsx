@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { Menu, X, ChevronDown, LogOut, User, LayoutDashboard } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
-import shieldLogo from '@/assets/logo-shield-transparent.png'
+import darkLogo from '@/assets/logo-dark.png'
 
 export default function Navbar() {
   const [open, setOpen]     = useState(false)
@@ -25,9 +25,8 @@ export default function Navbar() {
     <nav className="sticky top-0 z-40 bg-navy shadow-md">
       <div className="max-w-6xl mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          <Link to="/" className="flex items-center gap-2.5">
-            <img src={shieldLogo} alt="" className="h-8 w-auto" style={{ filter: 'drop-shadow(0 0 1px rgba(255,255,255,0.45)) drop-shadow(0 0 3px rgba(255,255,255,0.15))' }} />
-            <span className="text-xl font-bold text-white tracking-tight">Staff the Game</span>
+          <Link to="/">
+            <img src={darkLogo} alt="Staff the Game" className="h-8 w-auto" />
           </Link>
 
           <div className="hidden md:flex items-center gap-6">
