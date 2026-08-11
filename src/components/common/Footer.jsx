@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import shieldLogo from '@/assets/logo-shield-transparent.png'
+import darkLogo from '@/assets/logo-dark.png'
 
 export default function Footer() {
   return (
@@ -7,9 +7,8 @@ export default function Footer() {
       <div className="max-w-6xl mx-auto px-4 py-12">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
           <div>
-            <Link to="/" className="inline-flex items-center gap-2 mb-3">
-              <img src={shieldLogo} alt="" className="h-7 w-auto" style={{ filter: 'drop-shadow(0 0 1px rgba(255,255,255,0.45)) drop-shadow(0 0 3px rgba(255,255,255,0.15))' }} />
-              <span className="text-lg font-bold text-white">Staff the Game</span>
+            <Link to="/" className="inline-block mb-3">
+              <img src={darkLogo} alt="Staff the Game" className="h-7 w-auto" />
             </Link>
             <p className="text-sm leading-relaxed">
               The sports job board connecting workers and organizations for baseball, basketball, and softball.
