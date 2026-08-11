@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useSearchParams, useNavigate } from 'react-router-dom'
 import {
-  Briefcase, Users, Zap, Plus, Eye, CheckCircle, AlertCircle, Sparkles, Lock, Flame,
+  Briefcase, Users, Zap, Plus, Eye, CheckCircle, AlertCircle, Sparkles, Lock, Flame, ClipboardList,
 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { getEmployerJobs, deleteJob } from '@/services/jobService'
@@ -12,6 +12,7 @@ import { openBillingPortal } from '@/services/billingService'
 import ApplicantCard from '@/components/dashboard/ApplicantCard'
 import UrgentBoost from '@/components/boost/UrgentBoost'
 import RapidFillQueue from '@/components/rapidFill/RapidFillQueue'
+import EmployerChecklistStatus from '@/components/checklist/EmployerChecklistStatus'
 import PlanBadge from '@/components/billing/PlanBadge'
 import Button from '@/components/common/Button'
 import Modal from '@/components/common/Modal'
@@ -20,7 +21,7 @@ import { timeAgo } from '@/utils/helpers'
 import { PLANS } from '@/utils/constants'
 
 export default function EmployerDashboard() {
-  const { user, profile, isEmployerPro } = useAuth()
+  const { user, profile, isEmployerPro, isEmployerElite } = useAuth()
   const [searchParams] = useSearchParams()
   const navigate       = useNavigate()
   const boostSuccess   = searchParams.get('boost_success')
@@ -107,7 +108,7 @@ export default function EmployerDashboard() {
   const totalApplicants = jobs.reduce((sum, j) => sum + (j.applicationCount || 0), 0)
   const activeJobs      = jobs.filter((j) => j.status === 'active')
   const rapidFillJobs   = jobs.filter((j) => j.rapidFill)
-  const atJobLimit      = !isEmployerPro && activeJobs.length >= 1
+  const atJobLimit      = !isEmployerPro && !isEmployerElite && activeJobs.length >= 1
 
   async function handlePortal() {
     setPortalLoading(true)
@@ -308,30 +309,35 @@ export default function EmployerDashboard() {
         {/* Queue / Applicants panel */}
         <div>
           {(() => {
-            const activeJob = jobs.find((j) => j.id === activeJobId)
-            const isRF      = !!activeJob?.rapidFill
+            const activeJob     = jobs.find((j) => j.id === activeJobId)
+            const isRF          = !!activeJob?.rapidFill
+            const hasChecklist  = isEmployerElite && activeJob?.roleType === 'event' && !!activeJob?.checklistTemplate
+
+            const panelTitle = !activeJobId
+              ? 'Select a job to view details'
+              : rightPanel === 'queue'
+                ? 'Live Queue'
+                : rightPanel === 'checklist'
+                  ? 'Event Checklist'
+                  : `Applicants (${applicants.length})`
 
             return (
               <>
                 {/* Panel header with optional tab switcher */}
                 <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-                  <h2 className="text-lg font-semibold text-gray-900">
-                    {!activeJobId
-                      ? 'Select a job to view details'
-                      : isRF && rightPanel === 'queue'
-                        ? 'Live Queue'
-                        : `Applicants (${applicants.length})`}
-                  </h2>
-                  {activeJobId && isRF && (
+                  <h2 className="text-lg font-semibold text-gray-900">{panelTitle}</h2>
+                  {activeJobId && (isRF || hasChecklist) && (
                     <div className="flex text-sm rounded-lg border border-gray-200 overflow-hidden">
-                      <button
-                        onClick={() => setRightPanel('queue')}
-                        className={`px-3 py-1.5 font-medium transition-colors flex items-center gap-1 ${
-                          rightPanel === 'queue' ? 'bg-rapidFill text-white' : 'text-gray-500 hover:bg-gray-50'
-                        }`}
-                      >
-                        <Flame className="w-3.5 h-3.5" /> Live Queue
-                      </button>
+                      {isRF && (
+                        <button
+                          onClick={() => setRightPanel('queue')}
+                          className={`px-3 py-1.5 font-medium transition-colors flex items-center gap-1 ${
+                            rightPanel === 'queue' ? 'bg-rapidFill text-white' : 'text-gray-500 hover:bg-gray-50'
+                          }`}
+                        >
+                          <Flame className="w-3.5 h-3.5" /> Live Queue
+                        </button>
+                      )}
                       <button
                         onClick={() => setRightPanel('applicants')}
                         className={`px-3 py-1.5 font-medium transition-colors border-l border-gray-200 ${
@@ -340,6 +346,16 @@ export default function EmployerDashboard() {
                       >
                         Applicants ({applicants.length})
                       </button>
+                      {hasChecklist && (
+                        <button
+                          onClick={() => setRightPanel('checklist')}
+                          className={`px-3 py-1.5 font-medium transition-colors border-l border-gray-200 flex items-center gap-1 ${
+                            rightPanel === 'checklist' ? 'bg-energyGreen text-white' : 'text-gray-500 hover:bg-gray-50'
+                          }`}
+                        >
+                          <ClipboardList className="w-3.5 h-3.5" /> Event Status
+                        </button>
+                      )}
                     </div>
                   )}
                 </div>
@@ -353,6 +369,8 @@ export default function EmployerDashboard() {
                       setRightPanel('applicants')
                     }}
                   />
+                ) : activeJobId && rightPanel === 'checklist' ? (
+                  <EmployerChecklistStatus job={activeJob} />
                 ) : !activeJobId ? (
                   <div className="bg-white border border-dashed border-gray-200 rounded-2xl p-10 text-center text-gray-400 text-sm">
                     Click a job to review its applicants

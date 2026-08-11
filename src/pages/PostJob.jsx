@@ -1,65 +1,74 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useForm, useFieldArray } from 'react-hook-form'
-import { Plus, Trash2, Sparkles } from 'lucide-react'
+import { Plus, Trash2, Sparkles, ClipboardList, Lock } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { createJob, getEmployerJobs } from '@/services/jobService'
 import { getOwnerCompany } from '@/services/companyService'
 import { getCoordinatesFromZip } from '@/utils/helpers'
 import Button from '@/components/common/Button'
+import ChecklistBuilder, { buildDefaultTasks } from '@/components/checklist/ChecklistBuilder'
 import { SPORTS, JOB_TYPES, JOB_CATEGORIES, QUESTION_TYPES } from '@/utils/constants'
 
 export default function PostJob() {
-  const { user, profile, isEmployerPro } = useAuth()
+  const { user, profile, isEmployerPro, isEmployerElite } = useAuth()
   const navigate = useNavigate()
-  const [error, setError]   = useState('')
-  const [submitting, setSub]= useState(false)
-  const [atLimit, setAtLimit] = useState(false)
+  const [error,      setError]   = useState('')
+  const [submitting, setSub]     = useState(false)
+  const [atLimit,    setAtLimit] = useState(false)
+  const [clTasks,    setClTasks] = useState(buildDefaultTasks())
+  const [clNums,     setClNums]  = useState([])
 
   useEffect(() => {
-    if (!user || isEmployerPro) return
+    if (!user || isEmployerPro || isEmployerElite) return
     getEmployerJobs(user.uid).then((jobs) => {
       const activeCount = jobs.filter((j) => j.status === 'active').length
       if (activeCount >= 1) setAtLimit(true)
     }).catch(() => {})
-  }, [user, isEmployerPro])
+  }, [user, isEmployerPro, isEmployerElite])
 
   const { register, control, handleSubmit, watch, formState: { errors } } = useForm({
     defaultValues: {
+      roleType:  'ongoing',
       questions: [{ type: 'text', text: '', required: true }],
     },
   })
 
+  const roleType = watch('roleType')
   const { fields, append, remove } = useFieldArray({ control, name: 'questions' })
 
   async function onSubmit(data) {
     setError('')
     setSub(true)
     try {
-      const company = await getOwnerCompany(user.uid)
-
-      let coordinates = null
+      const company     = await getOwnerCompany(user.uid)
+      let   coordinates = null
       if (data.zipCode?.length === 5) {
         coordinates = await getCoordinatesFromZip(data.zipCode)
       }
 
+      const isEvent = data.roleType === 'event'
       const jobData = {
-        title:       data.title,
-        sport:       data.sport,
-        jobType:     data.jobType,
-        category:    data.category,
-        description: data.description,
+        title:        data.title,
+        sport:        data.sport,
+        jobType:      data.jobType,
+        category:     data.category,
+        description:  data.description,
         requirements: data.requirements || '',
-        location:    data.location,
-        zipCode:     data.zipCode,
+        location:     data.location,
+        zipCode:      data.zipCode,
         coordinates,
-        salaryMin:   data.salaryMin ? Number(data.salaryMin) : null,
-        salaryMax:   data.salaryMax ? Number(data.salaryMax) : null,
+        salaryMin:    data.salaryMin ? Number(data.salaryMin) : null,
+        salaryMax:    data.salaryMax ? Number(data.salaryMax) : null,
         salaryPeriod: data.salaryPeriod || 'year',
         requiresCORI: data.requiresCORI || false,
-        companyId:   company?.id ?? null,
-        companyName: company?.name ?? profile?.name ?? 'Unknown',
-        questions:   data.questions
+        companyId:    company?.id ?? null,
+        companyName:  company?.name ?? profile?.name ?? 'Unknown',
+        roleType:     data.roleType || 'ongoing',
+        checklistTemplate: (isEvent && isEmployerElite && clTasks.length > 0)
+          ? { tasks: clTasks, notifyNumbers: clNums, createdBy: user.uid }
+          : null,
+        questions: data.questions
           .filter((q) => q.text.trim())
           .map((q, i) => ({ ...q, id: String(i) })),
       }
@@ -96,7 +105,8 @@ export default function PostJob() {
       <p className="text-gray-500 text-sm mb-6">Fill in the details below. Workers apply by answering your questions — no resume needed.</p>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-        {/* Basic info */}
+
+        {/* Job Details */}
         <section className="bg-white border border-gray-200 rounded-2xl p-6 shadow-card space-y-4">
           <h2 className="text-base font-semibold text-gray-900 mb-2">Job Details</h2>
 
@@ -110,7 +120,18 @@ export default function PostJob() {
             {errors.title && <p className="text-red-500 text-xs mt-1">{errors.title.message}</p>}
           </div>
 
-          <div className="grid sm:grid-cols-3 gap-4">
+          {/* Role Type + Sport */}
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Role Type <span className="text-red-500">*</span></label>
+              <select
+                {...register('roleType')}
+                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue"
+              >
+                <option value="ongoing">Ongoing / Recurring role</option>
+                <option value="event">One-time event (tournament, clinic, camp)</option>
+              </select>
+            </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Sport <span className="text-red-500">*</span></label>
               <select
@@ -121,6 +142,10 @@ export default function PostJob() {
                 {SPORTS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
               </select>
             </div>
+          </div>
+
+          {/* Job Type + Category */}
+          <div className="grid sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Job Type <span className="text-red-500">*</span></label>
               <select
@@ -143,6 +168,7 @@ export default function PostJob() {
             </div>
           </div>
 
+          {/* Location */}
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">City / Location <span className="text-red-500">*</span></label>
@@ -185,7 +211,7 @@ export default function PostJob() {
           </div>
         </section>
 
-        {/* Pay */}
+        {/* Compensation */}
         <section className="bg-white border border-gray-200 rounded-2xl p-6 shadow-card space-y-4">
           <h2 className="text-base font-semibold text-gray-900">Compensation</h2>
           <div className="grid sm:grid-cols-3 gap-4">
@@ -226,7 +252,39 @@ export default function PostJob() {
           </label>
         </section>
 
-        {/* Questions */}
+        {/* Event Checklist — only shown for event-type roles */}
+        {roleType === 'event' && (isEmployerElite ? (
+          <section className="bg-white border border-gray-200 rounded-2xl p-6 shadow-card">
+            <div className="flex items-center gap-2 mb-1">
+              <ClipboardList className="w-4 h-4 text-athleticBlue" />
+              <h2 className="text-base font-semibold text-gray-900">Event Checklist</h2>
+            </div>
+            <p className="text-xs text-gray-500 mb-4">
+              Workers will check off these tasks on event day. You'll get a live status view and optional text alerts.
+            </p>
+            <ChecklistBuilder
+              tasks={clTasks}
+              onTasksChange={setClTasks}
+              notifyNumbers={clNums}
+              onNumbersChange={setClNums}
+            />
+          </section>
+        ) : isEmployerPro ? (
+          <section className="bg-gray-50 border border-dashed border-gray-200 rounded-2xl p-6">
+            <div className="flex items-center gap-2 mb-1">
+              <Lock className="w-4 h-4 text-gray-400" />
+              <h2 className="text-base font-semibold text-gray-500">Event Checklist</h2>
+            </div>
+            <p className="text-sm text-gray-400 mb-3">
+              Build a task checklist for workers, get live completion updates, and receive text alerts on event day.
+            </p>
+            <Button size="sm" variant="secondary" onClick={() => navigate('/pricing')}>
+              <Sparkles className="w-3.5 h-3.5" /> Upgrade to Elite to unlock
+            </Button>
+          </section>
+        ) : null)}
+
+        {/* Application Questions */}
         <section className="bg-white border border-gray-200 rounded-2xl p-6 shadow-card">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-base font-semibold text-gray-900">Application Questions</h2>

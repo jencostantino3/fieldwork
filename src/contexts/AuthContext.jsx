@@ -120,11 +120,12 @@ export function AuthProvider({ children }) {
     }
   }
 
-  const isEmployer    = profile?.role === 'employer'
-  const isWorker      = profile?.role === 'worker'
-  const isEmployerPro = profile?.plan === 'employer_pro'
-  const isWorkerPro   = profile?.plan === 'worker_pro'
-  const isPro         = isEmployerPro || isWorkerPro
+  const isEmployer      = profile?.role === 'employer'
+  const isWorker        = profile?.role === 'worker'
+  const isEmployerPro   = profile?.plan === 'employer_pro'
+  const isEmployerElite = profile?.plan === 'employer_elite'
+  const isWorkerPro     = profile?.plan === 'worker_pro'
+  const isPro           = isEmployerPro || isEmployerElite || isWorkerPro
 
   return (
     <AuthContext.Provider
@@ -136,6 +137,7 @@ export function AuthProvider({ children }) {
         isWorker,
         isPro,
         isEmployerPro,
+        isEmployerElite,
         isWorkerPro,
         register,
         login,

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import {
-  MapPin, Clock, Briefcase, Tag, ShieldCheck, Zap, Building2, ChevronLeft,
+  MapPin, Clock, Briefcase, Tag, ShieldCheck, Zap, Building2, ChevronLeft, ClipboardList,
 } from 'lucide-react'
 import { getJob } from '@/services/jobService'
 import { hasApplied } from '@/services/applicationService'
@@ -12,6 +12,7 @@ import Modal from '@/components/common/Modal'
 import ApplicationForm from '@/components/applications/ApplicationForm'
 import RapidFillBadge from '@/components/rapidFill/RapidFillBadge'
 import RapidFillAction from '@/components/rapidFill/RapidFillAction'
+import WorkerChecklist from '@/components/checklist/WorkerChecklist'
 import { timeAgo, formatSalary } from '@/utils/helpers'
 import { JOB_TYPES, JOB_CATEGORIES, SPORTS } from '@/utils/constants'
 
@@ -28,6 +29,7 @@ export default function JobDetail() {
   const [loading, setLoading]   = useState(true)
   const [applied, setApplied]   = useState(false)
   const [applyOpen, setApply]   = useState(false)
+  const [activeTab, setTab]     = useState('details') // 'details' | 'checklist'
 
   useEffect(() => {
     async function load() {
@@ -52,12 +54,43 @@ export default function JobDetail() {
 
   const canApply    = !applied && profile?.role !== 'employer'
   const isWorker    = profile?.role !== 'employer'
+  const showChecklist = isWorker && job?.roleType === 'event' && !!job?.checklistTemplate
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
       <Link to="/jobs" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-athleticBlue mb-6 transition-colors">
         <ChevronLeft className="w-4 h-4" /> Back to Jobs
       </Link>
+
+      {/* Tab switcher — only for event jobs with a checklist, workers only */}
+      {showChecklist && (
+        <div className="flex text-sm rounded-lg border border-gray-200 overflow-hidden mb-5 w-fit">
+          <button
+            onClick={() => setTab('details')}
+            className={`px-4 py-2 font-medium transition-colors ${
+              activeTab === 'details' ? 'bg-navy text-white' : 'text-gray-500 hover:bg-gray-50'
+            }`}
+          >
+            Job Details
+          </button>
+          <button
+            onClick={() => setTab('checklist')}
+            className={`px-4 py-2 font-medium transition-colors border-l border-gray-200 flex items-center gap-1.5 ${
+              activeTab === 'checklist' ? 'bg-energyGreen text-white' : 'text-gray-500 hover:bg-gray-50'
+            }`}
+          >
+            <ClipboardList className="w-3.5 h-3.5" /> My Checklist
+          </button>
+        </div>
+      )}
+
+      {/* Checklist tab */}
+      {showChecklist && activeTab === 'checklist' ? (
+        <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-card">
+          <h2 className="text-base font-semibold text-gray-900 mb-4">Event Checklist</h2>
+          <WorkerChecklist job={job} />
+        </div>
+      ) : (
 
       <div className="grid lg:grid-cols-[1fr_300px] gap-6">
         {/* Main */}
@@ -179,6 +212,8 @@ export default function JobDetail() {
           </div>
         </div>
       </div>
+
+      )} {/* end details/checklist ternary */}
 
       <Modal open={applyOpen} onClose={() => setApply(false)} title={`Apply: ${job.title}`} size="lg">
         <ApplicationForm job={job} onSuccess={() => { setApply(false); setApplied(true) }} />

@@ -67,6 +67,20 @@ service cloud.firestore {
       allow write: if false; // Cloud Function only
     }
 
+    // Checklist responses — worker creates/updates own; employer reads their job's responses
+    match /checklistResponses/{responseId} {
+      allow read: if isSignedIn() && (
+        resource.data.workerId == request.auth.uid
+        || (isEmployer() && resource.data.employerId == request.auth.uid)
+      );
+      allow create: if isSignedIn()
+        && request.resource.data.workerId == request.auth.uid;
+      allow update: if isSignedIn() && (
+        resource.data.workerId == request.auth.uid
+        || (isEmployer() && resource.data.employerId == request.auth.uid)
+      );
+    }
+
     // Rapid Fill holds
     match /rapidFillHolds/{holdId} {
       // Workers read their own holds; employers read holds for their jobs

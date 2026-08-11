@@ -71,9 +71,10 @@ export const QUESTION_TYPES = [
 ]
 
 export const PLANS = {
-  FREE:         'free',
-  EMPLOYER_PRO: 'employer_pro',
-  WORKER_PRO:   'worker_pro',
+  FREE:           'free',
+  EMPLOYER_PRO:   'employer_pro',
+  EMPLOYER_ELITE: 'employer_elite',
+  WORKER_PRO:     'worker_pro',
 }
 
 export const PLAN_LIMITS = {
