@@ -57,7 +57,7 @@ export default function JobDetail() {
   const showChecklist = isWorker && job?.roleType === 'event' && !!job?.checklistTemplate
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className="max-w-4xl mx-auto px-4 py-8 pb-28 lg:pb-8">
       <Link to="/jobs" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-athleticBlue mb-6 transition-colors">
         <ChevronLeft className="w-4 h-4" /> Back to Jobs
       </Link>
@@ -184,7 +184,7 @@ export default function JobDetail() {
             </div>
           )}
 
-          <div className="bg-white border border-gray-200 rounded-2xl p-5 shadow-card">
+          <div className="hidden lg:block bg-white border border-gray-200 rounded-2xl p-5 shadow-card">
             {applied ? (
               <div className="text-center py-2">
                 <div className="w-12 h-12 bg-energyGreen-50 rounded-full flex items-center justify-center mx-auto mb-3">
@@ -214,6 +214,19 @@ export default function JobDetail() {
       </div>
 
       )} {/* end details/checklist ternary */}
+
+      {/* Sticky mobile apply bar */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-3 shadow-lg z-40">
+        {applied ? (
+          <div className="flex items-center justify-center gap-2 text-energyGreen font-semibold text-sm py-2">
+            <ShieldCheck className="w-4 h-4" /> Applied — you're in!
+          </div>
+        ) : (
+          <Button fullWidth size="lg" onClick={handleApplyClick}>
+            {job.rapidFill && isWorker ? 'Apply Instead' : 'Apply Now'}
+          </Button>
+        )}
+      </div>
 
       <Modal open={applyOpen} onClose={() => setApply(false)} title={`Apply: ${job.title}`} size="lg">
         <ApplicationForm job={job} onSuccess={() => { setApply(false); setApplied(true) }} />
