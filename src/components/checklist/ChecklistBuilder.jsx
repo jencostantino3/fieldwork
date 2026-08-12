@@ -60,46 +60,50 @@ export default function ChecklistBuilder({ tasks, onTasksChange, notifyNumbers, 
       {/* Task list */}
       <div className="space-y-2">
         {tasks.map((task, idx) => (
-          <div key={task.taskId} className="flex items-center gap-2 bg-gray-50 rounded-xl p-3">
-            {/* Reorder */}
-            <div className="flex flex-col gap-0.5 shrink-0">
-              <button type="button" onClick={() => moveTask(idx, -1)} disabled={idx === 0}
-                className="text-gray-300 hover:text-gray-600 disabled:opacity-30">
-                <ChevronUp className="w-3.5 h-3.5" />
-              </button>
-              <button type="button" onClick={() => moveTask(idx, 1)} disabled={idx === tasks.length - 1}
-                className="text-gray-300 hover:text-gray-600 disabled:opacity-30">
-                <ChevronDown className="w-3.5 h-3.5" />
-              </button>
-            </div>
-
-            {/* Label */}
+          <div key={task.taskId} className="bg-gray-50 rounded-xl p-3 space-y-2">
+            {/* Label — full width */}
             <input
               value={task.label}
               onChange={(e) => updateTask(idx, { label: e.target.value })}
-              className="flex-1 border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue"
+              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue"
               placeholder="Task description..."
             />
 
-            {/* Photo toggle */}
-            <button
-              type="button"
-              onClick={() => updateTask(idx, { requiresPhoto: !task.requiresPhoto })}
-              title={task.requiresPhoto ? 'Photo required — click to remove' : 'Require photo proof'}
-              className={`p-1.5 rounded-lg transition-colors shrink-0 ${
-                task.requiresPhoto
-                  ? 'text-athleticBlue bg-athleticBlue-50'
-                  : 'text-gray-300 hover:text-gray-500'
-              }`}
-            >
-              <Camera className="w-4 h-4" />
-            </button>
+            {/* Controls row */}
+            <div className="flex items-center gap-1">
+              {/* Reorder */}
+              <button type="button" onClick={() => moveTask(idx, -1)} disabled={idx === 0}
+                className="p-1.5 text-gray-400 hover:text-gray-600 disabled:opacity-30 rounded-lg hover:bg-gray-200">
+                <ChevronUp className="w-4 h-4" />
+              </button>
+              <button type="button" onClick={() => moveTask(idx, 1)} disabled={idx === tasks.length - 1}
+                className="p-1.5 text-gray-400 hover:text-gray-600 disabled:opacity-30 rounded-lg hover:bg-gray-200">
+                <ChevronDown className="w-4 h-4" />
+              </button>
 
-            {/* Delete */}
-            <button type="button" onClick={() => removeTask(idx)}
-              className="text-gray-300 hover:text-red-500 p-1.5 shrink-0">
-              <Trash2 className="w-4 h-4" />
-            </button>
+              <div className="flex-1" />
+
+              {/* Photo toggle */}
+              <button
+                type="button"
+                onClick={() => updateTask(idx, { requiresPhoto: !task.requiresPhoto })}
+                title={task.requiresPhoto ? 'Photo required — click to remove' : 'Require photo proof'}
+                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                  task.requiresPhoto
+                    ? 'text-athleticBlue bg-athleticBlue-50'
+                    : 'text-gray-400 hover:text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                <Camera className="w-3.5 h-3.5" />
+                {task.requiresPhoto ? 'Photo required' : 'Require photo'}
+              </button>
+
+              {/* Delete */}
+              <button type="button" onClick={() => removeTask(idx)}
+                className="p-1.5 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50">
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </div>
           </div>
         ))}
 
