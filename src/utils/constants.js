@@ -20,7 +20,7 @@ export const JOB_TYPES = [
   { value: 'contract',   label: 'Contract' },
   { value: 'seasonal',   label: 'Seasonal' },
   { value: 'volunteer',  label: 'Volunteer' },
-  { value: 'gig',        label: 'Day-Of / Gig' },
+  { value: 'gig',        label: 'Day-Of' },
 ]
 
 export const JOB_CATEGORIES = [

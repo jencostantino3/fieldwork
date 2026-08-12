@@ -52,8 +52,9 @@ export default function JobDetail() {
     setApply(true)
   }
 
-  const canApply    = !applied && profile?.role !== 'employer'
   const isWorker    = profile?.role !== 'employer'
+  const isOwnJob    = profile?.role === 'employer' && job?.employerId === user?.uid
+  const canApply    = !applied && isWorker
   const showChecklist = isWorker && job?.roleType === 'event' && !!job?.checklistTemplate
 
   return (
@@ -185,7 +186,14 @@ export default function JobDetail() {
           )}
 
           <div className="hidden lg:block bg-white border border-gray-200 rounded-2xl p-5 shadow-card">
-            {applied ? (
+            {isOwnJob ? (
+              <div className="space-y-2">
+                <Button fullWidth size="lg" variant="secondary" onClick={() => navigate('/dashboard')}>
+                  Manage on Dashboard
+                </Button>
+                <p className="text-xs text-gray-500 text-center">View applicants and manage this listing.</p>
+              </div>
+            ) : applied ? (
               <div className="text-center py-2">
                 <div className="w-12 h-12 bg-energyGreen-50 rounded-full flex items-center justify-center mx-auto mb-3">
                   <ShieldCheck className="w-6 h-6 text-energyGreen" />
@@ -194,11 +202,13 @@ export default function JobDetail() {
                 <p className="text-sm text-gray-500 mt-1">Your application was submitted.</p>
               </div>
             ) : (
-              <Button fullWidth size="lg" onClick={handleApplyClick}>
-                {job.rapidFill && isWorker ? 'Apply Instead' : 'Apply Now'}
-              </Button>
+              <>
+                <Button fullWidth size="lg" onClick={handleApplyClick}>
+                  {job.rapidFill && isWorker ? 'Apply Instead' : 'Apply Now'}
+                </Button>
+                <p className="text-xs text-gray-500 text-center mt-3">No resume needed — just answer a few questions.</p>
+              </>
             )}
-            <p className="text-xs text-gray-500 text-center mt-3">No resume needed — just answer a few questions.</p>
           </div>
 
           <div className="bg-white border border-gray-200 rounded-2xl p-5 shadow-card text-sm text-gray-600 space-y-2">
@@ -217,7 +227,11 @@ export default function JobDetail() {
 
       {/* Sticky mobile apply bar */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-3 shadow-lg z-40">
-        {applied ? (
+        {isOwnJob ? (
+          <Button fullWidth size="lg" variant="secondary" onClick={() => navigate('/dashboard')}>
+            Manage on Dashboard
+          </Button>
+        ) : applied ? (
           <div className="flex items-center justify-center gap-2 text-energyGreen font-semibold text-sm py-2">
             <ShieldCheck className="w-4 h-4" /> Applied — you're in!
           </div>
