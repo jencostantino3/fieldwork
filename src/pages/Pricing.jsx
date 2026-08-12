@@ -239,13 +239,17 @@ function EmployerPlans({ plan }) {
                 Current Plan
               </div>
             ) : (
-              <Button
-                className="w-full bg-white hover:bg-white/90 text-athleticBlue font-semibold"
-                loading={eliteLoading}
+              <button
+                type="button"
+                disabled={eliteLoading}
                 onClick={() => handleUpgrade(elitePriceId, 'employer_elite', setEliteLoad)}
+                className="w-full inline-flex items-center justify-center gap-2 bg-white text-athleticBlue font-semibold rounded-lg px-4 py-2.5 text-sm hover:bg-white/90 transition-all disabled:opacity-60"
               >
-                <Crown className="w-4 h-4" /> Upgrade to Elite
-              </Button>
+                {eliteLoading
+                  ? <span className="inline-block w-4 h-4 border-2 border-athleticBlue border-t-transparent rounded-full animate-spin" />
+                  : <Crown className="w-4 h-4" />}
+                Upgrade to Elite
+              </button>
             )}
           </div>
         </div>
@@ -262,19 +266,19 @@ function EmployerPlans({ plan }) {
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-gray-50 border-b border-gray-200">
-              <th className="text-left px-5 py-3.5 font-semibold text-gray-700 w-1/2">Feature</th>
-              <th className="text-center px-4 py-3.5 font-semibold text-gray-700 w-[16.67%]">Free</th>
-              <th className="text-center px-4 py-3.5 font-bold text-navy w-[16.67%]">Pro</th>
-              <th className="text-center px-4 py-3.5 font-bold text-athleticBlue w-[16.67%]">Elite</th>
+              <th className="text-left px-3 sm:px-5 py-3 font-semibold text-gray-700">Feature</th>
+              <th className="text-center px-2 sm:px-4 py-3 font-semibold text-gray-700 w-16 sm:w-24">Free</th>
+              <th className="text-center px-2 sm:px-4 py-3 font-bold text-navy w-16 sm:w-24">Pro</th>
+              <th className="text-center px-2 sm:px-4 py-3 font-bold text-athleticBlue w-16 sm:w-24">Elite</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
             {COMPARISON_ROWS.map((row, i) => (
               <tr key={row.label} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}>
-                <td className="px-5 py-3 text-gray-700">{row.label}</td>
-                <td className="px-4 py-3 text-center"><Cell value={row.free} /></td>
-                <td className="px-4 py-3 text-center"><Cell value={row.pro} /></td>
-                <td className="px-4 py-3 text-center"><Cell value={row.elite} /></td>
+                <td className="px-3 sm:px-5 py-2.5 sm:py-3 text-xs sm:text-sm text-gray-700">{row.label}</td>
+                <td className="px-2 sm:px-4 py-2.5 sm:py-3 text-center"><Cell value={row.free} /></td>
+                <td className="px-2 sm:px-4 py-2.5 sm:py-3 text-center"><Cell value={row.pro} /></td>
+                <td className="px-2 sm:px-4 py-2.5 sm:py-3 text-center"><Cell value={row.elite} /></td>
               </tr>
             ))}
           </tbody>
