@@ -123,23 +123,25 @@ export default function Home() {
       {/* Browse by sport */}
       <section className="max-w-5xl mx-auto px-4 py-16">
         <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">Browse by Sport</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-5">
           {SPORTS.map((s) => (
             <Link
               key={s.value}
               to={`/jobs?sport=${s.value}`}
-              className="group relative bg-white border border-gray-200 rounded-2xl p-8 text-center hover:border-athleticBlue hover:shadow-card-hover transition-all"
+              className="group relative bg-white border border-gray-200 rounded-2xl px-4 py-3 sm:p-8 sm:text-center flex sm:block items-center gap-4 hover:border-athleticBlue hover:shadow-card-hover transition-all"
             >
-              <div className="text-5xl mb-3">
+              <div className="text-3xl sm:text-5xl sm:mb-3 shrink-0">
                 {s.value === 'baseball' ? '⚾' : s.value === 'basketball' ? '🏀' : '🥎'}
               </div>
-              <h3 className="text-lg font-bold text-gray-900 group-hover:text-athleticBlue">{s.label}</h3>
-              <p className="text-sm text-gray-500 mt-1">
-                {sportCounts[s.value] != null
-                  ? `${sportCounts[s.value]} open position${sportCounts[s.value] !== 1 ? 's' : ''}`
-                  : 'View open positions'}
-              </p>
-              <ChevronRight className="w-5 h-5 text-gray-300 group-hover:text-athleticBlue absolute right-5 top-1/2 -translate-y-1/2 transition-colors" />
+              <div className="flex-1 min-w-0">
+                <h3 className="text-base sm:text-lg font-bold text-gray-900 group-hover:text-athleticBlue">{s.label}</h3>
+                <p className="text-sm text-gray-500 mt-0.5">
+                  {sportCounts[s.value] != null
+                    ? `${sportCounts[s.value]} open position${sportCounts[s.value] !== 1 ? 's' : ''}`
+                    : 'View open positions'}
+                </p>
+              </div>
+              <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 text-gray-300 group-hover:text-athleticBlue sm:absolute sm:right-5 sm:top-1/2 sm:-translate-y-1/2 shrink-0 transition-colors" />
             </Link>
           ))}
         </div>
