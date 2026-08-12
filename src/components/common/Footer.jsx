@@ -3,7 +3,7 @@ import darkLogo from '@/assets/logo-dark.png'
 
 export default function Footer() {
   return (
-    <footer className="bg-navy text-gray-400 mt-16">
+    <footer className="bg-navy text-gray-400">
       <div className="max-w-6xl mx-auto px-4 py-12">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
           <div>
