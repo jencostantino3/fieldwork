@@ -212,12 +212,12 @@ function EmployerPlans({ plan }) {
         </div>
 
         {/* Elite */}
-        <div className="bg-gradient-to-br from-navy to-athleticBlue text-white rounded-2xl p-6 shadow-xl relative overflow-hidden ring-2 ring-athleticBlue">
+        <div className="bg-gradient-to-br from-energyGreen-800 to-energyGreen text-white rounded-2xl p-6 shadow-xl relative overflow-hidden ring-2 ring-energyGreen">
           <div className="absolute top-0 right-0 w-36 h-36 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
           <div className="flex items-center justify-between mb-1">
             <h3 className="font-bold text-lg flex items-center gap-1.5">
               {EMPLOYER_CARDS.elite.name}
-              <Crown className="w-4 h-4 text-yellow-300" />
+              <Crown className="w-4 h-4 text-white/80" />
             </h3>
             {plan === PLANS.EMPLOYER_ELITE && <PlanBadge plan={PLANS.EMPLOYER_ELITE} />}
           </div>
@@ -227,7 +227,7 @@ function EmployerPlans({ plan }) {
             </span>
             <span className="text-white/70 text-sm mb-1">/{isMonthly ? 'mo' : 'yr'}</span>
             {!isMonthly && (
-              <span className="ml-2 text-xs font-semibold bg-energyGreen text-white px-2 py-0.5 rounded-full mb-1">
+              <span className="ml-2 text-xs font-semibold bg-white/20 text-white px-2 py-0.5 rounded-full mb-1">
                 2 months free
               </span>
             )}
@@ -243,10 +243,10 @@ function EmployerPlans({ plan }) {
                 type="button"
                 disabled={eliteLoading}
                 onClick={() => handleUpgrade(elitePriceId, 'employer_elite', setEliteLoad)}
-                className="w-full inline-flex items-center justify-center gap-2 bg-white text-athleticBlue font-semibold rounded-lg px-4 py-2.5 text-sm hover:bg-white/90 transition-all disabled:opacity-60"
+                className="w-full inline-flex items-center justify-center gap-2 bg-white text-energyGreen font-semibold rounded-lg px-4 py-2.5 text-sm hover:bg-white/90 transition-all disabled:opacity-60"
               >
                 {eliteLoading
-                  ? <span className="inline-block w-4 h-4 border-2 border-athleticBlue border-t-transparent rounded-full animate-spin" />
+                  ? <span className="inline-block w-4 h-4 border-2 border-energyGreen border-t-transparent rounded-full animate-spin" />
                   : <Crown className="w-4 h-4" />}
                 Upgrade to Elite
               </button>
@@ -269,7 +269,7 @@ function EmployerPlans({ plan }) {
               <th className="text-left px-3 sm:px-5 py-3 font-semibold text-gray-700">Feature</th>
               <th className="text-center px-2 sm:px-4 py-3 font-semibold text-gray-700 w-16 sm:w-24">Free</th>
               <th className="text-center px-2 sm:px-4 py-3 font-bold text-navy w-16 sm:w-24">Pro</th>
-              <th className="text-center px-2 sm:px-4 py-3 font-bold text-athleticBlue w-16 sm:w-24">Elite</th>
+              <th className="text-center px-2 sm:px-4 py-3 font-bold text-energyGreen w-16 sm:w-24">Elite</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
