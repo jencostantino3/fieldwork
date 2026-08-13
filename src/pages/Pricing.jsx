@@ -74,6 +74,16 @@ const WORKER_FEATURES = {
   ],
 }
 
+const WORKER_COMPARISON_ROWS = [
+  { label: 'Full job search & filters',               free: true,  pro: true  },
+  { label: 'Unlimited applications',                  free: true,  pro: true  },
+  { label: 'Credential badge display',                free: true,  pro: true  },
+  { label: 'Application status tracking',             free: true,  pro: true  },
+  { label: 'Applications flagged "Priority"',         free: false, pro: true  },
+  { label: '24-hour early access to new postings',    free: false, pro: true  },
+  { label: 'Verified Pro badge on profile',           free: false, pro: true  },
+]
+
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function Cell({ value }) {
@@ -307,17 +317,21 @@ function EmployerPlans({ plan }) {
 // ─── Worker plans ─────────────────────────────────────────────────────────────
 
 function WorkerPlans({ plan }) {
+  const [billing, setBilling] = useState('monthly')
   const [loading, setLoading] = useState(false)
   const [error, setError]     = useState('')
   const navigate = useNavigate()
   const { user } = useAuth()
+
+  const isMonthly = billing === 'monthly'
+  const priceId   = isMonthly ? STRIPE_PRICES.WORKER_PRO_MONTHLY : STRIPE_PRICES.WORKER_PRO_YEARLY
 
   async function handleUpgrade() {
     if (!user) { navigate('/register?intent=worker_pro'); return }
     setLoading(true)
     setError('')
     try {
-      await startSubscriptionCheckout(STRIPE_PRICES.WORKER_PRO_MONTHLY, 'worker_pro')
+      await startSubscriptionCheckout(priceId, 'worker_pro')
     } catch (e) {
       setError(e.message || 'Could not start checkout. Please try again.')
       setLoading(false)
@@ -329,6 +343,19 @@ function WorkerPlans({ plan }) {
       <div className="text-center">
         <h2 className="text-2xl font-bold text-gray-900">Worker Plans</h2>
         <p className="text-gray-500 mt-1 text-sm">Find your next role in sports. Stand out to employers.</p>
+        <div className="inline-flex items-center bg-gray-100 rounded-full p-1 mt-4">
+          {['monthly', 'yearly'].map((b) => (
+            <button
+              key={b}
+              onClick={() => setBilling(b)}
+              className={`px-5 py-1.5 text-sm font-medium rounded-full transition-colors ${
+                billing === b ? 'bg-white shadow text-gray-900' : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              {b === 'yearly' ? 'Yearly (save 17%)' : 'Monthly'}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="grid sm:grid-cols-2 gap-6 max-w-2xl mx-auto">
@@ -371,8 +398,15 @@ function WorkerPlans({ plan }) {
             {plan === PLANS.WORKER_PRO && <PlanBadge plan={PLANS.WORKER_PRO} />}
           </div>
           <div className="flex items-end gap-1 mt-2">
-            <span className="text-3xl font-black">$7.99</span>
-            <span className="text-energyGreen-100 text-sm mb-1">/mo</span>
+            <span className="text-3xl font-black">
+              {isMonthly ? '$7.99' : '$79.99'}
+            </span>
+            <span className="text-energyGreen-100 text-sm mb-1">/{isMonthly ? 'mo' : 'yr'}</span>
+            {!isMonthly && (
+              <span className="ml-2 text-xs font-semibold bg-white/20 text-white px-2 py-0.5 rounded-full mb-1">
+                2 months free
+              </span>
+            )}
           </div>
           <ul className="space-y-2.5 mt-6">
             {WORKER_FEATURES.pro.map((f) => (
@@ -401,6 +435,28 @@ function WorkerPlans({ plan }) {
           <AlertCircle className="w-4 h-4 shrink-0" /> {error}
         </div>
       )}
+
+      {/* Comparison table */}
+      <div className="max-w-2xl mx-auto overflow-x-auto rounded-2xl border border-gray-200 shadow-card">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="bg-gray-50 border-b border-gray-200">
+              <th className="text-left px-3 sm:px-5 py-3 font-semibold text-gray-700">Feature</th>
+              <th className="text-center px-2 sm:px-4 py-3 font-semibold text-gray-700 w-20 sm:w-28">Free</th>
+              <th className="text-center px-2 sm:px-4 py-3 font-bold text-energyGreen w-20 sm:w-28">Worker Pro</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {WORKER_COMPARISON_ROWS.map((row, i) => (
+              <tr key={row.label} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}>
+                <td className="px-3 sm:px-5 py-2.5 sm:py-3 text-xs sm:text-sm text-gray-700">{row.label}</td>
+                <td className="px-2 sm:px-4 py-2.5 sm:py-3 text-center"><Cell value={row.free} /></td>
+                <td className="px-2 sm:px-4 py-2.5 sm:py-3 text-center"><Cell value={row.pro} /></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   )
 }
