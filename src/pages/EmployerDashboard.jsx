@@ -5,6 +5,7 @@ import {
 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { getEmployerJobs, deleteJob, markJobComplete } from '@/services/jobService'
+import { getUserProfiles } from '@/services/userService'
 import { toggleRapidFill } from '@/services/rapidFillService'
 import { getJobApplications } from '@/services/applicationService'
 import { getOwnerCompany, createCompany } from '@/services/companyService'
@@ -32,7 +33,8 @@ export default function EmployerDashboard() {
   const [company, setCompany]       = useState(null)
   const [loading, setLoading]       = useState(true)
   const [activeJobId, setActiveJob] = useState(null)
-  const [applicants, setApplicants] = useState([])
+  const [applicants,        setApplicants]        = useState([])
+  const [applicantProfiles, setApplicantProfiles] = useState({})
   const [appsLoading, setAppsLoad]  = useState(false)
   const [boostJob, setBoostJob]       = useState(null)
   const [rightPanel, setRightPanel]   = useState('applicants') // 'applicants' | 'queue'
@@ -68,6 +70,8 @@ export default function EmployerDashboard() {
     setAppsLoad(true)
     const apps = await getJobApplications(jobId)
     setApplicants(apps)
+    const profiles = await getUserProfiles(apps.map((a) => a.userId))
+    setApplicantProfiles(profiles)
     setAppsLoad(false)
   }
 
@@ -408,7 +412,7 @@ export default function EmployerDashboard() {
                       <ApplicantCard
                         key={app.id}
                         application={app}
-                        applicantProfile={null}
+                        applicantProfile={applicantProfiles[app.userId] ?? null}
                         onStatusChange={handleStatusChange}
                       />
                     ))}
@@ -436,7 +440,7 @@ export default function EmployerDashboard() {
                       <ApplicantCard
                         key={app.id}
                         application={app}
-                        applicantProfile={null}
+                        applicantProfile={applicantProfiles[app.userId] ?? null}
                         onStatusChange={handleStatusChange}
                       />
                     ))}

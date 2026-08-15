@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { ChevronDown, ChevronUp, CheckCircle, XCircle, Clock, Sparkles } from 'lucide-react'
+import { ChevronDown, ChevronUp, CheckCircle, XCircle, Clock, Sparkles, Mail, Star } from 'lucide-react'
 import { clsx } from 'clsx'
 import { timeAgo } from '@/utils/helpers'
 import { updateApplicationStatus } from '@/services/applicationService'
+import { formatRating } from '@/services/ratingService'
 import BadgeDisplay from '@/components/badges/BadgeDisplay'
 import Button from '@/components/common/Button'
 
@@ -59,6 +60,36 @@ export default function ApplicantCard({ application, applicantProfile, onStatusC
 
       {expanded && (
         <div className="border-t border-gray-100 p-4 space-y-4">
+
+          {/* Identity row */}
+          <div className="flex items-start gap-3">
+            <div className="w-12 h-12 rounded-full bg-athleticBlue-50 border-2 border-athleticBlue-100 flex items-center justify-center text-lg font-bold text-navy shrink-0">
+              {(applicantProfile?.name || '?').charAt(0).toUpperCase()}
+            </div>
+            <div className="min-w-0">
+              <p className="font-semibold text-gray-900">{applicantProfile?.name ?? 'Unknown applicant'}</p>
+              {applicantProfile?.email && (
+                <a
+                  href={`mailto:${applicantProfile.email}`}
+                  className="inline-flex items-center gap-1 text-xs text-athleticBlue hover:underline mt-0.5"
+                >
+                  <Mail className="w-3 h-3" /> {applicantProfile.email}
+                </a>
+              )}
+              {(() => {
+                const rating = formatRating(applicantProfile?.ratingStats)
+                return rating ? (
+                  <div className="flex items-center gap-1 mt-1">
+                    <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
+                    <span className="text-xs font-semibold text-gray-800">{rating.average.toFixed(1)}</span>
+                    <span className="text-xs text-gray-400">({rating.count} {rating.count === 1 ? 'rating' : 'ratings'})</span>
+                  </div>
+                ) : null
+              })()}
+            </div>
+          </div>
+
+          {/* Credentials */}
           {applicantProfile?.badges?.length > 0 && (
             <div>
               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Credentials</p>
@@ -66,6 +97,7 @@ export default function ApplicantCard({ application, applicantProfile, onStatusC
             </div>
           )}
 
+          {/* Application answers */}
           {(application.answers || []).length > 0 && (
             <div>
               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Application Answers</p>
@@ -80,30 +112,21 @@ export default function ApplicantCard({ application, applicantProfile, onStatusC
             </div>
           )}
 
+          {/* No profile or answers yet */}
+          {!applicantProfile && (application.answers || []).length === 0 && (
+            <p className="text-sm text-gray-400 italic">No additional profile information available.</p>
+          )}
+
+          {/* Actions */}
           {application.status === 'pending' || application.status === 'reviewed' ? (
-            <div className="flex gap-2 pt-2">
-              <Button
-                size="sm"
-                variant="field"
-                onClick={() => setStatus('accepted')}
-                loading={loading}
-              >
+            <div className="flex gap-2 pt-1 flex-wrap">
+              <Button size="sm" variant="field" onClick={() => setStatus('accepted')} loading={loading}>
                 <CheckCircle className="w-4 h-4" /> Accept
               </Button>
-              <Button
-                size="sm"
-                variant="secondary"
-                onClick={() => setStatus('reviewed')}
-                loading={loading}
-              >
+              <Button size="sm" variant="secondary" onClick={() => setStatus('reviewed')} loading={loading}>
                 <Clock className="w-4 h-4" /> Mark Reviewed
               </Button>
-              <Button
-                size="sm"
-                variant="danger"
-                onClick={() => setStatus('rejected')}
-                loading={loading}
-              >
+              <Button size="sm" variant="danger" onClick={() => setStatus('rejected')} loading={loading}>
                 <XCircle className="w-4 h-4" /> Decline
               </Button>
             </div>
