@@ -53,6 +53,14 @@ export async function updateApplicationStatus(id, status, notes = '') {
   })
 }
 
+export async function getApplicationForJob(jobId, userId) {
+  const q    = query(collection(db, APPLICATIONS), where('jobId', '==', jobId), where('userId', '==', userId))
+  const snap = await getDocs(q)
+  if (snap.empty) return null
+  const d = snap.docs[0]
+  return { id: d.id, ...d.data() }
+}
+
 export async function hasApplied(jobId, userId) {
   const q = query(
     collection(db, APPLICATIONS),

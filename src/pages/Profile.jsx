@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import { ShieldCheck, Plus, CheckCircle, AlertCircle, Sparkles, CreditCard } from 'lucide-react'
+import StarDisplay from '@/components/ratings/StarDisplay'
+import { formatRating } from '@/services/ratingService'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import { getUserBadges, requestBadge } from '@/services/badgeService'
@@ -153,6 +155,9 @@ export default function Profile() {
                 {profile?.role}
               </span>
               <PlanBadge plan={profile?.plan ?? PLANS.FREE} />
+            </div>
+            <div className="mt-1.5">
+              <StarDisplay stats={formatRating(profile?.ratingStats)} />
             </div>
           </div>
         </div>

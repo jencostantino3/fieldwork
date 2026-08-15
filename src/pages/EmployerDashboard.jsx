@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
 import { Link, useSearchParams, useNavigate } from 'react-router-dom'
 import {
-  Briefcase, Users, Zap, Plus, Eye, CheckCircle, AlertCircle, Sparkles, Lock, Flame, ClipboardList,
+  Briefcase, Users, Zap, Plus, Eye, CheckCircle, AlertCircle, Sparkles, Lock, Flame, ClipboardList, FlagTriangleRight,
 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
-import { getEmployerJobs, deleteJob } from '@/services/jobService'
+import { getEmployerJobs, deleteJob, markJobComplete } from '@/services/jobService'
 import { toggleRapidFill } from '@/services/rapidFillService'
 import { getJobApplications } from '@/services/applicationService'
 import { getOwnerCompany, createCompany } from '@/services/companyService'
@@ -14,6 +14,7 @@ import UrgentBoost from '@/components/boost/UrgentBoost'
 import RapidFillQueue from '@/components/rapidFill/RapidFillQueue'
 import EmployerChecklistStatus from '@/components/checklist/EmployerChecklistStatus'
 import PlanBadge from '@/components/billing/PlanBadge'
+import RatingModal from '@/components/ratings/RatingModal'
 import Button from '@/components/common/Button'
 import Modal from '@/components/common/Modal'
 import LoadingSpinner from '@/components/common/LoadingSpinner'
@@ -35,6 +36,7 @@ export default function EmployerDashboard() {
   const [appsLoading, setAppsLoad]  = useState(false)
   const [boostJob, setBoostJob]       = useState(null)
   const [rightPanel, setRightPanel]   = useState('applicants') // 'applicants' | 'queue'
+  const [ratingTarget, setRatingTarget] = useState(null) // { toUid, jobId, ratedName }
   const [companyModal, setCoModal]  = useState(false)
   const [companyName, setCoName]    = useState('')
   const [coSport, setCoSport]       = useState('baseball')
@@ -98,6 +100,16 @@ export default function EmployerDashboard() {
       setCoModal(false)
     } finally {
       setSaving(false)
+    }
+  }
+
+  async function handleMarkComplete(job) {
+    if (!confirm(`Mark "${job.title}" as complete?`)) return
+    await markJobComplete(job.id)
+    setJobs((prev) => prev.map((j) => j.id === job.id ? { ...j, status: 'completed' } : j))
+    const accepted = applicants.find((a) => a.status === 'accepted')
+    if (accepted) {
+      setRatingTarget({ toUid: accepted.userId, jobId: job.id, ratedName: 'your worker' })
     }
   }
 
@@ -326,6 +338,20 @@ export default function EmployerDashboard() {
                 {/* Panel header with optional tab switcher */}
                 <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
                   <h2 className="text-lg font-semibold text-gray-900">{panelTitle}</h2>
+                  <div className="flex items-center gap-2 flex-wrap">
+                  {activeJobId && activeJob?.status !== 'completed' && (
+                    <button
+                      onClick={() => handleMarkComplete(activeJob)}
+                      className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg border border-energyGreen text-energyGreen hover:bg-energyGreen-50 transition-colors"
+                    >
+                      <FlagTriangleRight className="w-3.5 h-3.5" /> Mark Complete
+                    </button>
+                  )}
+                  {activeJobId && activeJob?.status === 'completed' && (
+                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-energyGreen-50 text-energyGreen">
+                      <CheckCircle className="w-3.5 h-3.5" /> Completed
+                    </span>
+                  )}
                   {activeJobId && (isRF || hasChecklist) && (
                     <div className="flex text-sm rounded-lg border border-gray-200 overflow-hidden">
                       {isRF && (
@@ -358,6 +384,7 @@ export default function EmployerDashboard() {
                       )}
                     </div>
                   )}
+                  </div>
                 </div>
 
                 {/* Rapid Fill queue */}
@@ -420,6 +447,15 @@ export default function EmployerDashboard() {
           })()}
         </div>
       </div>
+
+      <RatingModal
+        open={!!ratingTarget}
+        toUid={ratingTarget?.toUid}
+        jobId={ratingTarget?.jobId}
+        ratedRole="worker"
+        ratedName={ratingTarget?.ratedName ?? 'your worker'}
+        onDone={() => setRatingTarget(null)}
+      />
 
       {/* Company setup modal */}
       <Modal open={companyModal} onClose={() => setCoModal(false)} title="Set Up Your Organization">

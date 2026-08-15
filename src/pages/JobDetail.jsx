@@ -4,7 +4,9 @@ import {
   MapPin, Clock, Briefcase, Tag, ShieldCheck, Zap, Building2, ChevronLeft, ClipboardList,
 } from 'lucide-react'
 import { getJob } from '@/services/jobService'
-import { hasApplied } from '@/services/applicationService'
+import { hasApplied, getApplicationForJob } from '@/services/applicationService'
+import { hasInteractedWithRating } from '@/services/ratingService'
+import RatingModal from '@/components/ratings/RatingModal'
 import { useAuth } from '@/contexts/AuthContext'
 import LoadingSpinner from '@/components/common/LoadingSpinner'
 import Button from '@/components/common/Button'
@@ -25,11 +27,12 @@ export default function JobDetail() {
   const { user, profile } = useAuth()
   const navigate          = useNavigate()
 
-  const [job, setJob]           = useState(null)
-  const [loading, setLoading]   = useState(true)
-  const [applied, setApplied]   = useState(false)
-  const [applyOpen, setApply]   = useState(false)
-  const [activeTab, setTab]     = useState('details') // 'details' | 'checklist'
+  const [job, setJob]             = useState(null)
+  const [loading, setLoading]     = useState(true)
+  const [applied, setApplied]     = useState(false)
+  const [applyOpen, setApply]     = useState(false)
+  const [activeTab, setTab]       = useState('details') // 'details' | 'checklist'
+  const [ratingOpen, setRatingOpen] = useState(false)
 
   useEffect(() => {
     async function load() {
@@ -38,6 +41,13 @@ export default function JobDetail() {
       if (user && j) {
         const a = await hasApplied(id, user.uid)
         setApplied(a)
+        if (j.status === 'completed' && profile?.role !== 'employer') {
+          const app = await getApplicationForJob(id, user.uid)
+          if (app?.status === 'accepted') {
+            const already = await hasInteractedWithRating(user.uid, id)
+            if (!already) setRatingOpen(true)
+          }
+        }
       }
       setLoading(false)
     }
@@ -245,6 +255,15 @@ export default function JobDetail() {
       <Modal open={applyOpen} onClose={() => setApply(false)} title={`Apply: ${job.title}`} size="lg">
         <ApplicationForm job={job} onSuccess={() => { setApply(false); setApplied(true) }} />
       </Modal>
+
+      <RatingModal
+        open={ratingOpen}
+        toUid={job.employerId}
+        jobId={id}
+        ratedRole="employer"
+        ratedName={job.companyName || 'this employer'}
+        onDone={() => setRatingOpen(false)}
+      />
     </div>
   )
 }

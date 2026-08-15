@@ -3,14 +3,17 @@ import { useParams, Link } from 'react-router-dom'
 import { CheckCircle, Globe, MapPin } from 'lucide-react'
 import { getCompany } from '@/services/companyService'
 import { fetchJobs } from '@/services/jobService'
+import { getRatingStats } from '@/services/ratingService'
 import LoadingSpinner from '@/components/common/LoadingSpinner'
 import JobCard from '@/components/jobs/JobCard'
+import StarDisplay from '@/components/ratings/StarDisplay'
 
 export default function CompanyProfile() {
   const { id }          = useParams()
-  const [company, setCompany] = useState(null)
-  const [jobs, setJobs]       = useState([])
-  const [loading, setLoading] = useState(true)
+  const [company,     setCompany]     = useState(null)
+  const [jobs,        setJobs]        = useState([])
+  const [loading,     setLoading]     = useState(true)
+  const [ratingStats, setRatingStats] = useState(null)
 
   useEffect(() => {
     async function load() {
@@ -20,6 +23,10 @@ export default function CompanyProfile() {
       ])
       setCompany(c)
       setJobs(allJobs.filter((j) => j.companyId === id))
+      if (c?.ownerId) {
+        const stats = await getRatingStats(c.ownerId).catch(() => null)
+        setRatingStats(stats)
+      }
       setLoading(false)
     }
     load()
@@ -59,6 +66,11 @@ export default function CompanyProfile() {
               >
                 <Globe className="w-3.5 h-3.5" /> {company.website}
               </a>
+            )}
+            {ratingStats && (
+              <div className="mt-2">
+                <StarDisplay stats={ratingStats} size="md" />
+              </div>
             )}
           </div>
         </div>

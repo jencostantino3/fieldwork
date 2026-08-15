@@ -101,6 +101,10 @@ export async function getJobCountsByCategory() {
   return Object.fromEntries(results)
 }
 
+export async function markJobComplete(jobId) {
+  return updateDoc(doc(db, JOBS, jobId), { status: 'completed', updatedAt: serverTimestamp() })
+}
+
 export async function boostJob(jobId, hours = 48) {
   const expiry = new Date(Date.now() + hours * 60 * 60 * 1000)
   return updateDoc(doc(db, JOBS, jobId), {
