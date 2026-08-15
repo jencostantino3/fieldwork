@@ -1,10 +1,11 @@
 import {
   collection, doc, addDoc, updateDoc, getDoc, getDocs,
-  query, where, orderBy, serverTimestamp,
+  query, where, orderBy, serverTimestamp, increment,
 } from 'firebase/firestore'
 import { db } from '@/firebase'
 
 const APPLICATIONS = 'applications'
+const JOBS         = 'jobs'
 
 export async function submitApplication({ jobId, userId, answers, priority = false }) {
   const ref = await addDoc(collection(db, APPLICATIONS), {
@@ -17,6 +18,7 @@ export async function submitApplication({ jobId, userId, answers, priority = fal
     appliedAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   })
+  await updateDoc(doc(db, JOBS, jobId), { applicationCount: increment(1) })
   return ref.id
 }
 

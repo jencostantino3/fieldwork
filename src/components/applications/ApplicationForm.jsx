@@ -17,11 +17,15 @@ export default function ApplicationForm({ job, onSuccess }) {
   async function onSubmit(formData) {
     setError('')
     try {
-      const answers = questions.map((q, i) => ({
-        questionId: q.id ?? String(i),
-        question:   q.text,
-        answer:     formData[`q_${i}`] ?? '',
-      }))
+      const answers = questions.length > 0
+        ? questions.map((q, i) => ({
+            questionId: q.id ?? String(i),
+            question:   q.text,
+            answer:     formData[`q_${i}`] ?? '',
+          }))
+        : formData['q_0']?.trim()
+          ? [{ questionId: 'note', question: "Anything you'd like the employer to know?", answer: formData['q_0'].trim() }]
+          : []
 
       await submitApplication({
         jobId:    job.id,
