@@ -226,9 +226,6 @@ export default function JobDetail() {
             <p><strong className="text-gray-900">Location:</strong> {job.location}</p>
             <p><strong className="text-gray-900">Type:</strong> {pill(JOB_TYPES, job.jobType)}</p>
             <p><strong className="text-gray-900">Sport:</strong> {pill(SPORTS, job.sport)}</p>
-            {job.applicationCount != null && (
-              <p><strong className="text-gray-900">Applicants:</strong> {job.applicationCount}</p>
-            )}
           </div>
         </div>
       </div>
