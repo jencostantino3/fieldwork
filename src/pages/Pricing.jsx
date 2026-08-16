@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { Check, X, Minus, Zap, Sparkles, Crown, AlertCircle } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
@@ -466,8 +466,15 @@ function WorkerPlans({ plan }) {
 export default function Pricing() {
   const [searchParams] = useSearchParams()
   const { profile } = useAuth()
-  const defaultTab = searchParams.get('tab') === 'worker' ? 'worker' : 'employer'
+  const explicitTab = searchParams.get('tab')
+  const defaultTab = explicitTab === 'worker' ? 'worker' : 'employer'
   const [tab, setTab] = useState(defaultTab)
+
+  useEffect(() => {
+    if (!explicitTab && profile?.role) {
+      setTab(profile.role === 'worker' ? 'worker' : 'employer')
+    }
+  }, [profile?.role])
 
   const plan = profile?.plan ?? PLANS.FREE
   const role = profile?.role ?? null
