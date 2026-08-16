@@ -8,7 +8,7 @@ export default function EmployerChecklistStatus({ job }) {
 
   useEffect(() => {
     if (!job?.id) return
-    const unsub = subscribeToJobChecklistResponses(job.id, (data) => {
+    const unsub = subscribeToJobChecklistResponses(job.id, job.employerId, (data) => {
       setResponses(data)
       setLoading(false)
     })

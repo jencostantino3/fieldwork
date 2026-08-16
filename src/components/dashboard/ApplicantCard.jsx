@@ -42,7 +42,10 @@ export default function ApplicantCard({ application, applicantProfile, onStatusC
           <p className="font-semibold text-gray-900 truncate">
             {applicantProfile?.name ?? 'Applicant'}
           </p>
-          <p className="text-xs text-gray-500">{timeAgo(application.appliedAt)}</p>
+          <p className="text-xs text-gray-500">
+            {timeAgo(application.appliedAt)}
+            {!expanded && <span className="text-athleticBlue"> · tap to view details</span>}
+          </p>
         </div>
 
         <div className="flex items-center gap-3 shrink-0">
@@ -97,10 +100,10 @@ export default function ApplicantCard({ application, applicantProfile, onStatusC
             </div>
           )}
 
-          {/* Application answers */}
-          {(application.answers || []).length > 0 && (
-            <div>
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Application Answers</p>
+          {/* Application answers / note */}
+          <div>
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Application Note</p>
+            {(application.answers || []).length > 0 ? (
               <div className="space-y-3">
                 {application.answers.map((a, i) => (
                   <div key={i}>
@@ -109,13 +112,10 @@ export default function ApplicantCard({ application, applicantProfile, onStatusC
                   </div>
                 ))}
               </div>
-            </div>
-          )}
-
-          {/* No profile or answers yet */}
-          {!applicantProfile && (application.answers || []).length === 0 && (
-            <p className="text-sm text-gray-400 italic">No additional profile information available.</p>
-          )}
+            ) : (
+              <p className="text-sm text-gray-400 italic">No note provided by applicant.</p>
+            )}
+          </div>
 
           {/* Actions */}
           {application.status === 'pending' || application.status === 'reviewed' ? (

@@ -56,11 +56,17 @@ export async function uploadTaskPhoto(jobId, responseId, taskId, file) {
   return getDownloadURL(storageRef)
 }
 
-export function subscribeToJobChecklistResponses(jobId, callback) {
-  const q = query(collection(db, RESPONSES), where('jobId', '==', jobId))
-  return onSnapshot(q, (snap) => {
-    callback(snap.docs.map((d) => ({ id: d.id, ...d.data() })))
-  })
+export function subscribeToJobChecklistResponses(jobId, employerId, callback) {
+  const q = query(
+    collection(db, RESPONSES),
+    where('jobId',      '==', jobId),
+    where('employerId', '==', employerId)
+  )
+  return onSnapshot(
+    q,
+    (snap) => { callback(snap.docs.map((d) => ({ id: d.id, ...d.data() }))) },
+    (err)  => { console.warn('[checklist] subscribe error:', err.message); callback([]) }
+  )
 }
 
 export async function getWorkerChecklistResponse(jobId, workerId) {

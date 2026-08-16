@@ -70,6 +70,7 @@ export default function EmployerDashboard() {
     setAppsLoad(true)
     const apps = await getJobApplications(jobId)
     setApplicants(apps)
+    setJobs((prev) => prev.map((j) => j.id === jobId ? { ...j, applicationCount: apps.length } : j))
     const profiles = await getUserProfiles(apps.map((a) => a.userId))
     setApplicantProfiles(profiles)
     setAppsLoad(false)
