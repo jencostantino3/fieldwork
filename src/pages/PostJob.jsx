@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useForm, useFieldArray } from 'react-hook-form'
-import { Plus, Trash2, Sparkles, ClipboardList, Lock } from 'lucide-react'
+import { Plus, Trash2, Sparkles, ClipboardList, Lock, MapPin, CheckCircle } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { createJob, getEmployerJobs } from '@/services/jobService'
 import { getOwnerCompany } from '@/services/companyService'
@@ -9,6 +9,7 @@ import { getCoordinatesFromZip } from '@/utils/helpers'
 import Button from '@/components/common/Button'
 import ChecklistBuilder, { buildDefaultTasks } from '@/components/checklist/ChecklistBuilder'
 import { SPORTS, JOB_TYPES, JOB_CATEGORIES, QUESTION_TYPES } from '@/utils/constants'
+import { ROLE_CATEGORIES } from '@/config/roleCategories'
 
 export default function PostJob() {
   const { user, profile, isEmployerPro, isEmployerElite } = useAuth()
@@ -19,6 +20,14 @@ export default function PostJob() {
   const [clTasks,    setClTasks] = useState(buildDefaultTasks())
   const [clNums,     setClNums]  = useState([])
 
+  // Role selector state
+  const [roleCategory,  setRoleCategory]  = useState('')
+  const [roleSelection, setRoleSelection] = useState('')
+
+  // ZIP lookup state
+  const [zipCity,    setZipCity]    = useState('')
+  const [zipLoading, setZipLoading] = useState(false)
+
   useEffect(() => {
     if (!user || isEmployerPro || isEmployerElite) return
     getEmployerJobs(user.uid).then((jobs) => {
@@ -27,7 +36,7 @@ export default function PostJob() {
     }).catch(() => {})
   }, [user, isEmployerPro, isEmployerElite])
 
-  const { register, control, handleSubmit, watch, formState: { errors } } = useForm({
+  const { register, control, handleSubmit, watch, setValue, formState: { errors } } = useForm({
     defaultValues: {
       roleType:  'ongoing',
       questions: [{ type: 'text', text: '', required: true }],
@@ -35,7 +44,46 @@ export default function PostJob() {
   })
 
   const roleType = watch('roleType')
+  const zipCode  = watch('zipCode')
   const { fields, append, remove } = useFieldArray({ control, name: 'questions' })
+
+  // ZIP → city/state lookup
+  useEffect(() => {
+    if (!/^\d{5}$/.test(zipCode || '')) {
+      setZipCity('')
+      return
+    }
+    let cancelled = false
+    setZipLoading(true)
+    fetch(`https://api.zippopotam.us/us/${zipCode}`)
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((data) => {
+        if (cancelled || !data?.places?.[0]) return
+        const { 'place name': city, 'state abbreviation': state } = data.places[0]
+        const cityState = `${city}, ${state}`
+        setZipCity(cityState)
+        setValue('location', cityState, { shouldValidate: true })
+      })
+      .catch(() => {})
+      .finally(() => { if (!cancelled) setZipLoading(false) })
+    return () => { cancelled = true }
+  }, [zipCode, setValue])
+
+  // Role selection → title field
+  useEffect(() => {
+    if (roleSelection && roleSelection !== 'other') {
+      setValue('title', roleSelection, { shouldValidate: true })
+    } else if (!roleSelection) {
+      setValue('title', '')
+    }
+  }, [roleSelection, setValue])
+
+  function handleCategorySelect(cat) {
+    if (roleCategory === cat) return
+    setRoleCategory(cat)
+    setRoleSelection('')
+    setValue('title', '')
+  }
 
   async function onSubmit(data) {
     setError('')
@@ -99,6 +147,8 @@ export default function PostJob() {
     )
   }
 
+  const selectedCategoryRoles = ROLE_CATEGORIES.find((c) => c.value === roleCategory)?.roles ?? []
+
   return (
     <div className="max-w-3xl mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold text-gray-900 mb-1">Post a Job</h1>
@@ -110,13 +160,57 @@ export default function PostJob() {
         <section className="bg-white border border-gray-200 rounded-2xl p-6 shadow-card space-y-4">
           <h2 className="text-base font-semibold text-gray-900 mb-2">Job Details</h2>
 
+          {/* Role selector */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Job Title <span className="text-red-500">*</span></label>
-            <input
-              {...register('title', { required: 'Title is required' })}
-              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue"
-              placeholder="Head Softball Coach"
-            />
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Role <span className="text-red-500">*</span>
+            </label>
+
+            {/* Hidden input for react-hook-form validation */}
+            <input type="hidden" {...register('title', { required: 'Please select a role' })} />
+
+            {/* Step 1: Category buttons */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-3">
+              {ROLE_CATEGORIES.map((cat) => (
+                <button
+                  key={cat.value}
+                  type="button"
+                  onClick={() => handleCategorySelect(cat.value)}
+                  className={`text-left px-3 py-2.5 rounded-xl border text-sm font-medium transition-colors ${
+                    roleCategory === cat.value
+                      ? 'border-athleticBlue bg-athleticBlue-50 text-athleticBlue'
+                      : 'border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50'
+                  }`}
+                >
+                  {cat.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Step 2: Role dropdown */}
+            {roleCategory && (
+              <select
+                value={roleSelection}
+                onChange={(e) => setRoleSelection(e.target.value)}
+                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue"
+              >
+                <option value="">Select a role...</option>
+                {selectedCategoryRoles.map((r) => (
+                  <option key={r} value={r}>{r}</option>
+                ))}
+                <option value="other">Other — type your own</option>
+              </select>
+            )}
+
+            {/* Step 3: Custom text input for "Other" */}
+            {roleSelection === 'other' && (
+              <input
+                className="mt-2 w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue"
+                placeholder="Enter role title..."
+                onChange={(e) => setValue('title', e.target.value, { shouldValidate: true })}
+              />
+            )}
+
             {errors.title && <p className="text-red-500 text-xs mt-1">{errors.title.message}</p>}
           </div>
 
@@ -168,24 +262,42 @@ export default function PostJob() {
             </div>
           </div>
 
-          {/* Location */}
+          {/* Location — ZIP-first with auto-fill */}
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">City / Location <span className="text-red-500">*</span></label>
-              <input
-                {...register('location', { required: 'Location is required' })}
-                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue"
-                placeholder="Springfield, MA"
-              />
+              <label className="block text-sm font-medium text-gray-700 mb-1">ZIP Code</label>
+              <div className="relative">
+                <input
+                  {...register('zipCode')}
+                  maxLength={5}
+                  className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue"
+                  placeholder="01103"
+                />
+                {zipLoading && (
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">
+                    Looking up…
+                  </span>
+                )}
+              </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">ZIP Code</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                City / Location <span className="text-red-500">*</span>
+                {zipCity && (
+                  <span className="ml-2 text-xs font-normal text-energyGreen-700 inline-flex items-center gap-0.5">
+                    <CheckCircle className="w-3 h-3" /> Auto-filled
+                  </span>
+                )}
+              </label>
               <input
-                {...register('zipCode')}
-                maxLength={5}
-                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue"
-                placeholder="01103"
+                {...register('location', { required: 'Location is required' })}
+                readOnly={!!zipCity}
+                className={`w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue ${
+                  zipCity ? 'bg-gray-50 text-gray-600 cursor-default' : ''
+                }`}
+                placeholder="Springfield, MA"
               />
+              {errors.location && <p className="text-red-500 text-xs mt-1">{errors.location.message}</p>}
             </div>
           </div>
 
