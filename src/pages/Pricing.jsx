@@ -21,7 +21,7 @@ const EMPLOYER_CARDS = {
     ],
   },
   pro: {
-    name: 'Pro',
+    name: 'Employer Pro',
     price: { monthly: 49, yearly: 490 },
     features: [
       'Unlimited job posts',
@@ -39,7 +39,7 @@ const EMPLOYER_CARDS = {
       'Photo-verified task completion',
       'Live event-day status view',
       'Automated text alerts',
-      'Everything in Pro',
+      'Everything in Employer Pro',
     ],
   },
 }
@@ -215,7 +215,7 @@ function EmployerPlans({ plan }) {
                 loading={proLoading}
                 onClick={() => handleUpgrade(proPriceId, 'employer_pro', setProLoad)}
               >
-                <Sparkles className="w-4 h-4" /> Upgrade to Pro
+                <Sparkles className="w-4 h-4" /> Upgrade to Employer Pro
               </Button>
             )}
           </div>
@@ -278,7 +278,7 @@ function EmployerPlans({ plan }) {
             <tr className="bg-gray-50 border-b border-gray-200">
               <th className="text-left px-3 sm:px-5 py-3 font-semibold text-gray-700">Feature</th>
               <th className="text-center px-2 sm:px-4 py-3 font-semibold text-gray-700 w-16 sm:w-24">Free</th>
-              <th className="text-center px-2 sm:px-4 py-3 font-bold text-navy w-16 sm:w-24">Pro</th>
+              <th className="text-center px-2 sm:px-4 py-3 font-bold text-navy w-16 sm:w-24">Employer Pro</th>
               <th className="text-center px-2 sm:px-4 py-3 font-bold text-energyGreen w-16 sm:w-24">Elite</th>
             </tr>
           </thead>

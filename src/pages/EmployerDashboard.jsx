@@ -7,7 +7,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { getEmployerJobs, deleteJob, markJobComplete } from '@/services/jobService'
 import { getUserProfiles } from '@/services/userService'
 import { toggleRapidFill } from '@/services/rapidFillService'
-import { getJobApplications } from '@/services/applicationService'
+import { getJobApplications, getApplicationCountsForJobs } from '@/services/applicationService'
 import { getOwnerCompany, createCompany } from '@/services/companyService'
 import { openBillingPortal } from '@/services/billingService'
 import ApplicantCard from '@/components/dashboard/ApplicantCard'
@@ -53,7 +53,8 @@ export default function EmployerDashboard() {
           getEmployerJobs(user.uid),
           getOwnerCompany(user.uid),
         ])
-        setJobs(employerJobs)
+        const counts = await getApplicationCountsForJobs(employerJobs.map((j) => j.id))
+        setJobs(employerJobs.map((j) => ({ ...j, applicationCount: counts[j.id] ?? 0 })))
         setCompany(co)
       } catch (e) {
         console.warn('[StaffTheGame] Could not load dashboard data:', e.message)

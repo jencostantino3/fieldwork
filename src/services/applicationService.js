@@ -1,6 +1,6 @@
 import {
   collection, doc, addDoc, updateDoc, getDoc, getDocs,
-  query, where, orderBy, serverTimestamp, increment,
+  query, where, orderBy, serverTimestamp, increment, getCountFromServer,
 } from 'firebase/firestore'
 import { db } from '@/firebase'
 
@@ -61,6 +61,19 @@ export async function getApplicationForJob(jobId, userId) {
   if (snap.empty) return null
   const d = snap.docs[0]
   return { id: d.id, ...d.data() }
+}
+
+export async function getApplicationCountsForJobs(jobIds) {
+  if (!jobIds.length) return {}
+  const entries = await Promise.all(
+    jobIds.map(async (jobId) => {
+      const snap = await getCountFromServer(
+        query(collection(db, APPLICATIONS), where('jobId', '==', jobId))
+      )
+      return [jobId, snap.data().count]
+    })
+  )
+  return Object.fromEntries(entries)
 }
 
 export async function hasApplied(jobId, userId) {
