@@ -83,7 +83,9 @@ export default function Companies() {
                 </div>
               </div>
               <p className="text-sm text-gray-600 line-clamp-2">{c.description}</p>
-              <p className="text-xs text-athleticBlue font-medium mt-3">{c.jobCount || 0} open positions</p>
+              {(c.jobCount || 0) > 0 && (
+                <p className="text-xs text-athleticBlue font-medium mt-3">{c.jobCount} open positions</p>
+              )}
             </Link>
           ))}
         </div>
