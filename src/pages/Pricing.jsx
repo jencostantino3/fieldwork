@@ -423,7 +423,7 @@ function WorkerPlans({ plan }) {
               </div>
             ) : (
               <Button variant="white" fullWidth loading={loading} onClick={handleUpgrade}>
-                <Sparkles className="w-4 h-4" /> Upgrade to Pro
+                <Sparkles className="w-4 h-4" /> Upgrade to Worker Pro
               </Button>
             )}
           </div>
