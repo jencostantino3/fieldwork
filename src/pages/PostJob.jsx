@@ -1,15 +1,18 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useForm, useFieldArray } from 'react-hook-form'
-import { Plus, Trash2, Sparkles, ClipboardList, Lock, MapPin, CheckCircle } from 'lucide-react'
+import { Plus, Trash2, Sparkles, ClipboardList, Lock, CheckCircle } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { createJob, getEmployerJobs } from '@/services/jobService'
 import { getOwnerCompany } from '@/services/companyService'
 import { getCoordinatesFromZip } from '@/utils/helpers'
 import Button from '@/components/common/Button'
 import ChecklistBuilder, { buildDefaultTasks } from '@/components/checklist/ChecklistBuilder'
-import { SPORTS, JOB_TYPES, JOB_CATEGORIES, QUESTION_TYPES } from '@/utils/constants'
+import { SPORTS, JOB_TYPES, QUESTION_TYPES } from '@/utils/constants'
 import { ROLE_CATEGORIES } from '@/config/roleCategories'
+
+const SELECT_CLS = 'w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue'
+const INPUT_CLS  = 'w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue'
 
 export default function PostJob() {
   const { user, profile, isEmployerPro, isEmployerElite } = useAuth()
@@ -20,9 +23,9 @@ export default function PostJob() {
   const [clTasks,    setClTasks] = useState(buildDefaultTasks())
   const [clNums,     setClNums]  = useState([])
 
-  // Role selector state
-  const [roleCategory,  setRoleCategory]  = useState('')
-  const [roleSelection, setRoleSelection] = useState('')
+  // Linked category → job title state
+  const [catSel,   setCatSel]   = useState('')  // ROLE_CATEGORIES value
+  const [titleSel, setTitleSel] = useState('')  // role string or 'other'
 
   // ZIP lookup state
   const [zipCity,    setZipCity]    = useState('')
@@ -46,10 +49,30 @@ export default function PostJob() {
   const roleType = watch('roleType')
   const { fields, append, remove } = useFieldArray({ control, name: 'questions' })
 
-  // ZIP → city/state lookup via direct onChange (more reliable than watch+useEffect)
-  const zipRegistration = register('zipCode', { required: 'ZIP code is required' })
+  // Category selection: sets the Firestore 'category' field via the mapped categoryValue
+  function handleCatChange(value) {
+    setCatSel(value)
+    setTitleSel('')
+    setValue('title', '', { shouldValidate: false })
+    const cat = ROLE_CATEGORIES.find((c) => c.value === value)
+    setValue('category', cat?.categoryValue ?? '', { shouldValidate: !!value })
+  }
+
+  // Job Title selection: sets the Firestore 'title' field
+  function handleTitleChange(value) {
+    setTitleSel(value)
+    if (value && value !== 'other') {
+      setValue('title', value, { shouldValidate: true })
+    } else if (!value) {
+      setValue('title', '')
+    }
+    // 'other' case: title set by the text input below
+  }
+
+  // ZIP → city/state lookup via direct onChange
+  const zipReg = register('zipCode', { required: 'ZIP code is required' })
   async function handleZipChange(e) {
-    zipRegistration.onChange(e)
+    zipReg.onChange(e)
     const zip = e.target.value
     if (!/^\d{5}$/.test(zip)) {
       setZipCity('')
@@ -69,22 +92,6 @@ export default function PostJob() {
     } finally {
       setZipLoading(false)
     }
-  }
-
-  // Role selection → title field
-  useEffect(() => {
-    if (roleSelection && roleSelection !== 'other') {
-      setValue('title', roleSelection, { shouldValidate: true })
-    } else if (!roleSelection) {
-      setValue('title', '')
-    }
-  }, [roleSelection, setValue])
-
-  function handleCategorySelect(cat) {
-    if (roleCategory === cat) return
-    setRoleCategory(cat)
-    setRoleSelection('')
-    setValue('title', '')
   }
 
   async function onSubmit(data) {
@@ -149,7 +156,7 @@ export default function PostJob() {
     )
   }
 
-  const selectedCategoryRoles = ROLE_CATEGORIES.find((c) => c.value === roleCategory)?.roles ?? []
+  const selectedCat = ROLE_CATEGORIES.find((c) => c.value === catSel)
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8">
@@ -162,57 +169,53 @@ export default function PostJob() {
         <section className="bg-white border border-gray-200 rounded-2xl p-6 shadow-card space-y-4">
           <h2 className="text-base font-semibold text-gray-900 mb-2">Job Details</h2>
 
-          {/* Role selector */}
+          {/* Hidden inputs — values set programmatically via setValue */}
+          <input type="hidden" {...register('category', { required: 'Category is required' })} />
+          <input type="hidden" {...register('title',    { required: 'Job title is required' })} />
+
+          {/* Step 1: Category */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Role <span className="text-red-500">*</span>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Category <span className="text-red-500">*</span>
             </label>
-
-            {/* Hidden input for react-hook-form validation */}
-            <input type="hidden" {...register('title', { required: 'Please select a role' })} />
-
-            {/* Step 1: Category buttons */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-3">
-              {ROLE_CATEGORIES.map((cat) => (
-                <button
-                  key={cat.value}
-                  type="button"
-                  onClick={() => handleCategorySelect(cat.value)}
-                  className={`text-left px-3 py-2.5 rounded-xl border text-sm font-medium transition-colors ${
-                    roleCategory === cat.value
-                      ? 'border-athleticBlue bg-athleticBlue-50 text-athleticBlue'
-                      : 'border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50'
-                  }`}
-                >
-                  {cat.label}
-                </button>
+            <select
+              value={catSel}
+              onChange={(e) => handleCatChange(e.target.value)}
+              className={SELECT_CLS}
+            >
+              <option value="">Select a category...</option>
+              {ROLE_CATEGORIES.map((c) => (
+                <option key={c.value} value={c.value}>{c.label}</option>
               ))}
-            </div>
+            </select>
+            {errors.category && <p className="text-red-500 text-xs mt-1">{errors.category.message}</p>}
+          </div>
 
-            {/* Step 2: Role dropdown */}
-            {roleCategory && (
-              <select
-                value={roleSelection}
-                onChange={(e) => setRoleSelection(e.target.value)}
-                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue"
-              >
-                <option value="">Select a role...</option>
-                {selectedCategoryRoles.map((r) => (
-                  <option key={r} value={r}>{r}</option>
-                ))}
-                <option value="other">Other — type your own</option>
-              </select>
-            )}
-
-            {/* Step 3: Custom text input for "Other" */}
-            {roleSelection === 'other' && (
+          {/* Step 2: Job Title — gated on category */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Job Title <span className="text-red-500">*</span>
+            </label>
+            <select
+              value={titleSel}
+              onChange={(e) => handleTitleChange(e.target.value)}
+              disabled={!catSel}
+              className={`${SELECT_CLS} ${!catSel ? 'opacity-50 cursor-not-allowed bg-gray-50' : ''}`}
+            >
+              <option value="">{catSel ? 'Select a job title...' : 'Select a category first'}</option>
+              {selectedCat?.roles.map((r) => (
+                <option key={r} value={r}>{r}</option>
+              ))}
+              {catSel && <option value="other">Other — type your own</option>}
+            </select>
+            {titleSel === 'other' && (
               <input
-                className="mt-2 w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue"
-                placeholder="Enter role title..."
+                autoFocus
+                className={`${INPUT_CLS} mt-2`}
+                placeholder="Enter job title..."
                 onChange={(e) => setValue('title', e.target.value, { shouldValidate: true })}
               />
             )}
-
             {errors.title && <p className="text-red-500 text-xs mt-1">{errors.title.message}</p>}
           </div>
 
@@ -220,61 +223,42 @@ export default function PostJob() {
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Role Type <span className="text-red-500">*</span></label>
-              <select
-                {...register('roleType')}
-                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue"
-              >
+              <select {...register('roleType')} className={SELECT_CLS}>
                 <option value="ongoing">Ongoing / Recurring role</option>
                 <option value="event">One-time event (tournament, clinic, camp)</option>
               </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Sport <span className="text-red-500">*</span></label>
-              <select
-                {...register('sport', { required: true })}
-                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue"
-              >
+              <select {...register('sport', { required: true })} className={SELECT_CLS}>
                 <option value="">Select sport</option>
                 {SPORTS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
               </select>
             </div>
           </div>
 
-          {/* Job Type + Category */}
-          <div className="grid sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Job Type <span className="text-red-500">*</span></label>
-              <select
-                {...register('jobType', { required: true })}
-                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue"
-              >
-                <option value="">Select type</option>
-                {JOB_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Category <span className="text-red-500">*</span></label>
-              <select
-                {...register('category', { required: true })}
-                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue"
-              >
-                <option value="">Select category</option>
-                {JOB_CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
-              </select>
-            </div>
+          {/* Job Type */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Job Type <span className="text-red-500">*</span></label>
+            <select {...register('jobType', { required: true })} className={SELECT_CLS}>
+              <option value="">Select type</option>
+              {JOB_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
+            </select>
           </div>
 
-          {/* Location — ZIP-first with auto-fill */}
+          {/* Location — ZIP first, city/state auto-fills */}
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">ZIP Code</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                ZIP Code <span className="text-red-500">*</span>
+              </label>
               <div className="relative">
                 <input
-                  {...zipRegistration}
+                  {...zipReg}
                   onChange={handleZipChange}
                   maxLength={5}
                   inputMode="numeric"
-                  className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue"
+                  className={INPUT_CLS}
                   placeholder="01103"
                 />
                 {zipLoading && (
@@ -297,9 +281,7 @@ export default function PostJob() {
               <input
                 {...register('location', { required: 'Location is required' })}
                 readOnly={!!zipCity}
-                className={`w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue ${
-                  zipCity ? 'bg-gray-50 text-gray-600 cursor-default' : ''
-                }`}
+                className={`${INPUT_CLS} ${zipCity ? 'bg-gray-50 text-gray-600 cursor-default' : ''}`}
                 placeholder="Springfield, MA"
               />
               {errors.location && <p className="text-red-500 text-xs mt-1">{errors.location.message}</p>}
@@ -311,7 +293,7 @@ export default function PostJob() {
             <textarea
               {...register('description', { required: 'Description is required' })}
               rows={5}
-              className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue"
+              className={INPUT_CLS}
               placeholder="Describe the role, responsibilities, schedule..."
             />
             {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description.message}</p>}
@@ -322,7 +304,7 @@ export default function PostJob() {
             <textarea
               {...register('requirements')}
               rows={3}
-              className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue"
+              className={INPUT_CLS}
               placeholder="Must have valid driver's license, 2+ years coaching experience..."
             />
           </div>
@@ -334,28 +316,15 @@ export default function PostJob() {
           <div className="grid sm:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Min Pay</label>
-              <input
-                type="number"
-                {...register('salaryMin')}
-                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue"
-                placeholder="0"
-              />
+              <input type="number" {...register('salaryMin')} className={INPUT_CLS} placeholder="0" />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Max Pay</label>
-              <input
-                type="number"
-                {...register('salaryMax')}
-                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue"
-                placeholder="0"
-              />
+              <input type="number" {...register('salaryMax')} className={INPUT_CLS} placeholder="0" />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Per</label>
-              <select
-                {...register('salaryPeriod')}
-                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue"
-              >
+              <select {...register('salaryPeriod')} className={SELECT_CLS}>
                 <option value="year">Year</option>
                 <option value="hour">Hour</option>
                 <option value="game">Game</option>
@@ -369,7 +338,7 @@ export default function PostJob() {
           </label>
         </section>
 
-        {/* Event Checklist — only shown for event-type roles */}
+        {/* Event Checklist */}
         {roleType === 'event' && (isEmployerElite ? (
           <section className="bg-white border border-gray-200 rounded-2xl p-6 shadow-card">
             <div className="flex items-center gap-2 mb-1">
@@ -407,7 +376,6 @@ export default function PostJob() {
             <h2 className="text-base font-semibold text-gray-900">Application Questions</h2>
             <span className="text-xs text-gray-500">Workers answer these instead of submitting a resume</span>
           </div>
-
           <div className="space-y-3">
             {fields.map((field, idx) => (
               <div key={field.id} className="flex gap-3 bg-gray-50 rounded-xl p-3">
@@ -441,7 +409,6 @@ export default function PostJob() {
               </div>
             ))}
           </div>
-
           <button
             type="button"
             onClick={() => append({ type: 'text', text: '', required: false })}

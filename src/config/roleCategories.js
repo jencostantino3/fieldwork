@@ -2,6 +2,7 @@ export const ROLE_CATEGORIES = [
   {
     label: 'Coaching & Instruction',
     value: 'coaching-instruction',
+    categoryValue: 'coaching',
     roles: [
       'Head Coach',
       'Assistant Coach',
@@ -18,6 +19,7 @@ export const ROLE_CATEGORIES = [
   {
     label: 'Officiating',
     value: 'officiating',
+    categoryValue: 'officiating',
     roles: [
       'Umpire',
       'Referee',
@@ -30,6 +32,7 @@ export const ROLE_CATEGORIES = [
   {
     label: 'Tournament & Event Operations',
     value: 'event-operations',
+    categoryValue: 'operations',
     roles: [
       'Tournament Director',
       'Event Coordinator',
@@ -45,6 +48,7 @@ export const ROLE_CATEGORIES = [
   {
     label: 'Medical & Safety',
     value: 'medical-safety',
+    categoryValue: 'athletic-training',
     roles: [
       'Athletic Trainer',
       'Team Physician',
@@ -56,6 +60,7 @@ export const ROLE_CATEGORIES = [
   {
     label: 'Media & Support',
     value: 'media-support',
+    categoryValue: 'media',
     roles: [
       'Photographer',
       'Videographer',
@@ -68,6 +73,7 @@ export const ROLE_CATEGORIES = [
   {
     label: 'Administrative',
     value: 'admin',
+    categoryValue: 'admin',
     roles: [
       'League Administrator',
       'Registration Coordinator',
