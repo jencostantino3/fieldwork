@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { Check, X, Minus, Zap, Sparkles, Crown, AlertCircle } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
@@ -466,15 +466,12 @@ function WorkerPlans({ plan }) {
 export default function Pricing() {
   const [searchParams] = useSearchParams()
   const { profile } = useAuth()
-  const explicitTab = searchParams.get('tab')
-  const defaultTab = explicitTab === 'worker' ? 'worker' : 'employer'
-  const [tab, setTab] = useState(defaultTab)
+  const [manualTab, setManualTab] = useState(null)
 
-  useEffect(() => {
-    if (!explicitTab && profile?.role) {
-      setTab(profile.role === 'worker' ? 'worker' : 'employer')
-    }
-  }, [profile?.role])
+  const tab = manualTab ?? (
+    searchParams.get('tab') === 'worker' ? 'worker' :
+    profile?.role === 'worker' ? 'worker' : 'employer'
+  )
 
   const plan = profile?.plan ?? PLANS.FREE
   const role = profile?.role ?? null
@@ -492,7 +489,7 @@ export default function Pricing() {
             {['employer', 'worker'].map((t) => (
               <button
                 key={t}
-                onClick={() => setTab(t)}
+                onClick={() => setManualTab(t)}
                 className={`px-8 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
                   tab === t ? 'bg-navy text-white shadow' : 'text-gray-500 hover:text-gray-700'
                 }`}

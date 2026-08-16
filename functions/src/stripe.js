@@ -54,11 +54,12 @@ exports.createSubscriptionCheckout = v1
       const customerId = await getOrCreateCustomer(s, uid, email)
       const session    = await s.checkout.sessions.create({
         customer:             customerId,
+        client_reference_id:  `${uid}:${planName}`,
         mode:                 'subscription',
         payment_method_types: ['card'],
         line_items:           [{ price: priceId, quantity: 1 }],
         subscription_data:    { metadata: { uid, plan: planName } },
-        success_url: `${origin}/billing-success?session_id={CHECKOUT_SESSION_ID}`,
+        success_url: `${origin}/billing-success?plan=${planName}&session_id={CHECKOUT_SESSION_ID}`,
         cancel_url:  `${origin}/pricing`,
       })
 
