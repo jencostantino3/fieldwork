@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form'
 import { Users, Building2 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import Button from '@/components/common/Button'
-import fullLogo from '@/assets/logo-full.png'
+import darkLogo from '@/assets/logo-dark.png'
 
 export default function Register() {
   const [searchParams]  = useSearchParams()
@@ -40,7 +40,7 @@ export default function Register() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex mb-6">
-            <img src={fullLogo} alt="Staff the Game" className="h-16 w-auto" />
+            <img src={darkLogo} alt="Staff the Game" className="h-10 w-auto" />
           </Link>
           <h1 className="text-2xl font-bold text-gray-900">Create your account</h1>
         </div>
