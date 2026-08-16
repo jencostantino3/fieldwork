@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import { AuthProvider } from '@/contexts/AuthContext'
+import { AuthProvider, AuthContext } from '@/contexts/AuthContext'
 import Navbar from '@/components/common/Navbar'
 import Footer from '@/components/common/Footer'
 import AuthGuard from '@/components/auth/AuthGuard'
@@ -81,6 +81,38 @@ export default function App() {
                 <AuthGuard requireRole="employer">
                   <PostJob />
                 </AuthGuard>
+              </Layout>
+            }
+          />
+
+          {/* Preview — bypasses auth for UI testing only */}
+          <Route
+            path="/preview/post-job"
+            element={
+              <Layout>
+                <AuthContext.Provider value={{
+                  user:            { uid: 'preview-uid', email: 'preview@example.com' },
+                  profile:         { role: 'employer', name: 'Preview Employer', plan: 'employer_pro' },
+                  loading:         false,
+                  isEmployer:      true,
+                  isWorker:        false,
+                  isPro:           true,
+                  isEmployerPro:   true,
+                  isEmployerElite: false,
+                  isWorkerPro:     false,
+                  register:        async () => {},
+                  login:           async () => {},
+                  loginWithGoogle: async () => {},
+                  logout:          async () => {},
+                  resetPassword:   async () => {},
+                  refreshProfile:  async () => {},
+                  createProfile:   async () => {},
+                }}>
+                  <div className="bg-yellow-50 border-b border-yellow-200 px-4 py-2 text-center text-xs text-yellow-800 font-medium">
+                    Preview mode — form submission is disabled
+                  </div>
+                  <PostJob />
+                </AuthContext.Provider>
               </Layout>
             }
           />

@@ -44,30 +44,32 @@ export default function PostJob() {
   })
 
   const roleType = watch('roleType')
-  const zipCode  = watch('zipCode')
   const { fields, append, remove } = useFieldArray({ control, name: 'questions' })
 
-  // ZIP → city/state lookup
-  useEffect(() => {
-    if (!/^\d{5}$/.test(zipCode || '')) {
+  // ZIP → city/state lookup via direct onChange (more reliable than watch+useEffect)
+  const zipRegistration = register('zipCode', { required: 'ZIP code is required' })
+  async function handleZipChange(e) {
+    zipRegistration.onChange(e)
+    const zip = e.target.value
+    if (!/^\d{5}$/.test(zip)) {
       setZipCity('')
       return
     }
-    let cancelled = false
     setZipLoading(true)
-    fetch(`https://api.zippopotam.us/us/${zipCode}`)
-      .then((r) => (r.ok ? r.json() : Promise.reject()))
-      .then((data) => {
-        if (cancelled || !data?.places?.[0]) return
-        const { 'place name': city, 'state abbreviation': state } = data.places[0]
-        const cityState = `${city}, ${state}`
-        setZipCity(cityState)
-        setValue('location', cityState, { shouldValidate: true })
-      })
-      .catch(() => {})
-      .finally(() => { if (!cancelled) setZipLoading(false) })
-    return () => { cancelled = true }
-  }, [zipCode, setValue])
+    try {
+      const res = await fetch(`https://api.zippopotam.us/us/${zip}`)
+      if (!res.ok) throw new Error()
+      const data = await res.json()
+      const place = data.places[0]
+      const cityState = `${place['place name']}, ${place['state abbreviation']}`
+      setZipCity(cityState)
+      setValue('location', cityState, { shouldValidate: true })
+    } catch {
+      setZipCity('')
+    } finally {
+      setZipLoading(false)
+    }
+  }
 
   // Role selection → title field
   useEffect(() => {
@@ -268,8 +270,10 @@ export default function PostJob() {
               <label className="block text-sm font-medium text-gray-700 mb-1">ZIP Code</label>
               <div className="relative">
                 <input
-                  {...register('zipCode')}
+                  {...zipRegistration}
+                  onChange={handleZipChange}
                   maxLength={5}
+                  inputMode="numeric"
                   className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue"
                   placeholder="01103"
                 />
@@ -279,6 +283,7 @@ export default function PostJob() {
                   </span>
                 )}
               </div>
+              {errors.zipCode && <p className="text-red-500 text-xs mt-1">{errors.zipCode.message}</p>}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
