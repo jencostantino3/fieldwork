@@ -124,7 +124,7 @@ export default function Home() {
       <section className="max-w-5xl mx-auto px-4 py-16">
         <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">Browse by Sport</h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-5">
-          {SPORTS.filter((s) => sportCounts[s.value] == null || sportCounts[s.value] > 0).map((s) => (
+          {SPORTS.map((s) => (
             <Link
               key={s.value}
               to={`/jobs?sport=${s.value}`}
