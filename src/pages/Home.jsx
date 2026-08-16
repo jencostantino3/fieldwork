@@ -169,16 +169,14 @@ export default function Home() {
       <section className="max-w-5xl mx-auto px-4 py-16">
         <h2 className="text-2xl font-bold text-gray-900 mb-6">Browse by Role</h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-5 gap-3">
-          {JOB_CATEGORIES.map((c) => (
+          {JOB_CATEGORIES.filter((c) => categoryCounts[c.value] > 0).map((c) => (
             <Link
               key={c.value}
               to={`/jobs?category=${c.value}`}
               className="bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium text-gray-700 hover:border-athleticBlue hover:text-athleticBlue transition-colors flex items-center justify-between sm:flex-col sm:items-center sm:justify-center sm:text-center gap-1 sm:gap-0.5"
             >
               <span>{c.label}</span>
-              {categoryCounts[c.value] != null && (
-                <span className="text-xs font-normal text-gray-400 shrink-0">{categoryCounts[c.value]} open</span>
-              )}
+              <span className="text-xs font-normal text-gray-400 shrink-0">{categoryCounts[c.value]} open</span>
             </Link>
           ))}
         </div>
