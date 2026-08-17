@@ -87,6 +87,25 @@ export default function App() {
 
           {/* Preview — bypasses auth for UI testing only */}
           <Route
+            path="/preview/pricing-employer"
+            element={
+              <Layout>
+                <AuthContext.Provider value={{
+                  user:            { uid: 'preview-uid', email: 'preview@example.com' },
+                  profile:         { role: 'employer', name: 'Preview Employer', plan: 'free', orgName: 'Preview League' },
+                  loading:         false,
+                  isEmployer:      true,  isWorker: false, isPro: false,
+                  isEmployerPro:   false, isEmployerElite: false, isWorkerPro: false,
+                  register: async () => {}, login: async () => {}, loginWithGoogle: async () => {},
+                  logout: async () => {}, resetPassword: async () => {}, refreshProfile: async () => {},
+                  createProfile: async () => {}, updateOrgName: async () => {},
+                }}>
+                  <Pricing />
+                </AuthContext.Provider>
+              </Layout>
+            }
+          />
+          <Route
             path="/preview/post-job"
             element={
               <Layout>
