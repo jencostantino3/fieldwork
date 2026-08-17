@@ -120,7 +120,7 @@ export default function PostJob() {
         salaryPeriod: data.salaryPeriod || 'year',
         requiresCORI: data.requiresCORI || false,
         companyId:    company?.id ?? null,
-        companyName:  company?.name ?? profile?.name ?? 'Unknown',
+        companyName:  profile?.orgName ?? company?.name ?? `${profile?.name ?? 'Unknown'}'s Organization`,
         roleType:     data.roleType || 'ongoing',
         checklistTemplate: (isEvent && isEmployerElite && clTasks.length > 0)
           ? { tasks: clTasks, notifyNumbers: clNums, createdBy: user.uid }

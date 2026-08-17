@@ -9,7 +9,7 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
 } from 'firebase/auth'
-import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore'
+import { doc, setDoc, getDoc, updateDoc, serverTimestamp } from 'firebase/firestore'
 import { auth, db } from '@/firebase'
 
 export const AuthContext = createContext(null)
@@ -43,7 +43,7 @@ export function AuthProvider({ children }) {
     return unsub
   }, [])
 
-  async function register({ email, password, name, role }) {
+  async function register({ email, password, name, role, orgName }) {
     if (!auth) throw new Error('Firebase is not configured. Add your credentials to .env')
     const cred = await createUserWithEmailAndPassword(auth, email, password)
     await updateProfile(cred.user, { displayName: name })
@@ -54,6 +54,7 @@ export function AuthProvider({ children }) {
       role,
       badges:    [],
       createdAt: serverTimestamp(),
+      ...(role === 'employer' && orgName ? { orgName: orgName.trim() } : {}),
     }
     try {
       await setDoc(doc(db, 'users', cred.user.uid), userDoc)
@@ -103,6 +104,12 @@ export function AuthProvider({ children }) {
     return sendPasswordResetEmail(auth, email)
   }
 
+  async function updateOrgName(name) {
+    if (!user) return
+    await updateDoc(doc(db, 'users', user.uid), { orgName: name.trim() })
+    setProfile((prev) => ({ ...prev, orgName: name.trim() }))
+  }
+
   async function createProfile({ name, role }) {
     if (!user) return
     const userDoc = { uid: user.uid, email: user.email, name, role, badges: [], createdAt: serverTimestamp() }
@@ -146,6 +153,7 @@ export function AuthProvider({ children }) {
         resetPassword,
         refreshProfile,
         createProfile,
+        updateOrgName,
       }}
     >
       {children}

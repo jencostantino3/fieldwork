@@ -4,7 +4,7 @@ import {
   Briefcase, Users, Zap, Plus, Eye, CheckCircle, AlertCircle, Sparkles, Lock, Flame, ClipboardList, FlagTriangleRight,
 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
-import { getEmployerJobs, deleteJob, markJobComplete } from '@/services/jobService'
+import { getEmployerJobs, deleteJob, markJobComplete, backfillJobOrgName } from '@/services/jobService'
 import { getUserProfiles } from '@/services/userService'
 import { toggleRapidFill } from '@/services/rapidFillService'
 import { getJobApplications, getApplicationCountsForJobs } from '@/services/applicationService'
@@ -23,7 +23,7 @@ import { timeAgo } from '@/utils/helpers'
 import { PLANS } from '@/utils/constants'
 
 export default function EmployerDashboard() {
-  const { user, profile, isEmployerPro, isEmployerElite } = useAuth()
+  const { user, profile, isEmployerPro, isEmployerElite, updateOrgName } = useAuth()
   const [searchParams] = useSearchParams()
   const navigate       = useNavigate()
   const boostSuccess   = searchParams.get('boost_success')
@@ -44,6 +44,10 @@ export default function EmployerDashboard() {
   const [coSport, setCoSport]       = useState('baseball')
   const [coDesc, setCoDesc]         = useState('')
   const [saving, setSaving]         = useState(false)
+  const [orgModal, setOrgModal]     = useState(false)
+  const [orgInput, setOrgInput]     = useState('')
+  const [orgSaving, setOrgSaving]   = useState(false)
+  const [orgSyncing, setOrgSyncing] = useState(false)
 
   useEffect(() => {
     if (!user) return
@@ -109,6 +113,30 @@ export default function EmployerDashboard() {
     }
   }
 
+  async function handleSaveOrgName() {
+    if (!orgInput.trim()) return
+    setOrgSaving(true)
+    try {
+      await updateOrgName(orgInput.trim())
+      await backfillJobOrgName(user.uid, orgInput.trim())
+      setOrgModal(false)
+      setOrgInput('')
+    } finally {
+      setOrgSaving(false)
+    }
+  }
+
+  async function handleSyncOrgName() {
+    if (!profile?.orgName) return
+    setOrgSyncing(true)
+    try {
+      await backfillJobOrgName(user.uid, profile.orgName)
+      setJobs((prev) => prev.map((j) => ({ ...j, companyName: profile.orgName })))
+    } finally {
+      setOrgSyncing(false)
+    }
+  }
+
   async function handleMarkComplete(job) {
     if (!confirm(`Mark "${job.title}" as complete?`)) return
     await markJobComplete(job.id)
@@ -142,7 +170,9 @@ export default function EmployerDashboard() {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Employer Dashboard</h1>
-          <p className="text-gray-500 text-sm">{profile?.name} · {company?.name || 'No organization yet'}</p>
+          <p className="text-gray-500 text-sm">
+            {profile?.name} · {profile?.orgName ?? company?.name ?? `${profile?.name}'s Organization`}
+          </p>
         </div>
         <div className="flex items-center gap-3 flex-wrap">
           <PlanBadge plan={profile?.plan ?? PLANS.FREE} />
@@ -201,6 +231,28 @@ export default function EmployerDashboard() {
           </Button>
         </div>
       )}
+
+      {!profile?.orgName ? (
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6 flex items-center gap-3">
+          <AlertCircle className="w-5 h-5 text-amber-600 shrink-0" />
+          <p className="text-sm text-amber-800 flex-1">
+            <strong>Add an Organization / Team Name</strong> so workers know who's hiring.{' '}
+            <button onClick={() => { setOrgInput(''); setOrgModal(true) }} className="underline font-semibold">
+              Set it now
+            </button>
+          </p>
+        </div>
+      ) : jobs.some((j) => j.companyName !== profile.orgName) ? (
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6 flex items-center gap-3">
+          <AlertCircle className="w-5 h-5 text-amber-600 shrink-0" />
+          <p className="text-sm text-amber-800 flex-1">
+            Some job postings still show your old organization name.{' '}
+            <button onClick={handleSyncOrgName} disabled={orgSyncing} className="underline font-semibold disabled:opacity-50">
+              {orgSyncing ? 'Updating…' : `Sync all to "${profile.orgName}"`}
+            </button>
+          </p>
+        </div>
+      ) : null}
 
       {boostSuccess && (
         <div className="bg-energyGreen-50 border border-energyGreen-200 rounded-xl p-4 mb-6 flex items-center gap-3">
@@ -462,6 +514,26 @@ export default function EmployerDashboard() {
         ratedName={ratingTarget?.ratedName ?? 'your worker'}
         onDone={() => setRatingTarget(null)}
       />
+
+      {/* Org name modal */}
+      <Modal open={orgModal} onClose={() => setOrgModal(false)} title="Organization / Team Name">
+        <div className="space-y-4">
+          <p className="text-sm text-gray-500">
+            This is what workers see on your job postings — e.g. "Butterflies Softball" or "Danvers Little League". Your personal name stays private.
+          </p>
+          <input
+            value={orgInput}
+            onChange={(e) => setOrgInput(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleSaveOrgName()}
+            className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue"
+            placeholder="Butterflies Softball"
+            autoFocus
+          />
+          <Button fullWidth onClick={handleSaveOrgName} loading={orgSaving} disabled={!orgInput.trim()}>
+            Save
+          </Button>
+        </div>
+      </Modal>
 
       {/* Company setup modal */}
       <Modal open={companyModal} onClose={() => setCoModal(false)} title="Set Up Your Organization">

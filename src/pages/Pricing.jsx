@@ -468,13 +468,15 @@ export default function Pricing() {
   const { profile } = useAuth()
   const [manualTab, setManualTab] = useState(null)
 
-  const tab = manualTab ?? (
-    searchParams.get('tab') === 'worker' ? 'worker' :
-    profile?.role === 'worker' ? 'worker' : 'employer'
-  )
-
-  const plan = profile?.plan ?? PLANS.FREE
   const role = profile?.role ?? null
+  const plan = profile?.plan ?? PLANS.FREE
+
+  // Signed-in users always see only their role's pricing — no toggle.
+  // Unauthenticated visitors get the full toggle (default to employer tab).
+  const lockedTab = role === 'employer' ? 'employer' : role === 'worker' ? 'worker' : null
+  const tab = lockedTab ?? manualTab ?? (
+    searchParams.get('tab') === 'worker' ? 'worker' : 'employer'
+  )
 
   return (
     <div className="min-h-screen bg-gray-50 py-16 px-4">
@@ -484,21 +486,23 @@ export default function Pricing() {
           <p className="text-gray-500">No hidden fees. Cancel anytime.</p>
         </div>
 
-        <div className="flex justify-center">
-          <div className="inline-flex bg-white border border-gray-200 rounded-2xl p-1 shadow-sm">
-            {['employer', 'worker'].map((t) => (
-              <button
-                key={t}
-                onClick={() => setManualTab(t)}
-                className={`px-8 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
-                  tab === t ? 'bg-navy text-white shadow' : 'text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                {t === 'employer' ? 'For Employers' : 'For Workers'}
-              </button>
-            ))}
+        {!lockedTab && (
+          <div className="flex justify-center">
+            <div className="inline-flex bg-white border border-gray-200 rounded-2xl p-1 shadow-sm">
+              {['employer', 'worker'].map((t) => (
+                <button
+                  key={t}
+                  onClick={() => setManualTab(t)}
+                  className={`px-8 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
+                    tab === t ? 'bg-navy text-white shadow' : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  {t === 'employer' ? 'For Employers' : 'For Workers'}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {tab === 'employer' ? (
           <EmployerPlans plan={role === 'employer' ? plan : PLANS.FREE} />

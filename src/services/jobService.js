@@ -105,6 +105,14 @@ export async function markJobComplete(jobId) {
   return updateDoc(doc(db, JOBS, jobId), { status: 'completed', updatedAt: serverTimestamp() })
 }
 
+export async function backfillJobOrgName(employerId, orgName) {
+  const q = query(collection(db, JOBS), where('employerId', '==', employerId))
+  const snap = await getDocs(q)
+  await Promise.all(
+    snap.docs.map((d) => updateDoc(d.ref, { companyName: orgName, updatedAt: serverTimestamp() }))
+  )
+}
+
 export async function boostJob(jobId, hours = 48) {
   const expiry = new Date(Date.now() + hours * 60 * 60 * 1000)
   return updateDoc(doc(db, JOBS, jobId), {

@@ -16,10 +16,10 @@ export default function Register() {
 
   const { register, handleSubmit, watch, formState: { errors, isSubmitting } } = useForm()
 
-  async function onSubmit({ email, password, name }) {
+  async function onSubmit({ email, password, name, orgName }) {
     setErr('')
     try {
-      await registerUser({ email, password, name, role })
+      await registerUser({ email, password, name, role, orgName })
       navigate(role === 'employer' ? '/dashboard' : '/jobs')
     } catch (e) {
       setErr(e.message || 'Registration failed. Try a different email.')
@@ -105,6 +105,23 @@ export default function Register() {
               />
               {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>}
             </div>
+
+            {role === 'employer' && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Organization / Team Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                  {...register('orgName', {
+                    validate: (v) => role !== 'employer' || !!v?.trim() || 'Organization name is required',
+                  })}
+                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue"
+                  placeholder="Butterflies Softball, Danvers Little League…"
+                />
+                {errors.orgName && <p className="text-red-500 text-xs mt-1">{errors.orgName.message}</p>}
+                <p className="text-xs text-gray-400 mt-1">Shown publicly on your job postings</p>
+              </div>
+            )}
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>

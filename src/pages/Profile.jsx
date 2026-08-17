@@ -5,6 +5,7 @@ import { formatRating } from '@/services/ratingService'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import { getUserBadges, requestBadge } from '@/services/badgeService'
+import { backfillJobOrgName } from '@/services/jobService'
 import { getUserApplications } from '@/services/applicationService'
 import { openBillingPortal } from '@/services/billingService'
 import BadgeDisplay from '@/components/badges/BadgeDisplay'
@@ -16,9 +17,24 @@ import { BADGE_TYPES, APPLICATION_STATUS, PLANS } from '@/utils/constants'
 import { timeAgo } from '@/utils/helpers'
 
 export default function Profile() {
-  const { user, profile, isPro, createProfile } = useAuth()
+  const { user, profile, isPro, createProfile, updateOrgName } = useAuth()
   const navigate = useNavigate()
   const [portalLoading, setPortalLoading] = useState(false)
+  const [orgEdit,   setOrgEdit]   = useState(false)
+  const [orgInput,  setOrgInput]  = useState('')
+  const [orgSaving, setOrgSaving] = useState(false)
+
+  async function handleSaveOrg() {
+    if (!orgInput.trim()) return
+    setOrgSaving(true)
+    try {
+      await updateOrgName(orgInput.trim())
+      await backfillJobOrgName(user.uid, orgInput.trim())
+      setOrgEdit(false)
+    } finally {
+      setOrgSaving(false)
+    }
+  }
 
   async function handlePortal() {
     setPortalLoading(true)
@@ -162,6 +178,49 @@ export default function Profile() {
           </div>
         </div>
       </div>
+
+      {/* Org name — employers only */}
+      {profile?.role === 'employer' && (
+        <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-card">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-base font-semibold text-gray-900">Organization / Team Name</h2>
+            {!orgEdit && (
+              <Button size="sm" variant="secondary" onClick={() => { setOrgInput(profile?.orgName ?? ''); setOrgEdit(true) }}>
+                Edit
+              </Button>
+            )}
+          </div>
+          {orgEdit ? (
+            <div className="space-y-3">
+              <input
+                value={orgInput}
+                onChange={(e) => setOrgInput(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSaveOrg()}
+                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue"
+                placeholder="Butterflies Softball"
+                autoFocus
+              />
+              <div className="flex gap-3">
+                <Button size="sm" onClick={handleSaveOrg} loading={orgSaving} disabled={!orgInput.trim()}>
+                  Save
+                </Button>
+                <Button size="sm" variant="secondary" onClick={() => setOrgEdit(false)}>
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <p className="text-sm text-gray-700">
+              {profile?.orgName ?? (
+                <span className="text-gray-400 italic">{profile?.name}'s Organization (default)</span>
+              )}
+            </p>
+          )}
+          <p className="text-xs text-gray-400 mt-3">
+            Shown on your job postings. Your personal name ({profile?.name}) stays private.
+          </p>
+        </div>
+      )}
 
       {/* Billing */}
       {isPro ? (
