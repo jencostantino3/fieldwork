@@ -28,7 +28,7 @@ export default function Register() {
 
   async function handleGoogle() {
     try {
-      await loginWithGoogle()
+      await loginWithGoogle(role)
       navigate(role === 'employer' ? '/dashboard' : '/jobs')
     } catch (e) {
       setErr('Google sign-in failed.')

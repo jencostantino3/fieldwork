@@ -20,7 +20,18 @@ export default function Login() {
       await login(email, password)
       navigate(from, { replace: true })
     } catch (e) {
-      setErr('Invalid email or password.')
+      const code = e.code || ''
+      if (code === 'auth/user-not-found' || code === 'auth/invalid-email') {
+        setErr('No account found with that email address.')
+      } else if (code === 'auth/wrong-password') {
+        setErr('Incorrect password. Try again or use Google sign-in.')
+      } else if (code === 'auth/too-many-requests') {
+        setErr('Too many failed attempts. Wait a few minutes or reset your password.')
+      } else if (code === 'auth/invalid-credential') {
+        setErr('Email or password is incorrect.')
+      } else {
+        setErr(e.message || 'Sign-in failed. Please try again.')
+      }
     }
   }
 

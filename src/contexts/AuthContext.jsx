@@ -72,7 +72,7 @@ export function AuthProvider({ children }) {
     return signInWithEmailAndPassword(auth, email, password)
   }
 
-  async function loginWithGoogle() {
+  async function loginWithGoogle(role = 'worker') {
     if (!auth) throw new Error('Firebase is not configured. Add your credentials to .env')
     const provider = new GoogleAuthProvider()
     const cred = await signInWithPopup(auth, provider)
@@ -83,7 +83,7 @@ export function AuthProvider({ children }) {
           uid:       cred.user.uid,
           email:     cred.user.email,
           name:      cred.user.displayName,
-          role:      'worker',
+          role,
           badges:    [],
           createdAt: serverTimestamp(),
         }
