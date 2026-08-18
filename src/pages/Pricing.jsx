@@ -465,15 +465,20 @@ function WorkerPlans({ plan }) {
 
 export default function Pricing() {
   const [searchParams] = useSearchParams()
-  const { profile } = useAuth()
+  const { profile, loading } = useAuth()
   const [manualTab, setManualTab] = useState(null)
 
   const role = profile?.role ?? null
   const plan = profile?.plan ?? PLANS.FREE
 
   // Signed-in users always see only their role's pricing — no toggle.
-  // Unauthenticated visitors get the full toggle (default to employer tab).
-  const lockedTab = role === 'employer' ? 'employer' : role === 'worker' ? 'worker' : null
+  // During auth loading, treat as locked (no tab yet) to prevent the toggle
+  // from flashing visible before the session resolves.
+  const lockedTab = loading ? 'employer'
+    : role === 'employer' ? 'employer'
+    : role === 'worker'   ? 'worker'
+    : null
+  const showToggle = !loading && !role
   const tab = lockedTab ?? manualTab ?? (
     searchParams.get('tab') === 'worker' ? 'worker' : 'employer'
   )
@@ -486,7 +491,7 @@ export default function Pricing() {
           <p className="text-gray-500">No hidden fees. Cancel anytime.</p>
         </div>
 
-        {!lockedTab && (
+        {showToggle && (
           <div className="flex justify-center">
             <div className="inline-flex bg-white border border-gray-200 rounded-2xl p-1 shadow-sm">
               {['employer', 'worker'].map((t) => (
