@@ -471,14 +471,14 @@ export default function Pricing() {
   const role = profile?.role ?? null
   const plan = profile?.plan ?? PLANS.FREE
 
-  // Signed-in users always see only their role's pricing — no toggle.
-  // During auth loading, treat as locked (no tab yet) to prevent the toggle
-  // from flashing visible before the session resolves.
-  const lockedTab = loading ? 'employer'
-    : role === 'employer' ? 'employer'
-    : role === 'worker'   ? 'worker'
-    : null
-  const showToggle = !loading && !role
+  // Wait for auth to resolve before rendering anything — prevents the toggle
+  // from flashing in during the Firebase session check.
+  if (loading) {
+    return <div className="min-h-screen bg-gray-50" />
+  }
+
+  // Signed-in users are locked to their role's tab — no toggle, no URL override.
+  const lockedTab = role === 'employer' ? 'employer' : role === 'worker' ? 'worker' : null
   const tab = lockedTab ?? manualTab ?? (
     searchParams.get('tab') === 'worker' ? 'worker' : 'employer'
   )
@@ -491,7 +491,7 @@ export default function Pricing() {
           <p className="text-gray-500">No hidden fees. Cancel anytime.</p>
         </div>
 
-        {showToggle && (
+        {!lockedTab && (
           <div className="flex justify-center">
             <div className="inline-flex bg-white border border-gray-200 rounded-2xl p-1 shadow-sm">
               {['employer', 'worker'].map((t) => (

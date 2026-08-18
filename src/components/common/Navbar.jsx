@@ -16,7 +16,9 @@ export default function Navbar() {
   }
 
   const navLinks = [
-    { to: '/jobs',      label: 'Find Work' },
+    profile?.role === 'employer'
+      ? { to: '/post-job',  label: 'Post a Job' }
+      : { to: '/jobs',      label: 'Find Work' },
     { to: '/companies', label: 'Teams & Orgs' },
     { to: '/pricing',   label: 'Pricing' },
   ]
