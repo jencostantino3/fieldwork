@@ -9,7 +9,7 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
 } from 'firebase/auth'
-import { doc, setDoc, getDoc, updateDoc, serverTimestamp } from 'firebase/firestore'
+import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore'
 import { auth, db } from '@/firebase'
 
 export const AuthContext = createContext(null)
@@ -106,7 +106,8 @@ export function AuthProvider({ children }) {
 
   async function updateOrgName(name) {
     if (!user) return
-    await updateDoc(doc(db, 'users', user.uid), { orgName: name.trim() })
+    // setDoc with merge so this works even if the user doc was never written
+    await setDoc(doc(db, 'users', user.uid), { orgName: name.trim() }, { merge: true })
     setProfile((prev) => ({ ...prev, orgName: name.trim() }))
   }
 

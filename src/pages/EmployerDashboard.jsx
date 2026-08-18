@@ -48,6 +48,7 @@ export default function EmployerDashboard() {
   const [orgInput, setOrgInput]     = useState('')
   const [orgSaving, setOrgSaving]   = useState(false)
   const [orgSyncing, setOrgSyncing] = useState(false)
+  const [orgError,  setOrgError]    = useState('')
 
   useEffect(() => {
     if (!user) return
@@ -116,11 +117,14 @@ export default function EmployerDashboard() {
   async function handleSaveOrgName() {
     if (!orgInput.trim()) return
     setOrgSaving(true)
+    setOrgError('')
     try {
       await updateOrgName(orgInput.trim())
       await backfillJobOrgName(user.uid, orgInput.trim())
       setOrgModal(false)
       setOrgInput('')
+    } catch (e) {
+      setOrgError(e.message || 'Could not save. Please try again.')
     } finally {
       setOrgSaving(false)
     }
@@ -516,7 +520,7 @@ export default function EmployerDashboard() {
       />
 
       {/* Org name modal */}
-      <Modal open={orgModal} onClose={() => setOrgModal(false)} title="Organization / Team Name">
+      <Modal open={orgModal} onClose={() => { setOrgModal(false); setOrgError('') }} title="Organization / Team Name">
         <div className="space-y-4">
           <p className="text-sm text-gray-500">
             This is what workers see on your job postings — e.g. "Butterflies Softball" or "Danvers Little League". Your personal name stays private.
@@ -529,6 +533,7 @@ export default function EmployerDashboard() {
             placeholder="Butterflies Softball"
             autoFocus
           />
+          {orgError && <p className="text-sm text-red-600">{orgError}</p>}
           <Button fullWidth onClick={handleSaveOrgName} loading={orgSaving} disabled={!orgInput.trim()}>
             Save
           </Button>

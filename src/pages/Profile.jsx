@@ -23,14 +23,18 @@ export default function Profile() {
   const [orgEdit,   setOrgEdit]   = useState(false)
   const [orgInput,  setOrgInput]  = useState('')
   const [orgSaving, setOrgSaving] = useState(false)
+  const [orgError,  setOrgError]  = useState('')
 
   async function handleSaveOrg() {
     if (!orgInput.trim()) return
     setOrgSaving(true)
+    setOrgError('')
     try {
       await updateOrgName(orgInput.trim())
       await backfillJobOrgName(user.uid, orgInput.trim())
       setOrgEdit(false)
+    } catch (e) {
+      setOrgError(e.message || 'Could not save. Please try again.')
     } finally {
       setOrgSaving(false)
     }
@@ -200,11 +204,12 @@ export default function Profile() {
                 placeholder="Butterflies Softball"
                 autoFocus
               />
+              {orgError && <p className="text-sm text-red-600">{orgError}</p>}
               <div className="flex gap-3">
                 <Button size="sm" onClick={handleSaveOrg} loading={orgSaving} disabled={!orgInput.trim()}>
                   Save
                 </Button>
-                <Button size="sm" variant="secondary" onClick={() => setOrgEdit(false)}>
+                <Button size="sm" variant="secondary" onClick={() => { setOrgEdit(false); setOrgError('') }}>
                   Cancel
                 </Button>
               </div>
