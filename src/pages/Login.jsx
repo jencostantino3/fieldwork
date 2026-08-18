@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { useAuth } from '@/contexts/AuthContext'
 import Button from '@/components/common/Button'
-import darkLogo from '@/assets/logo-dark.png'
+import lightLogo from '@/assets/logo-full.png'
 
 export default function Login() {
   const { login, loginWithGoogle } = useAuth()
@@ -38,7 +38,7 @@ export default function Login() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex mb-6">
-            <img src={darkLogo} alt="Staff the Game" className="h-10 w-auto" />
+            <img src={lightLogo} alt="Staff the Game" className="h-12 w-auto" />
           </Link>
           <h1 className="text-2xl font-bold text-gray-900">Welcome back</h1>
           <p className="text-gray-500 mt-1 text-sm">Sign in to your account</p>
