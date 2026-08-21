@@ -332,6 +332,7 @@ export default function PostJob() {
                 <option value="lesson">Lesson</option>
                 <option value="season">Season</option>
                 <option value="flat">Flat Rate</option>
+                <option value="volunteer">Volunteer</option>
               </select>
             </div>
           </div>
