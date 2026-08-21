@@ -328,7 +328,10 @@ export default function PostJob() {
                 <option value="year">Year</option>
                 <option value="hour">Hour</option>
                 <option value="game">Game</option>
+                <option value="session">Session</option>
+                <option value="lesson">Lesson</option>
                 <option value="season">Season</option>
+                <option value="flat">Flat Rate</option>
               </select>
             </div>
           </div>
