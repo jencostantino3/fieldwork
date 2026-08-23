@@ -168,22 +168,22 @@ export default function App() {
           <Route
             path="/preview/worker-profile"
             element={
-              <Layout>
-                <AuthContext.Provider value={{
-                  user:                { uid: 'preview-uid', email: 'preview@example.com' },
-                  profile:             { role: 'worker', name: 'Preview Worker', plan: 'free' },
-                  loading:             false,
-                  isEmployer:          false, isWorker: true, isPro: false,
-                  isEmployerPro:       false, isEmployerElite: false, isWorkerPro: false,
-                  register:            async () => {}, login: async () => {},
-                  loginWithGoogle:     async () => {}, logout: async () => {},
-                  resetPassword:       async () => {}, refreshProfile: async () => {},
-                  createProfile:       async () => {}, updateOrgName: async () => {},
-                  updateWorkerProfile: async () => {},
-                }}>
+              <AuthContext.Provider value={{
+                user:                { uid: 'preview-uid', email: 'preview@example.com' },
+                profile:             { role: 'worker', name: 'Preview Worker', plan: 'free' },
+                loading:             false,
+                isEmployer:          false, isWorker: true, isPro: false,
+                isEmployerPro:       false, isEmployerElite: false, isWorkerPro: false,
+                register:            async () => {}, login: async () => {},
+                loginWithGoogle:     async () => {}, logout: async () => {},
+                resetPassword:       async () => {}, refreshProfile: async () => {},
+                createProfile:       async () => {}, updateOrgName: async () => {},
+                updateWorkerProfile: async () => {},
+              }}>
+                <Layout>
                   <WorkerProfile />
-                </AuthContext.Provider>
-              </Layout>
+                </Layout>
+              </AuthContext.Provider>
             }
           />
 
