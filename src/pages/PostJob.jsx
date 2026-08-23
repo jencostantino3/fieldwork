@@ -8,7 +8,8 @@ import { getOwnerCompany } from '@/services/companyService'
 import { getCoordinatesFromZip } from '@/utils/helpers'
 import Button from '@/components/common/Button'
 import ChecklistBuilder, { buildDefaultTasks } from '@/components/checklist/ChecklistBuilder'
-import { SPORTS, JOB_TYPES, QUESTION_TYPES } from '@/utils/constants'
+import { JOB_TYPES, QUESTION_TYPES } from '@/utils/constants'
+import { SPORTS_CONFIG } from '@/config/sportsConfig'
 import { ROLE_CATEGORIES } from '@/config/roleCategories'
 
 const SELECT_CLS = 'w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue'
@@ -232,7 +233,11 @@ export default function PostJob() {
               <label className="block text-sm font-medium text-gray-700 mb-1">Sport <span className="text-red-500">*</span></label>
               <select {...register('sport', { required: true })} className={SELECT_CLS}>
                 <option value="">Select sport</option>
-                {SPORTS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
+                {SPORTS_CONFIG.map((s) => (
+                  <option key={s.id} value={s.id} disabled={s.status === 'coming_soon'}>
+                    {s.name}{s.status === 'coming_soon' ? ' (Coming Soon)' : ''}
+                  </option>
+                ))}
               </select>
             </div>
           </div>

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Search, MapPin, SlidersHorizontal, X } from 'lucide-react'
-import { SPORTS, JOB_TYPES, JOB_CATEGORIES, RADIUS_OPTIONS } from '@/utils/constants'
+import { JOB_TYPES, JOB_CATEGORIES, RADIUS_OPTIONS } from '@/utils/constants'
+import { SPORTS_CONFIG } from '@/config/sportsConfig'
 import Button from '@/components/common/Button'
 import { useGeolocation } from '@/hooks/useGeolocation'
 
@@ -32,19 +33,25 @@ export default function JobFilters({ filters, onChange }) {
       <div>
         <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Sport</p>
         <div className="flex flex-wrap gap-2">
-          {SPORTS.map((s) => (
-            <button
-              key={s.value}
-              onClick={() => set('sport', s.value)}
-              className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${
-                filters.sport === s.value
-                  ? 'bg-athleticBlue text-white border-athleticBlue'
-                  : 'bg-white text-gray-600 border-gray-200 hover:border-athleticBlue'
-              }`}
-            >
-              {s.label}
-            </button>
-          ))}
+          {SPORTS_CONFIG.map((s) => {
+            const isComingSoon = s.status === 'coming_soon'
+            return (
+              <button
+                key={s.id}
+                disabled={isComingSoon}
+                onClick={() => !isComingSoon && set('sport', s.id)}
+                className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${
+                  isComingSoon
+                    ? 'bg-gray-50 text-gray-300 border-gray-100 cursor-not-allowed'
+                    : filters.sport === s.id
+                      ? 'bg-athleticBlue text-white border-athleticBlue'
+                      : 'bg-white text-gray-600 border-gray-200 hover:border-athleticBlue'
+                }`}
+              >
+                {s.name}{isComingSoon && <span className="ml-1.5 text-[10px] font-semibold tracking-wide">Coming Soon</span>}
+              </button>
+            )
+          })}
         </div>
       </div>
 
