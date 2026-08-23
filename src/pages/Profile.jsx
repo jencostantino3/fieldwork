@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ShieldCheck, Plus, CheckCircle, AlertCircle, Sparkles, CreditCard } from 'lucide-react'
+import { ShieldCheck, Plus, CheckCircle, AlertCircle, Sparkles, CreditCard, UserCircle } from 'lucide-react'
 import StarDisplay from '@/components/ratings/StarDisplay'
 import { formatRating } from '@/services/ratingService'
 import { useNavigate } from 'react-router-dom'
@@ -182,6 +182,48 @@ export default function Profile() {
           </div>
         </div>
       </div>
+
+      {/* Worker profile section */}
+      {profile?.role === 'worker' && (
+        <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-card">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-base font-semibold text-gray-900 flex items-center gap-2">
+              <UserCircle className="w-4 h-4 text-navy" /> Worker Profile
+            </h2>
+            <Button size="sm" variant="secondary" onClick={() => navigate('/worker-profile')}>
+              {profile?.sports?.length ? 'Edit' : 'Complete Profile'}
+            </Button>
+          </div>
+          {profile?.sports?.length ? (
+            <div className="space-y-2 text-sm text-gray-700">
+              {(profile.city || profile.state) && (
+                <p><span className="font-medium">Location:</span> {[profile.city, profile.state].filter(Boolean).join(', ')}</p>
+              )}
+              {profile.educationLevel && (
+                <p>
+                  <span className="font-medium">Education:</span>{' '}
+                  {{ high_school: 'High School', college: 'College', other: 'Other' }[profile.educationLevel] ?? profile.educationLevel}
+                  {profile.educationLevel === 'college' && profile.schoolName ? ` — ${profile.schoolName}` : ''}
+                </p>
+              )}
+              <p>
+                <span className="font-medium">Sports:</span>{' '}
+                {profile.sports.map((s) => {
+                  const lvl = { high_school: 'HS', collegiate: 'Collegiate', professional: 'Pro' }[s.experienceLevel]
+                  return `${s.sportId.charAt(0).toUpperCase() + s.sportId.slice(1)}${lvl ? ` (${lvl})` : ''}`
+                }).join(', ')}
+              </p>
+              {profile.bio && (
+                <p className="text-gray-500 line-clamp-2">{profile.bio}</p>
+              )}
+            </div>
+          ) : (
+            <p className="text-sm text-gray-500">
+              Complete your profile so employers can see your sports background and experience.
+            </p>
+          )}
+        </div>
+      )}
 
       {/* Org name — employers only */}
       {profile?.role === 'employer' && (

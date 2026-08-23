@@ -1,3 +1,5 @@
+import { SPORTS_CONFIG } from '@/config/sportsConfig'
+
 export const COLORS = {
   navy:         '#0B132B',
   athleticBlue: '#1976D2',
@@ -8,11 +10,7 @@ export const COLORS = {
   white:        '#FFFFFF',
 }
 
-export const SPORTS = [
-  { value: 'baseball',   label: 'Baseball' },
-  { value: 'basketball', label: 'Basketball' },
-  { value: 'softball',   label: 'Softball' },
-]
+export const SPORTS = SPORTS_CONFIG.map((s) => ({ value: s.id, label: s.name }))
 
 export const JOB_TYPES = [
   { value: 'full-time',  label: 'Full-Time' },

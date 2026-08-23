@@ -104,6 +104,12 @@ export function AuthProvider({ children }) {
     return sendPasswordResetEmail(auth, email)
   }
 
+  async function updateWorkerProfile(updates) {
+    if (!user) return
+    await setDoc(doc(db, 'users', user.uid), updates, { merge: true })
+    setProfile((prev) => ({ ...prev, ...updates }))
+  }
+
   async function updateOrgName(name) {
     if (!user) return
     // setDoc with merge so this works even if the user doc was never written
@@ -155,6 +161,7 @@ export function AuthProvider({ children }) {
         refreshProfile,
         createProfile,
         updateOrgName,
+        updateWorkerProfile,
       }}
     >
       {children}

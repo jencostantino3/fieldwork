@@ -16,6 +16,7 @@ import EmployerDashboard from '@/pages/EmployerDashboard'
 import PostJob          from '@/pages/PostJob'
 import Pricing          from '@/pages/Pricing'
 import BillingSuccess   from '@/pages/BillingSuccess'
+import WorkerProfile    from '@/pages/WorkerProfile'
 
 function Layout({ children }) {
   return (
@@ -58,6 +59,18 @@ export default function App() {
               <Layout>
                 <AuthGuard>
                   <Profile />
+                </AuthGuard>
+              </Layout>
+            }
+          />
+
+          {/* Protected — worker only */}
+          <Route
+            path="/worker-profile"
+            element={
+              <Layout>
+                <AuthGuard requireRole="worker">
+                  <WorkerProfile />
                 </AuthGuard>
               </Layout>
             }
@@ -147,6 +160,28 @@ export default function App() {
                     Preview mode — form submission is disabled
                   </div>
                   <PostJob />
+                </AuthContext.Provider>
+              </Layout>
+            }
+          />
+
+          <Route
+            path="/preview/worker-profile"
+            element={
+              <Layout>
+                <AuthContext.Provider value={{
+                  user:                { uid: 'preview-uid', email: 'preview@example.com' },
+                  profile:             { role: 'worker', name: 'Preview Worker', plan: 'free' },
+                  loading:             false,
+                  isEmployer:          false, isWorker: true, isPro: false,
+                  isEmployerPro:       false, isEmployerElite: false, isWorkerPro: false,
+                  register:            async () => {}, login: async () => {},
+                  loginWithGoogle:     async () => {}, logout: async () => {},
+                  resetPassword:       async () => {}, refreshProfile: async () => {},
+                  createProfile:       async () => {}, updateOrgName: async () => {},
+                  updateWorkerProfile: async () => {},
+                }}>
+                  <WorkerProfile />
                 </AuthContext.Provider>
               </Layout>
             }
