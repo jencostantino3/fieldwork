@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
-import { Menu, X, ChevronDown, LogOut, User, LayoutDashboard } from 'lucide-react'
+import { Menu, X, ChevronDown, LogOut, User, LayoutDashboard, UserCircle } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import darkLogo from '@/assets/logo-dark.png'
 
@@ -68,12 +68,21 @@ export default function Navbar() {
                         <LayoutDashboard className="w-4 h-4" /> Dashboard
                       </Link>
                     )}
+                    {profile?.role === 'worker' && (
+                      <Link
+                        to="/worker-profile"
+                        onClick={() => setDrop(false)}
+                        className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
+                      >
+                        <UserCircle className="w-4 h-4" /> My Profile
+                      </Link>
+                    )}
                     <Link
                       to="/profile"
                       onClick={() => setDrop(false)}
                       className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
                     >
-                      <User className="w-4 h-4" /> Profile
+                      <User className="w-4 h-4" /> Account
                     </Link>
                     <hr className="my-1" />
                     <button
@@ -131,8 +140,13 @@ export default function Navbar() {
                   Dashboard
                 </Link>
               )}
+              {profile?.role === 'worker' && (
+                <Link to="/worker-profile" onClick={() => setOpen(false)} className="block py-3 text-gray-300 hover:text-white font-medium">
+                  My Profile
+                </Link>
+              )}
               <Link to="/profile" onClick={() => setOpen(false)} className="block py-3 text-gray-300 hover:text-white font-medium">
-                Profile
+                Account
               </Link>
               <button onClick={handleLogout} className="block py-3 text-red-400 font-medium w-full text-left">
                 Sign Out
