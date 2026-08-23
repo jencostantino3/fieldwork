@@ -11,6 +11,7 @@ import ChecklistBuilder, { buildDefaultTasks } from '@/components/checklist/Chec
 import { JOB_TYPES, QUESTION_TYPES } from '@/utils/constants'
 import { SPORTS_CONFIG } from '@/config/sportsConfig'
 import { ROLE_CATEGORIES } from '@/config/roleCategories'
+import { DESCRIPTION_TEMPLATES } from '@/config/descriptionTemplates'
 
 const SELECT_CLS = 'w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue'
 const INPUT_CLS  = 'w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue'
@@ -29,8 +30,9 @@ export default function PostJob() {
   const [titleSel, setTitleSel] = useState('')  // role string or 'other'
 
   // ZIP lookup state
-  const [zipCity,    setZipCity]    = useState('')
-  const [zipLoading, setZipLoading] = useState(false)
+  const [zipCity,         setZipCity]         = useState('')
+  const [zipLoading,      setZipLoading]      = useState(false)
+  const [templateApplied, setTemplateApplied] = useState(false)
 
   useEffect(() => {
     if (!user || isEmployerPro || isEmployerElite) return
@@ -57,17 +59,35 @@ export default function PostJob() {
     setValue('title', '', { shouldValidate: false })
     const cat = ROLE_CATEGORIES.find((c) => c.value === value)
     setValue('category', cat?.categoryValue ?? '', { shouldValidate: !!value })
+    if (templateApplied) {
+      setValue('description', '')
+      setTemplateApplied(false)
+    }
   }
 
-  // Job Title selection: sets the Firestore 'title' field
+  // Job Title selection: sets the Firestore 'title' field and auto-fills description template
   function handleTitleChange(value) {
     setTitleSel(value)
     if (value && value !== 'other') {
       setValue('title', value, { shouldValidate: true })
+      const template = DESCRIPTION_TEMPLATES[value]
+      if (template) {
+        setValue('description', template, { shouldValidate: false })
+        setTemplateApplied(true)
+      } else {
+        setTemplateApplied(false)
+      }
     } else if (!value) {
       setValue('title', '')
+      setTemplateApplied(false)
     }
     // 'other' case: title set by the text input below
+  }
+
+  const descReg = register('description', { required: 'Description is required' })
+  function handleDescChange(e) {
+    descReg.onChange(e)
+    if (templateApplied) setTemplateApplied(false)
   }
 
   // ZIP → city/state lookup via direct onChange
@@ -294,9 +314,17 @@ export default function PostJob() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Description <span className="text-red-500">*</span></label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Description <span className="text-red-500">*</span>
+              {templateApplied && (
+                <span className="ml-2 text-xs font-normal text-energyGreen inline-flex items-center gap-0.5">
+                  <CheckCircle className="w-3 h-3" /> Template applied — edit freely
+                </span>
+              )}
+            </label>
             <textarea
-              {...register('description', { required: 'Description is required' })}
+              {...descReg}
+              onChange={handleDescChange}
               rows={5}
               className={INPUT_CLS}
               placeholder="Describe the role, responsibilities, schedule..."
