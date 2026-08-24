@@ -12,6 +12,7 @@ import { JOB_TYPES, QUESTION_TYPES } from '@/utils/constants'
 import { SPORTS_CONFIG } from '@/config/sportsConfig'
 import { ROLE_CATEGORIES } from '@/config/roleCategories'
 import { DESCRIPTION_TEMPLATES } from '@/config/descriptionTemplates'
+import { QUESTION_TEMPLATES } from '@/config/questionTemplates'
 
 const SELECT_CLS = 'w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue'
 const INPUT_CLS  = 'w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue'
@@ -50,7 +51,9 @@ export default function PostJob() {
   })
 
   const roleType = watch('roleType')
-  const { fields, append, remove } = useFieldArray({ control, name: 'questions' })
+  const { fields, append, remove, replace } = useFieldArray({ control, name: 'questions' })
+
+  const defaultQuestion = { type: 'text', text: '', required: true }
 
   // Category selection: sets the Firestore 'category' field via the mapped categoryValue
   function handleCatChange(value) {
@@ -62,24 +65,31 @@ export default function PostJob() {
     if (templateApplied) {
       setValue('description', '')
       setTemplateApplied(false)
+      replace([defaultQuestion])
     }
   }
 
-  // Job Title selection: sets the Firestore 'title' field and auto-fills description template
+  // Job Title selection: sets the Firestore 'title' field, auto-fills description template,
+  // and populates the Application Questions section with per-role suggested questions.
   function handleTitleChange(value) {
     setTitleSel(value)
     if (value && value !== 'other') {
       setValue('title', value, { shouldValidate: true })
-      const template = DESCRIPTION_TEMPLATES[value]
-      if (template) {
-        setValue('description', template, { shouldValidate: false })
+      const descTemplate = DESCRIPTION_TEMPLATES[value]
+      if (descTemplate) {
+        setValue('description', descTemplate, { shouldValidate: false })
         setTemplateApplied(true)
       } else {
         setTemplateApplied(false)
       }
+      const questionTemplate = QUESTION_TEMPLATES[value]
+      if (questionTemplate?.length) {
+        replace(questionTemplate)
+      }
     } else if (!value) {
       setValue('title', '')
       setTemplateApplied(false)
+      replace([defaultQuestion])
     }
     // 'other' case: title set by the text input below
   }
