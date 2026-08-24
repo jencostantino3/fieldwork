@@ -439,9 +439,10 @@ export default function PostJob() {
                       Required
                     </label>
                   </div>
-                  <input
+                  <textarea
                     {...register(`questions.${idx}.text`)}
-                    className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue"
+                    rows={3}
+                    className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue resize-none"
                     placeholder={`Question ${idx + 1}...`}
                   />
                 </div>
