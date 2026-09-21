@@ -17,6 +17,52 @@ import { QUESTION_TEMPLATES } from '@/config/questionTemplates'
 const SELECT_CLS = 'w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue'
 const INPUT_CLS  = 'w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue'
 
+// Multiple Choice ('select') isn't offered yet — choice-option editing isn't built out.
+// Left in QUESTION_TYPES so previously-saved questions of that type still render for applicants.
+const SELECTABLE_QUESTION_TYPES = QUESTION_TYPES.filter((t) => t.value !== 'select')
+
+function renderAnswerPreview(type) {
+  switch (type) {
+    case 'textarea':
+      return (
+        <textarea
+          disabled
+          rows={2}
+          placeholder="Worker's answer…"
+          className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-xs bg-white text-gray-400 resize-none"
+        />
+      )
+    case 'yesno':
+      return (
+        <div className="flex gap-3">
+          {['Yes', 'No'].map((v) => (
+            <label key={v} className="flex items-center gap-1.5 text-xs text-gray-400">
+              <input type="radio" disabled className="accent-gray-300" />
+              {v}
+            </label>
+          ))}
+        </div>
+      )
+    case 'date':
+      return (
+        <input
+          type="date"
+          disabled
+          className="border border-gray-200 rounded-lg px-3 py-1.5 text-xs bg-white text-gray-400"
+        />
+      )
+    default:
+      return (
+        <input
+          type="text"
+          disabled
+          placeholder="Worker's answer…"
+          className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-xs bg-white text-gray-400"
+        />
+      )
+  }
+}
+
 export default function PostJob() {
   const { user, profile, isEmployerPro, isEmployerElite } = useAuth()
   const navigate = useNavigate()
@@ -424,38 +470,45 @@ export default function PostJob() {
             <span className="text-xs text-gray-500">Workers answer these instead of submitting a resume</span>
           </div>
           <div className="space-y-3">
-            {fields.map((field, idx) => (
-              <div key={field.id} className="flex gap-3 bg-gray-50 rounded-xl p-3">
-                <div className="flex-1 space-y-2">
-                  <div className="flex gap-2">
-                    <select
-                      {...register(`questions.${idx}.type`)}
-                      className="border border-gray-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-athleticBlue"
-                    >
-                      {QUESTION_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
-                    </select>
-                    <label className="flex items-center gap-1 text-xs text-gray-600 cursor-pointer">
-                      <input type="checkbox" {...register(`questions.${idx}.required`)} defaultChecked className="accent-athleticBlue" />
-                      Required
-                    </label>
+            {fields.map((field, idx) => {
+              const qType = watch(`questions.${idx}.type`) ?? field.type
+              return (
+                <div key={field.id} className="flex gap-3 bg-gray-50 rounded-xl p-3">
+                  <div className="flex-1 space-y-2">
+                    <div className="flex gap-2">
+                      <select
+                        {...register(`questions.${idx}.type`)}
+                        className="border border-gray-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-athleticBlue"
+                      >
+                        {SELECTABLE_QUESTION_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
+                      </select>
+                      <label className="flex items-center gap-1 text-xs text-gray-600 cursor-pointer">
+                        <input type="checkbox" {...register(`questions.${idx}.required`)} defaultChecked className="accent-athleticBlue" />
+                        Required
+                      </label>
+                    </div>
+                    <textarea
+                      {...register(`questions.${idx}.text`)}
+                      rows={3}
+                      className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue resize-none"
+                      placeholder={`Question ${idx + 1}...`}
+                    />
+                    <div>
+                      <p className="text-[11px] font-medium text-gray-400 uppercase tracking-wide mb-1">Worker sees</p>
+                      {renderAnswerPreview(qType)}
+                    </div>
                   </div>
-                  <textarea
-                    {...register(`questions.${idx}.text`)}
-                    rows={3}
-                    className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue resize-none"
-                    placeholder={`Question ${idx + 1}...`}
-                  />
+                  <button
+                    type="button"
+                    onClick={() => remove(idx)}
+                    disabled={fields.length === 1}
+                    className="text-gray-400 hover:text-red-500 p-1 self-start disabled:opacity-30"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => remove(idx)}
-                  disabled={fields.length === 1}
-                  className="text-gray-400 hover:text-red-500 p-1 self-start disabled:opacity-30"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </div>
-            ))}
+              )
+            })}
           </div>
           <button
             type="button"
