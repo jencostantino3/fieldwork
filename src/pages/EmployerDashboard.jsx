@@ -108,6 +108,10 @@ export default function EmployerDashboard() {
       const id = await createCompany({ name: companyName, sport: coSport, description: coDesc }, user.uid)
       const fresh = await getOwnerCompany(user.uid)
       setCompany(fresh)
+      if (!profile?.orgName) {
+        await updateOrgName(companyName.trim())
+        await backfillJobOrgName(user.uid, companyName.trim())
+      }
       setCoModal(false)
     } finally {
       setSaving(false)
