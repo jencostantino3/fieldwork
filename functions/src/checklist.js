@@ -1,5 +1,6 @@
-const v1    = require('firebase-functions/v1')
-const admin = require('firebase-admin')
+const v1            = require('firebase-functions/v1')
+const admin         = require('firebase-admin')
+const notifications = require('./notifications')
 
 if (!admin.apps.length) admin.initializeApp()
 
@@ -20,13 +21,13 @@ exports.onChecklistTaskComplete = v1.firestore
     const { title, checklistTemplate } = jobSnap.data()
     const notifyNumbers = checklistTemplate?.notifyNumbers ?? []
 
-    // TODO: send Twilio SMS when configured
-    console.log(
-      `[checklist] "${title}" — ${newlyCompleted.length} task(s) completed:`,
-      newlyCompleted.map((t) => t.label),
-      '→ notify:',
-      notifyNumbers
-    )
+    await notifications.sendChecklistUpdate({
+      jobTitle:        title,
+      jobId:           after.jobId,
+      workerName:      after.workerName || 'A worker',
+      completedLabels: newlyCompleted.map((t) => t.label),
+      notifyNumbers,
+    })
 
     return null
   })

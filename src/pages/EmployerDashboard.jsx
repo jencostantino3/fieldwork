@@ -6,7 +6,7 @@ import {
 import { useAuth } from '@/contexts/AuthContext'
 import { getEmployerJobs, deleteJob, markJobComplete, backfillJobOrgName } from '@/services/jobService'
 import { getUserProfiles } from '@/services/userService'
-import { toggleRapidFill } from '@/services/rapidFillService'
+import { toggleRapidFill, notifyRapidFillWorkers } from '@/services/rapidFillService'
 import { getJobApplications, getApplicationCountsForJobs } from '@/services/applicationService'
 import { getOwnerCompany, createCompany } from '@/services/companyService'
 import { openBillingPortal } from '@/services/billingService'
@@ -49,6 +49,7 @@ export default function EmployerDashboard() {
   const [orgSaving, setOrgSaving]   = useState(false)
   const [orgSyncing, setOrgSyncing] = useState(false)
   const [orgError,  setOrgError]    = useState('')
+  const [rapidFillNotice, setRapidFillNotice] = useState(null) // { jobTitle, count }
 
   useEffect(() => {
     if (!user) return
@@ -88,6 +89,10 @@ export default function EmployerDashboard() {
     setJobs((prev) => prev.map((j) => j.id === job.id ? { ...j, rapidFill: next } : j))
     try {
       await toggleRapidFill(job.id, next)
+      if (next) {
+        const count = await notifyRapidFillWorkers(job.id)
+        setRapidFillNotice({ jobTitle: job.title, count })
+      }
     } catch (err) {
       setJobs((prev) => prev.map((j) => j.id === job.id ? { ...j, rapidFill: !next } : j))
       alert('Could not update Rapid Fill status.')
@@ -266,6 +271,20 @@ export default function EmployerDashboard() {
         <div className="bg-energyGreen-50 border border-energyGreen-200 rounded-xl p-4 mb-6 flex items-center gap-3">
           <CheckCircle className="w-5 h-5 text-energyGreen shrink-0" />
           <p className="text-sm text-energyGreen-700 font-medium">Boost activated! Your job is now marked urgent and pinged to nearby workers.</p>
+        </div>
+      )}
+
+      {rapidFillNotice && (
+        <div className="bg-rapidFill-50 border border-rapidFill-200 rounded-xl p-4 mb-6 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <Flame className="w-5 h-5 text-rapidFill shrink-0" />
+            <p className="text-sm text-rapidFill-700 font-medium">
+              Rapid Fill activated for "{rapidFillNotice.jobTitle}" — {rapidFillNotice.count} qualified worker{rapidFillNotice.count === 1 ? '' : 's'} notified.
+            </p>
+          </div>
+          <button onClick={() => setRapidFillNotice(null)} className="text-rapidFill-700/60 hover:text-rapidFill-700 text-xs font-semibold">
+            Dismiss
+          </button>
         </div>
       )}
 

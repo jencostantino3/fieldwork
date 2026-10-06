@@ -2,7 +2,8 @@ import {
   collection, doc, addDoc, updateDoc, query, where, onSnapshot,
   serverTimestamp, Timestamp, writeBatch, getDocs, limit, orderBy,
 } from 'firebase/firestore'
-import { db } from '@/firebase'
+import { httpsCallable } from 'firebase/functions'
+import { db, functions } from '@/firebase'
 
 const HOLDS = 'rapidFillHolds'
 const JOBS  = 'jobs'
@@ -13,6 +14,14 @@ export async function toggleRapidFill(jobId, enabled) {
     rapidFillActivatedAt: enabled ? serverTimestamp() : null,
     updatedAt:            serverTimestamp(),
   })
+}
+
+// Notifies real qualified workers (sport/role/area match) via the notifications
+// service (functions/src/notifications.js) and returns how many were notified.
+export async function notifyRapidFillWorkers(jobId) {
+  if (!functions) throw new Error('Firebase is not configured.')
+  const { data } = await httpsCallable(functions, 'sendRapidFillAlert')({ jobId })
+  return data.notifiedCount
 }
 
 export async function claimRapidFill(jobId, worker) {

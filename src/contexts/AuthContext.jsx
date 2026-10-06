@@ -136,6 +136,7 @@ export function AuthProvider({ children }) {
 
   const isEmployer      = profile?.role === 'employer'
   const isWorker        = profile?.role === 'worker'
+  const isAdmin         = profile?.isAdmin === true
   const isEmployerPro   = profile?.plan === 'employer_pro'
   const isEmployerElite = profile?.plan === 'employer_elite'
   const isWorkerPro     = profile?.plan === 'worker_pro'
@@ -149,6 +150,7 @@ export function AuthProvider({ children }) {
         loading,
         isEmployer,
         isWorker,
+        isAdmin,
         isPro,
         isEmployerPro,
         isEmployerElite,

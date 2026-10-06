@@ -5,6 +5,7 @@ import { formatRating } from '@/services/ratingService'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import { getUserBadges, requestBadge } from '@/services/badgeService'
+import { startBackgroundCheck, BACKGROUND_CHECK_STATUS } from '@/services/backgroundCheckService'
 import { backfillJobOrgName } from '@/services/jobService'
 import { getUserApplications } from '@/services/applicationService'
 import { openBillingPortal } from '@/services/billingService'
@@ -17,9 +18,23 @@ import { BADGE_TYPES, APPLICATION_STATUS, PLANS } from '@/utils/constants'
 import { timeAgo } from '@/utils/helpers'
 
 export default function Profile() {
-  const { user, profile, isPro, createProfile, updateOrgName } = useAuth()
+  const { user, profile, isPro, createProfile, updateOrgName, refreshProfile } = useAuth()
   const navigate = useNavigate()
   const [portalLoading, setPortalLoading] = useState(false)
+  const [bgStatus,  setBgStatus]  = useState(profile?.backgroundCheck?.status ?? BACKGROUND_CHECK_STATUS.NOT_STARTED)
+  const [bgStarting, setBgStarting] = useState(false)
+
+  async function handleStartBackgroundCheck() {
+    setBgStarting(true)
+    setBgStatus(BACKGROUND_CHECK_STATUS.SUBMITTED)
+    try {
+      await startBackgroundCheck(user.uid)
+      setBgStatus(BACKGROUND_CHECK_STATUS.PENDING)
+      refreshProfile()
+    } finally {
+      setBgStarting(false)
+    }
+  }
   const [orgEdit,   setOrgEdit]   = useState(false)
   const [orgInput,  setOrgInput]  = useState('')
   const [orgSaving, setOrgSaving] = useState(false)
@@ -221,6 +236,43 @@ export default function Profile() {
             <p className="text-sm text-gray-500">
               Complete your profile so employers can see your sports background and experience.
             </p>
+          )}
+        </div>
+      )}
+
+      {/* Background check — workers only */}
+      {profile?.role === 'worker' && (
+        <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-card">
+          <div className="flex items-center justify-between mb-1">
+            <h2 className="text-base font-semibold text-gray-900 flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-navy" /> Background Check
+            </h2>
+            {bgStatus === BACKGROUND_CHECK_STATUS.CLEAR ? (
+              <span className="inline-flex items-center gap-1 text-xs font-semibold text-energyGreen-700 bg-energyGreen-50 border border-energyGreen-200 px-2.5 py-1 rounded-full">
+                <CheckCircle className="w-3.5 h-3.5" /> Clear
+              </span>
+            ) : bgStatus === BACKGROUND_CHECK_STATUS.PENDING ? (
+              <span className="text-xs font-semibold text-yellow-700 bg-yellow-50 border border-yellow-200 px-2.5 py-1 rounded-full">
+                Pending
+              </span>
+            ) : bgStatus === BACKGROUND_CHECK_STATUS.SUBMITTED ? (
+              <span className="text-xs font-semibold text-gray-500 bg-gray-100 border border-gray-200 px-2.5 py-1 rounded-full">
+                Submitted
+              </span>
+            ) : (
+              <span className="text-xs font-semibold text-gray-500 bg-gray-100 border border-gray-200 px-2.5 py-1 rounded-full">
+                Not Started
+              </span>
+            )}
+          </div>
+          <p className="text-xs text-gray-400 mb-3">Demo — Checkr integration pending.</p>
+          {bgStatus === BACKGROUND_CHECK_STATUS.NOT_STARTED && (
+            <Button size="sm" onClick={handleStartBackgroundCheck} loading={bgStarting}>
+              Start
+            </Button>
+          )}
+          {bgStatus === BACKGROUND_CHECK_STATUS.PENDING && (
+            <p className="text-sm text-gray-500">We're reviewing your background check — this usually takes a day or two.</p>
           )}
         </div>
       )}

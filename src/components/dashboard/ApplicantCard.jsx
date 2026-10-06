@@ -1,11 +1,20 @@
 import { useState } from 'react'
-import { ChevronDown, ChevronUp, CheckCircle, XCircle, Clock, Sparkles, Mail, Star } from 'lucide-react'
+import { ChevronDown, ChevronUp, CheckCircle, XCircle, Clock, Sparkles, Mail, Star, ShieldCheck } from 'lucide-react'
 import { clsx } from 'clsx'
 import { timeAgo } from '@/utils/helpers'
+import { useAuth } from '@/contexts/AuthContext'
 import { updateApplicationStatus } from '@/services/applicationService'
 import { formatRating } from '@/services/ratingService'
+import { markBackgroundCheckClear, BACKGROUND_CHECK_STATUS } from '@/services/backgroundCheckService'
 import BadgeDisplay from '@/components/badges/BadgeDisplay'
 import Button from '@/components/common/Button'
+
+const BG_STATUS_LABEL = {
+  [BACKGROUND_CHECK_STATUS.NOT_STARTED]: 'Not Started',
+  [BACKGROUND_CHECK_STATUS.SUBMITTED]:   'Submitted',
+  [BACKGROUND_CHECK_STATUS.PENDING]:     'Pending',
+  [BACKGROUND_CHECK_STATUS.CLEAR]:       'Clear',
+}
 
 const STATUS_STYLES = {
   pending:  'bg-gray-100 text-gray-600',
@@ -15,8 +24,11 @@ const STATUS_STYLES = {
 }
 
 export default function ApplicantCard({ application, applicantProfile, onStatusChange }) {
+  const { isAdmin } = useAuth()
   const [expanded, setExpanded] = useState(false)
   const [loading, setLoading]   = useState(false)
+  const [bgStatus,  setBgStatus]  = useState(applicantProfile?.backgroundCheck?.status ?? BACKGROUND_CHECK_STATUS.NOT_STARTED)
+  const [clearing,  setClearing]  = useState(false)
 
   async function setStatus(status) {
     setLoading(true)
@@ -25,6 +37,17 @@ export default function ApplicantCard({ application, applicantProfile, onStatusC
       onStatusChange?.(application.id, status)
     } finally {
       setLoading(false)
+    }
+  }
+
+  async function handleMarkClear() {
+    if (!applicantProfile?.uid) return
+    setClearing(true)
+    try {
+      await markBackgroundCheckClear(applicantProfile.uid)
+      setBgStatus(BACKGROUND_CHECK_STATUS.CLEAR)
+    } finally {
+      setClearing(false)
     }
   }
 
@@ -99,6 +122,32 @@ export default function ApplicantCard({ application, applicantProfile, onStatusC
               <BadgeDisplay badges={applicantProfile.badges} size="sm" />
             </div>
           )}
+
+          {/* Background check */}
+          <div>
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Background Check</p>
+            <div className="flex items-center gap-2 flex-wrap">
+              {bgStatus === BACKGROUND_CHECK_STATUS.CLEAR ? (
+                <span className="inline-flex items-center gap-1 text-xs font-semibold text-energyGreen-700 bg-energyGreen-50 border border-energyGreen-200 px-2.5 py-1 rounded-full">
+                  <ShieldCheck className="w-3.5 h-3.5" /> Clear
+                </span>
+              ) : (
+                <span className={clsx(
+                  'text-xs font-semibold px-2.5 py-1 rounded-full border',
+                  bgStatus === BACKGROUND_CHECK_STATUS.PENDING
+                    ? 'text-yellow-700 bg-yellow-50 border-yellow-200'
+                    : 'text-gray-500 bg-gray-100 border-gray-200'
+                )}>
+                  {BG_STATUS_LABEL[bgStatus]}
+                </span>
+              )}
+              {isAdmin && bgStatus !== BACKGROUND_CHECK_STATUS.CLEAR && (
+                <Button size="sm" variant="secondary" onClick={handleMarkClear} loading={clearing}>
+                  Mark Clear
+                </Button>
+              )}
+            </div>
+          </div>
 
           {/* Application answers / note */}
           <div>

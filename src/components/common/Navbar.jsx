@@ -27,9 +27,19 @@ export default function Navbar() {
     <nav className="sticky top-0 z-40 bg-navy shadow-md">
       <div className="max-w-6xl mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          <Link to="/">
-            <img src={darkLogo} alt="Staff the Game" className="h-8 w-auto" />
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link to="/">
+              <img src={darkLogo} alt="Staff the Game" className="h-8 w-auto" />
+            </Link>
+            {import.meta.env.VITE_DEMO_MODE === 'true' && (
+              <span
+                title="Demo Mode — SMS and background checks are simulated"
+                className="text-[10px] font-bold uppercase tracking-wide text-white/70 border border-white/20 rounded-full px-2 py-0.5"
+              >
+                Demo
+              </span>
+            )}
+          </div>
 
           <div className="hidden md:flex items-center gap-6">
             {navLinks.map((l) => (

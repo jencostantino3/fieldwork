@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AuthProvider, AuthContext } from '@/contexts/AuthContext'
 import Navbar from '@/components/common/Navbar'
 import Footer from '@/components/common/Footer'
+import DemoMessagePreview from '@/components/common/DemoMessagePreview'
 import AuthGuard from '@/components/auth/AuthGuard'
 
 import Home             from '@/pages/Home'
@@ -17,6 +18,7 @@ import PostJob          from '@/pages/PostJob'
 import Pricing          from '@/pages/Pricing'
 import BillingSuccess   from '@/pages/BillingSuccess'
 import WorkerProfile    from '@/pages/WorkerProfile'
+import Privacy          from '@/pages/Privacy'
 
 function Layout({ children }) {
   return (
@@ -24,6 +26,7 @@ function Layout({ children }) {
       <Navbar />
       <main className="flex-1">{children}</main>
       <Footer />
+      <DemoMessagePreview />
     </div>
   )
 }
@@ -46,6 +49,7 @@ export default function App() {
 
           {/* Public routes with nav (continued) */}
           <Route path="/pricing" element={<Layout><Pricing /></Layout>} />
+          <Route path="/privacy" element={<Layout><Privacy /></Layout>} />
 
           {/* Auth routes (no nav) */}
           <Route path="/login" element={<AuthLayout><Login /></AuthLayout>} />
