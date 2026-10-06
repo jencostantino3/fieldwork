@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { useAuth } from '@/contexts/AuthContext'
+import { getUserProfile } from '@/services/userService'
 import Button from '@/components/common/Button'
 import lightLogo from '@/assets/logo-full.png'
 
@@ -9,7 +10,7 @@ export default function Login() {
   const { login, loginWithGoogle, resetPassword } = useAuth()
   const navigate   = useNavigate()
   const location   = useLocation()
-  const from       = location.state?.from || '/'
+  const from       = location.state?.from
   const [err, setErr] = useState('')
   const [mode, setMode] = useState('login') // 'login' | 'reset'
   const [resetSent, setResetSent] = useState(false)
@@ -17,11 +18,21 @@ export default function Login() {
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm()
   const resetForm = useForm()
 
+  // No redirect state means the user landed on /login directly (bookmark, nav link,
+  // typed URL) rather than being bounced off a protected route — in that case route
+  // them to their role's home instead of the generic "/", which otherwise made a
+  // successful employer login look like it had silently failed.
+  async function postLoginRedirect(uid) {
+    if (from) { navigate(from, { replace: true }); return }
+    const profile = await getUserProfile(uid).catch(() => null)
+    navigate(profile?.role === 'employer' ? '/dashboard' : '/jobs', { replace: true })
+  }
+
   async function onSubmit({ email, password }) {
     setErr('')
     try {
-      await login(email, password)
-      navigate(from, { replace: true })
+      const cred = await login(email, password)
+      await postLoginRedirect(cred.user.uid)
     } catch (e) {
       const code = e.code || ''
       if (code === 'auth/user-not-found' || code === 'auth/invalid-email') {
@@ -40,8 +51,8 @@ export default function Login() {
 
   async function handleGoogle() {
     try {
-      await loginWithGoogle()
-      navigate(from, { replace: true })
+      const user = await loginWithGoogle()
+      await postLoginRedirect(user.uid)
     } catch (e) {
       setErr('Google sign-in failed.')
     }

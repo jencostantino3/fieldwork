@@ -18,10 +18,34 @@ service cloud.firestore {
       return isSignedIn() && getUserData().role == 'employer';
     }
 
+    // isAdmin is a site-admin flag set manually in the Firebase console only —
+    // never writable by any client, including the owner of the doc it's on.
+    function isAdmin() {
+      return isSignedIn() && getUserData().isAdmin == true;
+    }
+
+    function isOwnerUserUpdateValid() {
+      return request.resource.data.get('isAdmin', false) == resource.data.get('isAdmin', false)
+        && (
+          request.resource.data.get('backgroundCheck', {}).get('status', '') != 'clear'
+          || resource.data.get('backgroundCheck', {}).get('status', '') == 'clear'
+        );
+    }
+
+    // Admins may only ever touch backgroundCheck/updatedAt on someone else's doc —
+    // the "Mark Clear" demo action — never role, plan, or anything else.
+    function isAdminClearingBackgroundCheck() {
+      return isAdmin()
+        && request.resource.data.backgroundCheck.status == 'clear'
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['backgroundCheck', 'updatedAt']);
+    }
+
     // Users
     match /users/{uid} {
       allow read: if isSignedIn();
-      allow create, update: if isOwner(uid);
+      allow create: if isOwner(uid) && request.resource.data.get('isAdmin', false) == false;
+      allow update: if (isOwner(uid) && isOwnerUserUpdateValid()) || isAdminClearingBackgroundCheck();
+      allow delete: if isOwner(uid);
     }
 
     // Jobs — public read, employer write
@@ -37,6 +61,8 @@ service cloud.firestore {
       allow read: if true;
       allow create: if isEmployer();
       allow update: if isEmployer()
+        && resource.data.ownerId == request.auth.uid;
+      allow delete: if isEmployer()
         && resource.data.ownerId == request.auth.uid;
     }
 
@@ -58,6 +84,17 @@ service cloud.firestore {
         && request.resource.data.userId == request.auth.uid;
       allow update: if isSignedIn()
         && resource.data.userId == request.auth.uid;
+      allow delete: if isSignedIn()
+        && resource.data.userId == request.auth.uid;
+    }
+
+    // Demo messages — simulated Twilio sends, written by Cloud Functions (Admin SDK,
+    // bypasses rules) when DEMO_MODE is on. Tagged isDemo: true so the cleanup script
+    // can remove them; any signed-in user may delete (throwaway preview data, no owner).
+    match /demoMessages/{id} {
+      allow read: if isSignedIn();
+      allow create, update: if false;
+      allow delete: if isSignedIn();
     }
 
     // Boosts — created by Cloud Function (service account), read by employer
