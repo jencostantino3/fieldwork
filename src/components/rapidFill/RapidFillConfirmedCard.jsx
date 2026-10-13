@@ -17,9 +17,9 @@ export default function RapidFillConfirmedCard({ hold, workerProfile }) {
           {workerProfile?.email && (
             <a
               href={`mailto:${workerProfile.email}`}
-              className="inline-flex items-center gap-1 text-xs text-athleticBlue hover:underline mt-0.5"
+              className="flex items-center gap-1 text-xs text-athleticBlue hover:underline mt-0.5 min-w-0"
             >
-              <Mail className="w-3 h-3" /> {workerProfile.email}
+              <Mail className="w-3 h-3 shrink-0" /> <span className="truncate">{workerProfile.email}</span>
             </a>
           )}
           {rating && (

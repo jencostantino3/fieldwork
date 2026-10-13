@@ -34,7 +34,7 @@ async function demoDocs(collectionName) {
 // Bootstrap: needs to be an employer, not just signed in — applications can only be
 // broadly listed by isEmployer() (that clause doesn't depend on resource.data, so
 // Firestore can prove it safe for an unconstrained query; a worker's clause can't be).
-const bootEmail = `cleanup-bootstrap-${Date.now()}@stafftheame.demo`
+const bootEmail = `cleanup-bootstrap-${Date.now()}@staffthegame.demo`
 const bootCred = await createUserWithEmailAndPassword(auth, bootEmail, SEED_PASSWORD)
 await setDoc(doc(db, 'users', bootCred.user.uid), {
   uid: bootCred.user.uid, email: bootEmail, name: 'Cleanup Bootstrap', role: 'employer',

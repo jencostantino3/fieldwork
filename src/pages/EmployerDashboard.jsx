@@ -39,6 +39,7 @@ export default function EmployerDashboard() {
   const [appsLoading, setAppsLoad]  = useState(false)
   const [confirmedRFHold, setConfirmedRFHold]       = useState(null)
   const [confirmedRFProfile, setConfirmedRFProfile] = useState(null)
+  const [confirmedHoldsByJob, setConfirmedHoldsByJob] = useState({}) // jobId -> hold, for the job list's "Filled — name" row
   const [boostJob, setBoostJob]       = useState(null)
   const [rightPanel, setRightPanel]   = useState('applicants') // 'applicants' | 'queue'
   const [ratingTarget, setRatingTarget] = useState(null) // { toUid, jobId, ratedName }
@@ -65,6 +66,14 @@ export default function EmployerDashboard() {
         const counts = await getApplicationCountsForJobs(employerJobs.map((j) => j.id))
         setJobs(employerJobs.map((j) => ({ ...j, applicationCount: counts[j.id] ?? 0 })))
         setCompany(co)
+
+        // Rapid Fill confirmations don't create an application doc, so a job with
+        // 0 applicants might actually be filled -- check so the list can say so.
+        const emptyJobs = employerJobs.filter((j) => (counts[j.id] ?? 0) === 0)
+        const holdEntries = await Promise.all(
+          emptyJobs.map(async (j) => [j.id, await getConfirmedRapidFillHold(j.id)])
+        )
+        setConfirmedHoldsByJob(Object.fromEntries(holdEntries.filter(([, hold]) => hold)))
       } catch (e) {
         console.warn('[StaffTheGame] Could not load dashboard data:', e.message)
       } finally {
@@ -91,6 +100,10 @@ export default function EmployerDashboard() {
     // applicant list doesn't mean nobody's booked — check for a confirmed hold.
     if (apps.length === 0) {
       const hold = await getConfirmedRapidFillHold(jobId)
+      setConfirmedHoldsByJob((prev) => {
+        if (!hold) { const { [jobId]: _omit, ...rest } = prev; return rest }
+        return { ...prev, [jobId]: hold }
+      })
       if (hold) {
         setConfirmedRFHold(hold)
         const holdProfiles = await getUserProfiles([hold.workerId])
@@ -382,7 +395,9 @@ export default function EmployerDashboard() {
                         <h3 className="font-semibold text-gray-900 text-sm">{job.title}</h3>
                       </div>
                       <p className="text-xs text-gray-500 mt-0.5">
-                        {job.applicationCount || 0} applicants · {timeAgo(job.createdAt)}
+                        {confirmedHoldsByJob[job.id]
+                          ? `Filled — ${confirmedHoldsByJob[job.id].workerName}`
+                          : `${job.applicationCount || 0} applicants`} · {timeAgo(job.createdAt)}
                       </p>
                     </div>
 
@@ -444,7 +459,9 @@ export default function EmployerDashboard() {
                 ? 'Live Queue'
                 : rightPanel === 'checklist'
                   ? 'Event Checklist'
-                  : `Applicants (${applicants.length})`
+                  : applicants.length === 0 && confirmedRFHold
+                    ? 'Confirmed Worker'
+                    : `Applicants (${applicants.length})`
 
             return (
               <>

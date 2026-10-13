@@ -85,7 +85,7 @@ const employers = [
 console.log('--- Creating employer accounts')
 const employerIds = []
 for (const [i, e] of employers.entries()) {
-  const email = `demo-employer-${i + 1}-${RUN_TAG}@stafftheame.demo`
+  const email = `demo-employer-${i + 1}-${RUN_TAG}@staffthegame.demo`
   const uid = await createAccount(email, PASSWORD, {
     email, name: `${e.orgName} Staff`, role: 'employer', orgName: e.orgName,
     plan: 'employer_elite', badges: [], isDemo: true,
@@ -118,7 +118,7 @@ for (let i = 0; i < WORKER_COUNT; i++) {
   // Roughly half not_started, a few pending, the rest clear -- "some verified and some not started"
   const bgStatus = i % 5 === 0 ? 'pending' : i % 2 === 0 ? 'clear' : 'not_started'
 
-  const email = `demo-worker-${i + 1}-${RUN_TAG}@stafftheame.demo`
+  const email = `demo-worker-${i + 1}-${RUN_TAG}@staffthegame.demo`
   const uid = await createAccount(email, PASSWORD, {
     email, name: `${first} ${last}`, firstName: first, lastName: last, role: 'worker',
     phone: `+1413555${String(1000 + i).padStart(4, '0')}`,
