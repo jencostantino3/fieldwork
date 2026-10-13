@@ -279,6 +279,49 @@ if (rapidFillJob) {
   console.log(`  queued 3 workers in the Rapid Fill queue on "${rapidFillJob.title}"`)
 }
 
+// ─── Showcase organizations ───────────────────────────────────────────────────
+// Browse-only padding for the Teams & Orgs directory -- realistic MA/New England
+// leagues, travel programs, and tournament companies. These don't post jobs or
+// log in interactively, so they share one lightweight owner account rather than
+// getting a full employer account each (and rather than attaching to either of
+// the two real demo employers above, which would break getOwnerCompany() -- it
+// assumes one company per owner, used by EmployerDashboard to find "my org").
+
+console.log('--- Creating showcase organizations')
+const directoryEmail = `demo-directory-${RUN_TAG}@staffthegame.demo`
+const directoryUid = await createAccount(directoryEmail, PASSWORD, {
+  email: directoryEmail, name: 'Directory Placeholder', role: 'employer', badges: [], isDemo: true,
+})
+await signInWithEmailAndPassword(auth, directoryEmail, PASSWORD)
+
+const SHOWCASE_ORGS = [
+  { name: 'Western Mass Senior Babe Ruth League', sport: 'baseball', location: 'Chicopee, MA',
+    description: 'Competitive summer league for players 13-15 across Hampden County, with weeknight games and a season-ending tournament each August.' },
+  { name: 'Bay State Travel Baseball', sport: 'baseball', location: 'Worcester, MA',
+    description: '12U-18U travel program competing in New England tournaments and showcases, built around player development and college exposure.' },
+  { name: 'Granite State Fastpitch Softball League', sport: 'softball', location: 'Manchester, NH',
+    description: 'Recreational and competitive fastpitch league for girls 8U-18U across southern New Hampshire, spring through fall.' },
+  { name: 'Nutmeg Tournament Series', sport: 'baseball', location: 'Hartford, CT',
+    description: 'Runs weekend baseball tournaments across Connecticut each summer, from 10U rec brackets up through 18U travel ball.' },
+  { name: 'North Shore Diamond Club', sport: 'baseball', location: 'Danvers, MA',
+    description: 'Youth and high school travel baseball organization serving the North Shore, with teams from 10U through varsity prep.' },
+  { name: 'Ocean State Softball Alliance', sport: 'softball', location: 'Providence, RI',
+    description: 'Statewide recreational softball league for adult and youth divisions, with games at fields across Providence County.' },
+  { name: 'Green Mountain Baseball Classic', sport: 'baseball', location: 'Burlington, VT',
+    description: 'Annual summer tournament series drawing travel teams from across Vermont and upstate New York.' },
+  { name: 'Cape Cod Collegiate Softball Showcase', sport: 'softball', location: 'Hyannis, MA',
+    description: 'Summer showcase events connecting college-bound softball players with coaches and scouts on the Cape.' },
+]
+
+for (const org of SHOWCASE_ORGS) {
+  await addDoc(collection(db, 'companies'), {
+    name: org.name, sport: org.sport, location: org.location, description: org.description,
+    ownerId: directoryUid, verified: true, badges: [], jobCount: 0, isDemo: true,
+    createdAt: serverTimestamp(), updatedAt: serverTimestamp(),
+  })
+}
+console.log(`  created ${SHOWCASE_ORGS.length} showcase organizations`)
+
 // ─── Verify one employer + one worker can log out and back in ────────────────
 
 const demoEmployer = employerIds[0]
