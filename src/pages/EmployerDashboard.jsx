@@ -499,7 +499,7 @@ export default function EmployerDashboard() {
                   <div className="bg-white border border-dashed border-gray-200 rounded-2xl p-10 text-center text-gray-400 text-sm">
                     Click a job to review its applicants
                   </div>
-                ) : !isEmployerPro && applicants.length > 3 ? (
+                ) : !isEmployerPro && !isEmployerElite && applicants.length > 3 ? (
                   <div className="space-y-3">
                     {applicants.slice(0, 3).map((app) => (
                       <ApplicantCard
