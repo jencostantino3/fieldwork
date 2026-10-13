@@ -86,6 +86,32 @@ const WORKER_COMPARISON_ROWS = [
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
+const EMPLOYER_PLAN_RANK = {
+  [PLANS.FREE]:           0,
+  [PLANS.EMPLOYER_PRO]:   1,
+  [PLANS.EMPLOYER_ELITE]: 2,
+}
+
+const WORKER_PLAN_RANK = {
+  [PLANS.FREE]:       0,
+  [PLANS.WORKER_PRO]: 1,
+}
+
+// 'current' | 'included' (card is a lower tier than the active plan) | 'upgrade'
+function planState(cardRank, currentRank) {
+  if (cardRank === currentRank) return 'current'
+  if (cardRank < currentRank) return 'included'
+  return 'upgrade'
+}
+
+function IncludedBadge() {
+  return (
+    <div className="w-full py-2 text-center text-sm text-gray-400 font-medium border border-gray-200 rounded-xl">
+      Included in your plan
+    </div>
+  )
+}
+
 function Cell({ value }) {
   if (value === true)  return <Check className="w-4 h-4 text-energyGreen mx-auto" />
   if (value === false) return <Minus className="w-4 h-4 text-gray-300 mx-auto" />
@@ -116,6 +142,7 @@ function EmployerPlans({ plan }) {
   const { user } = useAuth()
 
   const isMonthly = billing === 'monthly'
+  const currentRank = EMPLOYER_PLAN_RANK[plan] ?? 0
 
   async function handleUpgrade(priceId, planName, setLoad) {
     if (!user) { navigate(`/register?intent=${planName}`); return }
@@ -167,14 +194,12 @@ function EmployerPlans({ plan }) {
           </div>
           <FeatureList items={EMPLOYER_CARDS.free.features} />
           <div className="mt-6">
-            {plan === PLANS.FREE ? (
+            {currentRank === 0 ? (
               <div className="w-full py-2 text-center text-sm text-gray-400 font-medium border border-gray-200 rounded-xl">
                 Current Plan
               </div>
             ) : (
-              <Button variant="secondary" fullWidth onClick={() => navigate('/dashboard')}>
-                Go to Dashboard
-              </Button>
+              <IncludedBadge />
             )}
           </div>
         </div>
@@ -205,9 +230,13 @@ function EmployerPlans({ plan }) {
           </div>
           <FeatureList items={EMPLOYER_CARDS.pro.features} dark />
           <div className="mt-6">
-            {plan === PLANS.EMPLOYER_PRO ? (
+            {planState(1, currentRank) === 'current' ? (
               <div className="w-full py-2 text-center text-sm font-medium bg-white/10 rounded-xl">
                 Current Plan
+              </div>
+            ) : planState(1, currentRank) === 'included' ? (
+              <div className="w-full py-2 text-center text-sm text-white/60 font-medium border border-white/20 rounded-xl">
+                Included in your plan
               </div>
             ) : (
               <Button
@@ -244,7 +273,7 @@ function EmployerPlans({ plan }) {
           </div>
           <FeatureList items={EMPLOYER_CARDS.elite.features} dark />
           <div className="mt-6">
-            {plan === PLANS.EMPLOYER_ELITE ? (
+            {currentRank === 2 ? (
               <div className="w-full py-2 text-center text-sm font-medium bg-white/10 rounded-xl">
                 Current Plan
               </div>
@@ -325,6 +354,7 @@ function WorkerPlans({ plan }) {
 
   const isMonthly = billing === 'monthly'
   const priceId   = isMonthly ? STRIPE_PRICES.WORKER_PRO_MONTHLY : STRIPE_PRICES.WORKER_PRO_YEARLY
+  const currentRank = WORKER_PLAN_RANK[plan] ?? 0
 
   async function handleUpgrade() {
     if (!user) { navigate('/register?intent=worker_pro'); return }
@@ -378,14 +408,12 @@ function WorkerPlans({ plan }) {
             ))}
           </ul>
           <div className="mt-6">
-            {plan === PLANS.FREE ? (
+            {currentRank === 0 ? (
               <div className="w-full py-2 text-center text-sm text-gray-400 font-medium border border-gray-200 rounded-xl">
                 Current Plan
               </div>
             ) : (
-              <Button variant="secondary" fullWidth onClick={() => navigate('/jobs')}>
-                Browse Jobs
-              </Button>
+              <IncludedBadge />
             )}
           </div>
         </div>
@@ -417,7 +445,7 @@ function WorkerPlans({ plan }) {
             ))}
           </ul>
           <div className="mt-6">
-            {plan === PLANS.WORKER_PRO ? (
+            {currentRank === 1 ? (
               <div className="w-full py-2 text-center text-sm font-medium bg-white/10 rounded-xl">
                 Current Plan
               </div>
