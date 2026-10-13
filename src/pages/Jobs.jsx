@@ -45,10 +45,12 @@ export default function Jobs() {
       onlyUrgent:  filters.onlyUrgent,
     })
       .then((allJobs) => {
-        // Free workers miss the first 24 hours of new listings
+        // Free workers miss the first 24 hours of new listings — demo jobs are exempt
+        // so they're visible immediately after a reseed, regardless of a demo worker's plan.
         if (isWorker && !isWorkerPro) {
           const cutoff = new Date(Date.now() - EARLY_ACCESS_HOURS * 60 * 60 * 1000)
           return allJobs.filter((j) => {
+            if (j.isDemo) return true
             const ts = j.createdAt?.toDate ? j.createdAt.toDate() : new Date(j.createdAt)
             return ts < cutoff
           })
