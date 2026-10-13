@@ -75,6 +75,8 @@ service cloud.firestore {
           resource.data.userId == request.auth.uid
           || isEmployer()
         );
+      allow delete: if isSignedIn()
+        && resource.data.userId == request.auth.uid;
     }
 
     // Badges — user manages own, admin verifies
@@ -127,9 +129,13 @@ service cloud.firestore {
 
     // Rapid Fill holds
     match /rapidFillHolds/{holdId} {
-      // Workers read their own holds; employers read holds for their jobs
+      // Workers read their own holds; employers read holds for their jobs; any
+      // signed-in user may list isDemo: true holds (needed for the cleanup script's
+      // broad query — Firestore can't statically prove the per-job employer clause
+      // below is safe for an unconstrained list query).
       allow read: if isSignedIn() && (
         resource.data.workerId == request.auth.uid
+        || resource.data.isDemo == true
         || (isEmployer()
             && get(/databases/$(database)/documents/jobs/$(resource.data.jobId)).data.employerId == request.auth.uid)
       );
@@ -145,8 +151,9 @@ service cloud.firestore {
         && get(/databases/$(database)/documents/jobs/$(resource.data.jobId)).data.employerId == request.auth.uid
         && request.resource.data.status in ['confirmed', 'rejected'];
 
-      // Cloud Function (service account) handles expiry — no client delete
-      allow delete: if false;
+      // Cloud Function (service account) handles expiry; a worker may also delete
+      // their own hold directly (e.g. the demo cleanup script tearing down isDemo data).
+      allow delete: if isSignedIn() && resource.data.workerId == request.auth.uid;
     }
   }
 }

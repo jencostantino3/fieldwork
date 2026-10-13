@@ -31,19 +31,22 @@ async function demoDocs(collectionName) {
   return snap.docs.map((d) => ({ id: d.id, ref: d.ref, ...d.data() }))
 }
 
-// Bootstrap: need to be signed in as *someone* to list collections (rules require isSignedIn()).
+// Bootstrap: needs to be an employer, not just signed in — applications can only be
+// broadly listed by isEmployer() (that clause doesn't depend on resource.data, so
+// Firestore can prove it safe for an unconstrained query; a worker's clause can't be).
 const bootEmail = `cleanup-bootstrap-${Date.now()}@stafftheame.demo`
 const bootCred = await createUserWithEmailAndPassword(auth, bootEmail, SEED_PASSWORD)
 await setDoc(doc(db, 'users', bootCred.user.uid), {
-  uid: bootCred.user.uid, email: bootEmail, name: 'Cleanup Bootstrap', role: 'worker',
+  uid: bootCred.user.uid, email: bootEmail, name: 'Cleanup Bootstrap', role: 'employer',
   badges: [], createdAt: serverTimestamp(),
 })
 
 console.log('--- Finding isDemo: true records')
-const [demoUsers, demoJobs, demoCompanies, demoMessages] = await Promise.all([
+const [demoUsers, demoJobs, demoCompanies, demoMessages, demoApplications, demoHolds] = await Promise.all([
   demoDocs('users'), demoDocs('jobs'), demoDocs('companies'), demoDocs('demoMessages'),
+  demoDocs('applications'), demoDocs('rapidFillHolds'),
 ])
-console.log(`  users: ${demoUsers.length}, jobs: ${demoJobs.length}, companies: ${demoCompanies.length}, demoMessages: ${demoMessages.length}`)
+console.log(`  users: ${demoUsers.length}, jobs: ${demoJobs.length}, companies: ${demoCompanies.length}, demoMessages: ${demoMessages.length}, applications: ${demoApplications.length}, rapidFillHolds: ${demoHolds.length}`)
 
 console.log('--- Deleting demoMessages (any signed-in account may delete these)')
 for (const m of demoMessages) await deleteDoc(m.ref)
@@ -67,13 +70,17 @@ for (const emp of employers) {
   }
 }
 
-console.log('--- Deleting worker accounts')
+console.log('--- Deleting worker accounts (and their applications / Rapid Fill holds)')
 for (const w of workers) {
   try {
     await signInWithEmailAndPassword(auth, w.email, SEED_PASSWORD)
+    const ownApplications = demoApplications.filter((a) => a.userId === w.id)
+    const ownHolds         = demoHolds.filter((h) => h.workerId === w.id)
+    for (const a of ownApplications) await deleteDoc(a.ref)
+    for (const h of ownHolds) await deleteDoc(h.ref)
     await deleteDoc(doc(db, 'users', w.id))
     await deleteUser(auth.currentUser)
-    console.log('  removed', w.email)
+    console.log(`  removed ${w.email} (${ownApplications.length} application(s), ${ownHolds.length} hold(s))`)
   } catch (e) {
     console.error('  failed to remove', w.email, '-', e.code || e.message)
   }

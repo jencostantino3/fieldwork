@@ -9,7 +9,7 @@ import {
   getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut,
 } from 'firebase/auth'
 import {
-  getFirestore, doc, setDoc, serverTimestamp, collection, addDoc, Timestamp,
+  getFirestore, doc, setDoc, serverTimestamp, collection, addDoc, Timestamp, getDocs, query, where,
 } from 'firebase/firestore'
 import { ROLE_CATEGORIES } from '../src/config/roleCategories.js'
 
@@ -88,7 +88,7 @@ for (const [i, e] of employers.entries()) {
   const email = `demo-employer-${i + 1}-${RUN_TAG}@stafftheame.demo`
   const uid = await createAccount(email, PASSWORD, {
     email, name: `${e.orgName} Staff`, role: 'employer', orgName: e.orgName,
-    badges: [], isDemo: true,
+    plan: 'employer_elite', badges: [], isDemo: true,
   })
   const companyRef = await addDoc(collection(db, 'companies'), {
     name: e.orgName, sport: e.sport, description: `Running youth and adult ${e.sport} programs across the Pioneer Valley.`,
@@ -219,6 +219,65 @@ await createJob(bsa, {
 })
 
 console.log('  created 5 job postings (regular x2, boosted, rapid fill, event w/ checklist)')
+
+// ─── Applicants + Rapid Fill queue ────────────────────────────────────────────
+// Needs job ids, so re-fetch what we just created rather than threading ids through
+// the createJob() calls above.
+
+console.log('--- Adding applicants and a Rapid Fill queue')
+await signInWithEmailAndPassword(auth, pv.email, PASSWORD)
+const allDemoJobsSnap = await getDocs(query(collection(db, 'jobs'), where('isDemo', '==', true)))
+const allDemoJobs = allDemoJobsSnap.docs.map((d) => ({ id: d.id, ...d.data() }))
+
+const pendingWorkers = workers.filter((w, i) => (i % 5 === 0))
+const clearWorkers   = workers.filter((w, i) => (i % 5 !== 0 && i % 2 === 0))
+const otherWorkers   = workers.filter((w, i) => (i % 5 !== 0 && i % 2 !== 0))
+let pendingPtr = 0, clearPtr = 0, otherPtr = 0
+function pickApplicants(count) {
+  const chosen = []
+  if (pendingWorkers.length) chosen.push(pendingWorkers[pendingPtr++ % pendingWorkers.length])
+  if (clearWorkers.length)   chosen.push(clearWorkers[clearPtr++ % clearWorkers.length])
+  while (chosen.length < count && otherWorkers.length) {
+    const w = otherWorkers[otherPtr++ % otherWorkers.length]
+    if (!chosen.some((c) => c.uid === w.uid)) chosen.push(w)
+    if (otherPtr > otherWorkers.length * 2) break
+  }
+  return chosen.slice(0, count)
+}
+
+const applicantJobs = allDemoJobs.filter((j) => !j.rapidFill)
+const applicationsByWorker = new Map() // uid -> [job]
+for (const job of applicantJobs) {
+  for (const w of pickApplicants(4)) {
+    if (!applicationsByWorker.has(w.uid)) applicationsByWorker.set(w.uid, [])
+    applicationsByWorker.get(w.uid).push(job)
+  }
+}
+for (const [uid, jobsForWorker] of applicationsByWorker.entries()) {
+  const worker = workers.find((w) => w.uid === uid)
+  await signInWithEmailAndPassword(auth, worker.email, PASSWORD)
+  for (const job of jobsForWorker) {
+    await addDoc(collection(db, 'applications'), {
+      jobId: job.id, userId: uid, answers: [], status: 'pending', priority: false, notes: '',
+      isDemo: true, appliedAt: serverTimestamp(), updatedAt: serverTimestamp(),
+    })
+  }
+}
+console.log(`  added applicants (mix of background-check statuses) across ${applicantJobs.length} job(s)`)
+
+const rapidFillJob = allDemoJobs.find((j) => j.rapidFill)
+if (rapidFillJob) {
+  for (const w of pickApplicants(3)) {
+    await signInWithEmailAndPassword(auth, w.email, PASSWORD)
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000)
+    await addDoc(collection(db, 'rapidFillHolds'), {
+      jobId: rapidFillJob.id, workerId: w.uid, workerName: w.name, workerEmail: w.email,
+      status: 'pending', isDemo: true, createdAt: serverTimestamp(),
+      expiresAt: Timestamp.fromDate(expiresAt), notifiedAt: null,
+    })
+  }
+  console.log(`  queued 3 workers in the Rapid Fill queue on "${rapidFillJob.title}"`)
+}
 
 // ─── Verify one employer + one worker can log out and back in ────────────────
 

@@ -3,9 +3,10 @@ import { PLANS } from '@/utils/constants'
 import clsx from 'clsx'
 
 const CONFIG = {
-  [PLANS.EMPLOYER_PRO]: { label: 'Employer Pro', className: 'bg-athleticBlue-50 text-navy border-athleticBlue-200' },
-  [PLANS.WORKER_PRO]:   { label: 'Worker Pro',   className: 'bg-energyGreen-50  text-energyGreen-700  border-energyGreen-200'  },
-  [PLANS.FREE]:         { label: 'Free',          className: 'bg-gray-50   text-gray-500   border-gray-200'   },
+  [PLANS.EMPLOYER_PRO]:   { label: 'Employer Pro', className: 'bg-athleticBlue-50 text-navy border-athleticBlue-200' },
+  [PLANS.EMPLOYER_ELITE]: { label: 'Elite',        className: 'bg-energyGreen-50  text-energyGreen-700  border-energyGreen-200'  },
+  [PLANS.WORKER_PRO]:     { label: 'Worker Pro',   className: 'bg-energyGreen-50  text-energyGreen-700  border-energyGreen-200'  },
+  [PLANS.FREE]:           { label: 'Free',          className: 'bg-gray-50   text-gray-500   border-gray-200'   },
 }
 
 export default function PlanBadge({ plan = PLANS.FREE, className }) {

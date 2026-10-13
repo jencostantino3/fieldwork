@@ -222,8 +222,8 @@ export default function EmployerDashboard() {
         </div>
       )}
 
-      {/* Pro upgrade banner for free employers */}
-      {!isEmployerPro && (
+      {/* Pro upgrade banner — only for employers on neither paid tier */}
+      {!isEmployerPro && !isEmployerElite && (
         <div className="bg-athleticBlue-50 border border-athleticBlue-200 rounded-xl p-4 mb-6 flex items-center gap-3">
           <Sparkles className="w-5 h-5 text-navy shrink-0" />
           <p className="text-sm text-athleticBlue-700 flex-1">
@@ -238,6 +238,18 @@ export default function EmployerDashboard() {
         <div className="bg-athleticBlue-50 border border-athleticBlue-200 rounded-xl p-4 mb-6 flex items-center justify-between gap-3">
           <p className="text-sm text-athleticBlue-700 font-medium flex items-center gap-2">
             <Sparkles className="w-4 h-4" /> You're on Employer Pro
+          </p>
+          <Button size="sm" variant="secondary" loading={portalLoading} onClick={handlePortal}>
+            Manage Subscription
+          </Button>
+        </div>
+      )}
+
+      {/* Billing management for Elite subscribers */}
+      {isEmployerElite && (
+        <div className="bg-energyGreen-50 border border-energyGreen-200 rounded-xl p-4 mb-6 flex items-center justify-between gap-3">
+          <p className="text-sm text-energyGreen-700 font-medium flex items-center gap-2">
+            <Sparkles className="w-4 h-4" /> You're on Employer Elite
           </p>
           <Button size="sm" variant="secondary" loading={portalLoading} onClick={handlePortal}>
             Manage Subscription
