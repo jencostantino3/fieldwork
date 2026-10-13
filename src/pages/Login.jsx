@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form'
 import { useAuth } from '@/contexts/AuthContext'
 import { getUserProfile } from '@/services/userService'
 import Button from '@/components/common/Button'
+import PasswordInput from '@/components/common/PasswordInput'
 import lightLogo from '@/assets/logo-full.png'
 
 export default function Login() {
@@ -178,10 +179,8 @@ export default function Login() {
                       Forgot password?
                     </button>
                   </div>
-                  <input
-                    type="password"
+                  <PasswordInput
                     {...register('password', { required: 'Password is required' })}
-                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue"
                     placeholder="••••••••"
                   />
                   {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}

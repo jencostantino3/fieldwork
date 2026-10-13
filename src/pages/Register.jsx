@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form'
 import { Users, Building2 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import Button from '@/components/common/Button'
+import PasswordInput from '@/components/common/PasswordInput'
 import lightLogo from '@/assets/logo-full.png'
 
 export default function Register() {
@@ -136,10 +137,8 @@ export default function Register() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-              <input
-                type="password"
+              <PasswordInput
                 {...register('password', { required: true, minLength: { value: 6, message: 'Minimum 6 characters' } })}
-                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-athleticBlue"
                 placeholder="••••••••"
               />
               {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
