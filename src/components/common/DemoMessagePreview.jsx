@@ -2,19 +2,26 @@ import { useEffect, useState } from 'react'
 import { collection, query, orderBy, limit, onSnapshot } from 'firebase/firestore'
 import { MessageSquare, X } from 'lucide-react'
 import { db } from '@/firebase'
+import { useAuth } from '@/contexts/AuthContext'
 
 const VISIBLE_MS = 8000
 
 export default function DemoMessagePreview() {
+  const { user } = useAuth()
   const [messages, setMessages] = useState([])
 
   useEffect(() => {
-    if (import.meta.env.VITE_DEMO_MODE !== 'true' || !db) return
+    // demoMessages requires isSignedIn() per firestore.rules -- subscribing while
+    // logged out threw a permission-denied console error on every public page.
+    if (import.meta.env.VITE_DEMO_MODE !== 'true' || !db || !user) {
+      setMessages([])
+      return
+    }
     const q = query(collection(db, 'demoMessages'), orderBy('createdAt', 'desc'), limit(5))
     return onSnapshot(q, (snap) => {
       setMessages(snap.docs.map((d) => ({ id: d.id, ...d.data() })))
     })
-  }, [])
+  }, [user])
 
   function dismiss(id) {
     setMessages((prev) => prev.filter((m) => m.id !== id))
