@@ -80,6 +80,23 @@ export async function confirmRapidFillWorker(holdId, jobId) {
   return batch.commit()
 }
 
+// Reuses the (jobId ASC, status ASC, createdAt ASC) composite index that
+// subscribeToJobHolds already relies on -- ordering direction is part of a
+// composite index's identity, so this has to match it exactly (ASC, not DESC)
+// to avoid needing a new index. At most one hold is ever 'confirmed' per job
+// (confirming one rejects all other pending holds), so direction doesn't
+// matter functionally here.
+export async function getConfirmedRapidFillHold(jobId) {
+  const snap = await getDocs(query(
+    collection(db, HOLDS),
+    where('jobId', '==', jobId),
+    where('status', '==', 'confirmed'),
+    orderBy('createdAt', 'asc'),
+    limit(1)
+  ))
+  return snap.empty ? null : { id: snap.docs[0].id, ...snap.docs[0].data() }
+}
+
 export function subscribeToJobHolds(jobId, callback) {
   return onSnapshot(
     query(

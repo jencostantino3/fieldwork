@@ -4,6 +4,7 @@ import {
   MapPin, Clock, Briefcase, Tag, ShieldCheck, Zap, Building2, ChevronLeft, ClipboardList,
 } from 'lucide-react'
 import { getJob } from '@/services/jobService'
+import { subscribeToWorkerHoldsForJob } from '@/services/rapidFillService'
 import { hasApplied, getApplicationForJob } from '@/services/applicationService'
 import { hasInteractedWithRating } from '@/services/ratingService'
 import RatingModal from '@/components/ratings/RatingModal'
@@ -33,6 +34,7 @@ export default function JobDetail() {
   const [applyOpen, setApply]     = useState(false)
   const [activeTab, setTab]       = useState('details') // 'details' | 'checklist'
   const [ratingOpen, setRatingOpen] = useState(false)
+  const [holdStatus, setHoldStatus] = useState(null) // this worker's own Rapid Fill hold on this job, if any
 
   useEffect(() => {
     async function load() {
@@ -54,6 +56,14 @@ export default function JobDetail() {
     load()
   }, [id, user])
 
+  // Tracked independently of job.rapidFill — confirming a hold flips that flag
+  // back to false, but a confirmed/rejected/expired worker still needs to see
+  // their outcome here, including on a fresh page load after the fact.
+  useEffect(() => {
+    if (!user || !id || profile?.role === 'employer') { setHoldStatus(null); return }
+    return subscribeToWorkerHoldsForJob(user.uid, id, (hold) => setHoldStatus(hold?.status ?? null))
+  }, [user, id, profile?.role])
+
   if (loading) return <LoadingSpinner size="lg" className="mt-32" />
   if (!job)    return <div className="max-w-3xl mx-auto px-4 py-20 text-center text-gray-500">Job not found.</div>
 
@@ -66,6 +76,8 @@ export default function JobDetail() {
   const isOwnJob    = profile?.role === 'employer' && job?.employerId === user?.uid
   const canApply    = !applied && isWorker
   const showChecklist = isWorker && job?.roleType === 'event' && !!job?.checklistTemplate
+  const holdConfirmed = holdStatus === 'confirmed'
+  const showRapidFillBox = isWorker && (job.rapidFill || ['confirmed', 'rejected', 'expired'].includes(holdStatus))
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 pb-28 lg:pb-8">
@@ -188,13 +200,16 @@ export default function JobDetail() {
         {/* Sidebar */}
         <div className="space-y-4">
           {/* Rapid Fill action — workers only */}
-          {job.rapidFill && isWorker && (
+          {showRapidFillBox && (
             <div className="bg-white border border-rapidFill-200 rounded-2xl p-5 shadow-card">
-              <p className="text-xs font-bold text-rapidFill uppercase tracking-wide mb-3">Rapid Fill — Needed Now</p>
+              {!holdConfirmed && (
+                <p className="text-xs font-bold text-rapidFill uppercase tracking-wide mb-3">Rapid Fill — Needed Now</p>
+              )}
               <RapidFillAction job={job} />
             </div>
           )}
 
+          {!holdConfirmed && (
           <div className="hidden lg:block bg-white border border-gray-200 rounded-2xl p-5 shadow-card">
             {isOwnJob ? (
               <div className="space-y-2">
@@ -220,6 +235,7 @@ export default function JobDetail() {
               </>
             )}
           </div>
+          )}
 
           <div className="bg-white border border-gray-200 rounded-2xl p-5 shadow-card text-sm text-gray-600 space-y-2">
             <p><strong className="text-gray-900">Organization:</strong> {job.companyName}</p>
@@ -238,6 +254,10 @@ export default function JobDetail() {
           <Button fullWidth size="lg" variant="secondary" onClick={() => navigate('/dashboard')}>
             Manage on Dashboard
           </Button>
+        ) : holdConfirmed ? (
+          <div className="flex items-center justify-center gap-2 text-energyGreen font-semibold text-sm py-2">
+            <ShieldCheck className="w-4 h-4" /> You're confirmed!
+          </div>
         ) : applied ? (
           <div className="flex items-center justify-center gap-2 text-energyGreen font-semibold text-sm py-2">
             <ShieldCheck className="w-4 h-4" /> Applied — you're in!

@@ -6,13 +6,14 @@ import {
 import { useAuth } from '@/contexts/AuthContext'
 import { getEmployerJobs, deleteJob, markJobComplete, backfillJobOrgName } from '@/services/jobService'
 import { getUserProfiles } from '@/services/userService'
-import { toggleRapidFill, notifyRapidFillWorkers } from '@/services/rapidFillService'
+import { toggleRapidFill, notifyRapidFillWorkers, getConfirmedRapidFillHold } from '@/services/rapidFillService'
 import { getJobApplications, getApplicationCountsForJobs } from '@/services/applicationService'
 import { getOwnerCompany, createCompany } from '@/services/companyService'
 import { openBillingPortal } from '@/services/billingService'
 import ApplicantCard from '@/components/dashboard/ApplicantCard'
 import UrgentBoost from '@/components/boost/UrgentBoost'
 import RapidFillQueue from '@/components/rapidFill/RapidFillQueue'
+import RapidFillConfirmedCard from '@/components/rapidFill/RapidFillConfirmedCard'
 import EmployerChecklistStatus from '@/components/checklist/EmployerChecklistStatus'
 import PlanBadge from '@/components/billing/PlanBadge'
 import RatingModal from '@/components/ratings/RatingModal'
@@ -36,6 +37,8 @@ export default function EmployerDashboard() {
   const [applicants,        setApplicants]        = useState([])
   const [applicantProfiles, setApplicantProfiles] = useState({})
   const [appsLoading, setAppsLoad]  = useState(false)
+  const [confirmedRFHold, setConfirmedRFHold]       = useState(null)
+  const [confirmedRFProfile, setConfirmedRFProfile] = useState(null)
   const [boostJob, setBoostJob]       = useState(null)
   const [rightPanel, setRightPanel]   = useState('applicants') // 'applicants' | 'queue'
   const [ratingTarget, setRatingTarget] = useState(null) // { toUid, jobId, ratedName }
@@ -75,12 +78,25 @@ export default function EmployerDashboard() {
     setActiveJob(jobId)
     setRightPanel(job?.rapidFill ? 'queue' : 'applicants')
     setAppsLoad(true)
+    setConfirmedRFHold(null)
+    setConfirmedRFProfile(null)
     const apps = await getJobApplications(jobId)
     setApplicants(apps)
     setJobs((prev) => prev.map((j) => j.id === jobId ? { ...j, applicationCount: apps.length } : j))
     const profiles = await getUserProfiles(apps.map((a) => a.userId))
     setApplicantProfiles(profiles)
     setAppsLoad(false)
+
+    // Rapid Fill confirmations don't create an application doc, so an empty
+    // applicant list doesn't mean nobody's booked — check for a confirmed hold.
+    if (apps.length === 0) {
+      const hold = await getConfirmedRapidFillHold(jobId)
+      if (hold) {
+        setConfirmedRFHold(hold)
+        const holdProfiles = await getUserProfiles([hold.workerId])
+        setConfirmedRFProfile(holdProfiles[hold.workerId] ?? null)
+      }
+    }
   }
 
   async function handleToggleRapidFill(e, job) {
@@ -491,6 +507,7 @@ export default function EmployerDashboard() {
                     onConfirmed={() => {
                       setJobs((prev) => prev.map((j) => j.id === activeJobId ? { ...j, rapidFill: false } : j))
                       setRightPanel('applicants')
+                      loadApplicants(activeJobId, { ...activeJob, rapidFill: false })
                     }}
                   />
                 ) : activeJobId && rightPanel === 'checklist' ? (
@@ -522,6 +539,8 @@ export default function EmployerDashboard() {
                   </div>
                 ) : appsLoading ? (
                   <LoadingSpinner className="py-10" />
+                ) : applicants.length === 0 && confirmedRFHold ? (
+                  <RapidFillConfirmedCard hold={confirmedRFHold} workerProfile={confirmedRFProfile} />
                 ) : applicants.length === 0 ? (
                   <div className="bg-white border border-gray-200 rounded-2xl p-10 text-center">
                     <Users className="w-8 h-8 text-gray-300 mx-auto mb-2" />
