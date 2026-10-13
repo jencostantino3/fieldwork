@@ -91,7 +91,7 @@ export function formatSalary(min, max, period = 'year') {
   const fmt = (n) =>
     n >= 1000 ? `$${(n / 1000).toFixed(0)}k` : `$${n}`
   if (!min && !max) return 'Unpaid / Volunteer'
-  if (min && max) return `${fmt(min)}–${fmt(max)} / ${period}`
+  if (min && max) return min === max ? `${fmt(min)} / ${period}` : `${fmt(min)}–${fmt(max)} / ${period}`
   if (min) return `${fmt(min)}+ / ${period}`
   return `Up to ${fmt(max)} / ${period}`
 }
