@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { CheckCircle2, Circle, Camera, Loader2, Upload } from 'lucide-react'
 import {
-  getOrCreateChecklistResponse, updateChecklistTasks, uploadTaskPhoto,
+  getOrCreateChecklistResponse, updateChecklistTasks, uploadTaskPhoto, describeUploadError,
 } from '@/services/checklistService'
 import { useAuth } from '@/contexts/AuthContext'
 
@@ -64,8 +64,8 @@ export default function WorkerChecklist({ job }) {
       )
       await updateChecklistTasks(response.id, updatedTasks)
       setResponse((prev) => ({ ...prev, tasks: updatedTasks }))
-    } catch {
-      setError('Could not upload photo — please try again.')
+    } catch (e) {
+      setError(describeUploadError(e))
     } finally {
       setSaving(null)
     }
@@ -155,18 +155,32 @@ export default function WorkerChecklist({ job }) {
                       >
                         <Camera className="w-3.5 h-3.5" /> View uploaded photo
                       </a>
+                    ) : isSaving ? (
+                      <span className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-400">
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" /> Uploading…
+                      </span>
                     ) : (
-                      <label className={`inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg cursor-pointer transition-colors bg-athleticBlue-50 text-athleticBlue hover:bg-athleticBlue-100 ${isSaving ? 'opacity-50 pointer-events-none' : ''}`}>
-                        <Upload className="w-3.5 h-3.5" />
-                        {isSaving ? 'Uploading…' : 'Upload photo to complete'}
-                        <input
-                          type="file"
-                          accept="image/*"
-                          capture="environment"
-                          className="hidden"
-                          onChange={(e) => handlePhotoUpload(task.taskId, e.target.files?.[0])}
-                        />
-                      </label>
+                      <div className="flex flex-wrap gap-2">
+                        <label className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg cursor-pointer transition-colors bg-athleticBlue-50 text-athleticBlue hover:bg-athleticBlue-100">
+                          <Camera className="w-3.5 h-3.5" /> Take Photo
+                          <input
+                            type="file"
+                            accept="image/*"
+                            capture="environment"
+                            className="hidden"
+                            onChange={(e) => handlePhotoUpload(task.taskId, e.target.files?.[0])}
+                          />
+                        </label>
+                        <label className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg cursor-pointer transition-colors bg-gray-100 text-gray-600 hover:bg-gray-200">
+                          <Upload className="w-3.5 h-3.5" /> Choose from Library
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={(e) => handlePhotoUpload(task.taskId, e.target.files?.[0])}
+                          />
+                        </label>
+                      </div>
                     )}
                   </div>
                 )}
