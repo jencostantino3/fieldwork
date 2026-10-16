@@ -362,7 +362,7 @@ const credentialsBody = `Staff the Game — demo login credentials
 (gitignored via *.local — never committed; regenerated each time scripts/seedDemoData.mjs runs)
 
 Employer: ${demoEmployer.email} / ${PASSWORD}
-          (${demoEmployer.orgName} — Elite plan, Assistant Coach + Field/Court Setup Crew jobs
+          (${demoEmployer.orgName} — Elite plan, Assistant Coach + Field Setup Crew jobs
           have 4 applicants each with a mix of background-check statuses)
 
 Second employer: ${secondEmployer.email} / ${PASSWORD}
