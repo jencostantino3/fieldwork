@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { collection, query, orderBy, limit, onSnapshot } from 'firebase/firestore'
+import { collection, query, where, orderBy, limit, onSnapshot } from 'firebase/firestore'
 import { MessageSquare, X } from 'lucide-react'
 import { db } from '@/firebase'
 import { useAuth } from '@/contexts/AuthContext'
@@ -17,7 +17,12 @@ export default function DemoMessagePreview() {
       setMessages([])
       return
     }
-    const q = query(collection(db, 'demoMessages'), orderBy('createdAt', 'desc'), limit(5))
+    const q = query(
+      collection(db, 'demoMessages'),
+      where('recipientUid', '==', user.uid),
+      orderBy('createdAt', 'desc'),
+      limit(5)
+    )
     return onSnapshot(q, (snap) => {
       setMessages(snap.docs.map((d) => ({ id: d.id, ...d.data() })))
     })

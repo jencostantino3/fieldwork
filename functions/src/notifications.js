@@ -24,15 +24,16 @@ function milesBetween(a, b) {
 // Single choke point for every outbound text in the app. In demo mode this never
 // touches Twilio — it writes a doc the client can render as an on-screen phone
 // preview instead. isDemo: true so the demo cleanup script can remove them.
-async function dispatchMessage({ to, body, type, jobId }) {
+async function dispatchMessage({ to, body, type, jobId, recipientUid }) {
   if (DEMO_MODE) {
     await admin.firestore().collection('demoMessages').add({
-      to:        to || null,
+      to:           to || null,
+      recipientUid: recipientUid || null,
       body,
       type,
-      jobId:     jobId || null,
-      isDemo:    true,
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      jobId:        jobId || null,
+      isDemo:       true,
+      createdAt:    admin.firestore.FieldValue.serverTimestamp(),
     })
     return
   }
@@ -72,17 +73,19 @@ async function findQualifiedWorkers(job, roleCategories) {
 async function notifyQualifiedWorkers(job, workers) {
   const body = `STAFF THE GAME: Rapid Fill — ${job.title} needed at ${job.companyName}. View job.`
   await Promise.all(
-    workers.map((w) => dispatchMessage({ to: w.phone, body, type: 'rapid_fill', jobId: job.id }))
+    workers.map((w) => dispatchMessage({ to: w.phone, body, type: 'rapid_fill', jobId: job.id, recipientUid: w.id }))
   )
   return workers.length
 }
 
 // The two notification entry points the rest of the app calls into.
-async function sendChecklistUpdate({ jobTitle, jobId, workerName, completedLabels, notifyNumbers }) {
+// notifyNumbers all belong to the hiring org, so the preview is addressed to the
+// employer who posted the job — not the worker who completed the task.
+async function sendChecklistUpdate({ jobTitle, jobId, workerName, completedLabels, notifyNumbers, employerId }) {
   const taskList = completedLabels.join(', ')
   const body = `STAFF THE GAME: ${workerName} completed ${completedLabels.length} task(s) for "${jobTitle}": ${taskList}.`
   await Promise.all(
-    (notifyNumbers || []).map((to) => dispatchMessage({ to, body, type: 'checklist_update', jobId }))
+    (notifyNumbers || []).map((to) => dispatchMessage({ to, body, type: 'checklist_update', jobId, recipientUid: employerId }))
   )
 }
 

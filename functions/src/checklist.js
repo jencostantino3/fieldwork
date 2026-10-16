@@ -18,7 +18,7 @@ exports.onChecklistTaskComplete = v1.firestore
     const jobSnap = await admin.firestore().collection('jobs').doc(after.jobId).get()
     if (!jobSnap.exists) return null
 
-    const { title, checklistTemplate } = jobSnap.data()
+    const { title, checklistTemplate, employerId } = jobSnap.data()
     const notifyNumbers = checklistTemplate?.notifyNumbers ?? []
 
     await notifications.sendChecklistUpdate({
@@ -27,6 +27,7 @@ exports.onChecklistTaskComplete = v1.firestore
       workerName:      after.workerName || 'A worker',
       completedLabels: newlyCompleted.map((t) => t.label),
       notifyNumbers,
+      employerId,
     })
 
     return null

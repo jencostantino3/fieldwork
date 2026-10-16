@@ -171,12 +171,13 @@ await createJob(pv, {
   salaryMin: 20, salaryMax: 25, salaryPeriod: 'hour', requiresCORI: true, roleType: 'ongoing',
 })
 
-// 2. Boosted job
+// 2. Boosted job — intentionally not an umpire/officiating role, so the urgent
+//    listing workers see first isn't the same role type as the Rapid Fill job below.
 await createJob(pv, {
-  title: 'Umpire', sport: 'baseball', jobType: 'gig', category: 'officiating',
-  description: 'Need a certified umpire for weekend league games this season.',
+  title: 'Field / Court Setup Crew', sport: 'baseball', jobType: 'gig', category: 'operations',
+  description: 'Need extra hands to prep the field and dugouts before weekend league games this season.',
   location: `${springfield.city}, ${springfield.state}`, zipCode: springfield.zip, coordinates: springfield,
-  salaryMin: 45, salaryMax: 45, salaryPeriod: 'game', requiresCORI: false, roleType: 'ongoing',
+  salaryMin: 18, salaryMax: 18, salaryPeriod: 'hour', requiresCORI: false, roleType: 'ongoing',
   urgent: true, boostExpiry: Timestamp.fromMillis(Date.now() + 48 * 60 * 60 * 1000),
 })
 
@@ -209,7 +210,7 @@ await createJob(bsa, {
   checklistTemplate: {
     tasks: [
       { taskId: 't1', label: 'Arrive on time / check in with site contact', requiresPhoto: false, order: 0 },
-      { taskId: 't2', label: 'Setup and equipment ready', requiresPhoto: false, order: 1 },
+      { taskId: 't2', label: 'Setup and equipment ready', requiresPhoto: true, order: 1 },
       { taskId: 't3', label: 'All participants checked in', requiresPhoto: false, order: 2 },
       { taskId: 't4', label: 'Confirm wrap-up / cleanup complete', requiresPhoto: false, order: 3 },
     ],

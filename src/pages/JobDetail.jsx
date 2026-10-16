@@ -5,7 +5,7 @@ import {
 } from 'lucide-react'
 import { getJob } from '@/services/jobService'
 import { subscribeToWorkerHoldsForJob } from '@/services/rapidFillService'
-import { hasApplied, getApplicationForJob } from '@/services/applicationService'
+import { getApplicationForJob } from '@/services/applicationService'
 import { hasInteractedWithRating } from '@/services/ratingService'
 import RatingModal from '@/components/ratings/RatingModal'
 import { useAuth } from '@/contexts/AuthContext'
@@ -30,7 +30,7 @@ export default function JobDetail() {
 
   const [job, setJob]             = useState(null)
   const [loading, setLoading]     = useState(true)
-  const [applied, setApplied]     = useState(false)
+  const [application, setApplication] = useState(null)
   const [applyOpen, setApply]     = useState(false)
   const [activeTab, setTab]       = useState('details') // 'details' | 'checklist'
   const [ratingOpen, setRatingOpen] = useState(false)
@@ -41,14 +41,11 @@ export default function JobDetail() {
       const j = await getJob(id)
       setJob(j)
       if (user && j) {
-        const a = await hasApplied(id, user.uid)
-        setApplied(a)
-        if (j.status === 'completed' && profile?.role !== 'employer') {
-          const app = await getApplicationForJob(id, user.uid)
-          if (app?.status === 'accepted') {
-            const already = await hasInteractedWithRating(user.uid, id)
-            if (!already) setRatingOpen(true)
-          }
+        const app = await getApplicationForJob(id, user.uid)
+        setApplication(app)
+        if (j.status === 'completed' && profile?.role !== 'employer' && app?.status === 'accepted') {
+          const already = await hasInteractedWithRating(user.uid, id)
+          if (!already) setRatingOpen(true)
         }
       }
       setLoading(false)
@@ -74,8 +71,10 @@ export default function JobDetail() {
 
   const isWorker    = profile?.role !== 'employer'
   const isOwnJob    = profile?.role === 'employer' && job?.employerId === user?.uid
+  const applied     = !!application
+  const isHired     = application?.status === 'accepted'
   const canApply    = !applied && isWorker
-  const showChecklist = isWorker && job?.roleType === 'event' && !!job?.checklistTemplate
+  const showChecklist = isWorker && isHired && job?.roleType === 'event' && !!job?.checklistTemplate
   const holdConfirmed = holdStatus === 'confirmed'
   const showRapidFillBox = isWorker && (job.rapidFill || ['confirmed', 'rejected', 'expired'].includes(holdStatus))
 
@@ -218,6 +217,14 @@ export default function JobDetail() {
                 </Button>
                 <p className="text-xs text-gray-500 text-center">View applicants and manage this listing.</p>
               </div>
+            ) : isHired ? (
+              <div className="text-center py-2">
+                <div className="w-12 h-12 bg-energyGreen-50 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <ShieldCheck className="w-6 h-6 text-energyGreen" />
+                </div>
+                <p className="font-semibold text-gray-800">You're hired!</p>
+                <p className="text-sm text-gray-500 mt-1">The employer accepted your application.</p>
+              </div>
             ) : applied ? (
               <div className="text-center py-2">
                 <div className="w-12 h-12 bg-energyGreen-50 rounded-full flex items-center justify-center mx-auto mb-3">
@@ -258,6 +265,10 @@ export default function JobDetail() {
           <div className="flex items-center justify-center gap-2 text-energyGreen font-semibold text-sm py-2">
             <ShieldCheck className="w-4 h-4" /> You're confirmed!
           </div>
+        ) : isHired ? (
+          <div className="flex items-center justify-center gap-2 text-energyGreen font-semibold text-sm py-2">
+            <ShieldCheck className="w-4 h-4" /> You're hired!
+          </div>
         ) : applied ? (
           <div className="flex items-center justify-center gap-2 text-energyGreen font-semibold text-sm py-2">
             <ShieldCheck className="w-4 h-4" /> Applied — you're in!
@@ -270,7 +281,7 @@ export default function JobDetail() {
       </div>
 
       <Modal open={applyOpen} onClose={() => setApply(false)} title={`Apply: ${job.title}`} size="lg">
-        <ApplicationForm job={job} onSuccess={() => { setApply(false); setApplied(true) }} />
+        <ApplicationForm job={job} onSuccess={() => { setApply(false); setApplication({ status: 'pending' }) }} />
       </Modal>
 
       <RatingModal

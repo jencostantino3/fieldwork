@@ -11,7 +11,7 @@ export default function Footer() {
               <img src={darkLogo} alt="Staff the Game" className="h-7 w-auto" />
             </Link>
             <p className="text-sm leading-relaxed">
-              The sports job board connecting workers and organizations for baseball, basketball, and softball.
+              The sports job board connecting workers and organizations for baseball and softball.
             </p>
           </div>
 
