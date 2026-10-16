@@ -12,7 +12,7 @@ const IS_DEMO = !import.meta.env.VITE_FIREBASE_API_KEY
 const STATS = [
   { label: 'Active Jobs',      value: '500+' },
   { label: 'Organizations',    value: '120+' },
-  { label: 'Sports Covered',   value: '3' },
+  { label: 'Sports Covered',   value: '2' },
   { label: 'Workers Placed',   value: '1,200+' },
 ]
 

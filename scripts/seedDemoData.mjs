@@ -176,7 +176,7 @@ await createJob(pv, {
 // 2. Boosted job — intentionally not an umpire/officiating role, so the urgent
 //    listing workers see first isn't the same role type as the Rapid Fill job below.
 await createJob(pv, {
-  title: 'Field / Court Setup Crew', sport: 'baseball', jobType: 'gig', category: 'operations',
+  title: 'Field Setup Crew', sport: 'baseball', jobType: 'gig', category: 'operations',
   description: 'Need extra hands to prep the field and dugouts before weekend league games this season.',
   location: `${springfield.city}, ${springfield.state}`, zipCode: springfield.zip, coordinates: springfield,
   salaryMin: 18, salaryMax: 18, salaryPeriod: 'hour', requiresCORI: false, roleType: 'ongoing',
