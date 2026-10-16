@@ -4,6 +4,8 @@
 // goes through the exact auth + Firestore rules path a real signup would — no service
 // account needed. Run from the repo root: node scripts/seedDemoData.mjs
 import 'dotenv/config'
+import fs from 'node:fs'
+import { fileURLToPath } from 'node:url'
 import { initializeApp } from 'firebase/app'
 import {
   getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut,
@@ -247,24 +249,32 @@ function pickApplicants(count) {
 }
 
 const applicantJobs = allDemoJobs.filter((j) => !j.rapidFill)
-const applicationsByWorker = new Map() // uid -> [job]
+const checklistJob  = applicantJobs.find((j) => j.checklistTemplate)
+const applicationsByWorker = new Map() // uid -> [{ job, status }]
+let hiredWorker = null
 for (const job of applicantJobs) {
-  for (const w of pickApplicants(4)) {
+  pickApplicants(4).forEach((w, idx) => {
     if (!applicationsByWorker.has(w.uid)) applicationsByWorker.set(w.uid, [])
-    applicationsByWorker.get(w.uid).push(job)
-  }
+    // idx 1 is always a clear-background-check worker (see pickApplicants) — seed
+    // them as already hired on the checklist job so the live demo can show
+    // "You're hired!" + My Checklist without manually accepting someone first.
+    const isHire = checklistJob && job.id === checklistJob.id && idx === 1
+    applicationsByWorker.get(w.uid).push({ job, status: isHire ? 'accepted' : 'pending' })
+    if (isHire) hiredWorker = w
+  })
 }
-for (const [uid, jobsForWorker] of applicationsByWorker.entries()) {
+for (const [uid, entries] of applicationsByWorker.entries()) {
   const worker = workers.find((w) => w.uid === uid)
   await signInWithEmailAndPassword(auth, worker.email, PASSWORD)
-  for (const job of jobsForWorker) {
+  for (const { job, status } of entries) {
     await addDoc(collection(db, 'applications'), {
-      jobId: job.id, userId: uid, answers: [], status: 'pending', priority: false, notes: '',
+      jobId: job.id, userId: uid, answers: [], status, priority: false, notes: '',
       isDemo: true, appliedAt: serverTimestamp(), updatedAt: serverTimestamp(),
     })
   }
 }
 console.log(`  added applicants (mix of background-check statuses) across ${applicantJobs.length} job(s)`)
+if (hiredWorker) console.log(`  hired ${hiredWorker.name} on "${checklistJob.title}" (status: accepted)`)
 
 const rapidFillJob = allDemoJobs.find((j) => j.rapidFill)
 if (rapidFillJob) {
@@ -325,8 +335,9 @@ console.log(`  created ${SHOWCASE_ORGS.length} showcase organizations`)
 
 // ─── Verify one employer + one worker can log out and back in ────────────────
 
-const demoEmployer = employerIds[0]
-const demoWorker   = workers[0]
+const demoEmployer  = employerIds[0]
+const secondEmployer = employerIds[1]
+const demoWorker    = workers[0]
 
 console.log('--- Verifying demo employer can log out and back in')
 await signOut(auth)
@@ -343,5 +354,28 @@ console.log('\n=== Demo login credentials ===')
 console.log('Employer:', demoEmployer.email, '/', PASSWORD, `(${demoEmployer.orgName})`)
 console.log('Worker:  ', demoWorker.email, '/', PASSWORD, `(${demoWorker.name}, ${demoWorker.role})`)
 console.log('===============================\n')
+
+// Regenerated every run so it can never go stale against the live-seeded emails
+// (which change on every reseed because RUN_TAG makes them unique).
+const credentialsPath = fileURLToPath(new URL('../demo-credentials.local', import.meta.url))
+const credentialsBody = `Staff the Game — demo login credentials
+(gitignored via *.local — never committed; regenerated each time scripts/seedDemoData.mjs runs)
+
+Employer: ${demoEmployer.email} / ${PASSWORD}
+          (${demoEmployer.orgName} — Elite plan, Assistant Coach + Field/Court Setup Crew jobs
+          have 4 applicants each with a mix of background-check statuses)
+
+Second employer: ${secondEmployer.email} / ${PASSWORD}
+          (${secondEmployer.orgName} — Elite plan, Pitching Coach + Tournament Director jobs)
+
+Worker:   ${demoWorker.email} / ${PASSWORD}
+          (${demoWorker.name}, ${demoWorker.role})
+${hiredWorker ? `
+Hired worker: ${hiredWorker.email} / ${PASSWORD}
+          (${hiredWorker.name} — accepted on "${checklistJob.title}", can demo
+          "You're hired!" + My Checklist, including the photo-required task)
+` : ''}`
+fs.writeFileSync(credentialsPath, credentialsBody)
+console.log(`Wrote ${credentialsPath}`)
 
 process.exit(0)
